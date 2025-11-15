@@ -77,7 +77,7 @@ export const beritas: Berita[] = [
     id: 1,
     judul: "Peluncuran Program Magang 2025",
     body: "Program magang terbuka untuk semua mahasiswa tahun ke-3 dan ke-4...",
-    thumbnail: "/internship-office.png",
+    thumbnail: "/internship-office.webp",
     kategori_id: 1,
     admin_id: 1,
   },
@@ -85,7 +85,7 @@ export const beritas: Berita[] = [
     id: 2,
     judul: "Workshop Artificial Intelligence",
     body: "Kami dengan bangga mempersembahkan workshop AI yang diisi oleh praktisi industri...",
-    thumbnail: "/abstract-ai-network.png",
+    thumbnail: "/abstract-ai-network.webp",
     kategori_id: 3,
     admin_id: 1,
   },
@@ -93,7 +93,7 @@ export const beritas: Berita[] = [
     id: 3,
     judul: "Mahasiswa Raih Juara Kompetisi Programming",
     body: "Tim programming kami berhasil meraih juara pertama dalam kompetisi nasional...",
-    thumbnail: "/programming-concept.png",
+    thumbnail: "/programming-concept.webp",
     kategori_id: 5,
     admin_id: 2,
   },
@@ -107,7 +107,7 @@ export const dosens: Dosen[] = [
     link_pengabdian: "https://example.com/ahmad-pengabdian",
     link_penelitian: "https://example.com/ahmad-penelitian",
     link_pengajaran: "https://example.com/ahmad-pengajaran",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=ahmad",
+    avatar: "/ahmad.svg",
   },
   {
     id: 2,
@@ -116,7 +116,7 @@ export const dosens: Dosen[] = [
     link_pengabdian: "https://example.com/siti-pengabdian",
     link_penelitian: "https://example.com/siti-penelitian",
     link_pengajaran: "https://example.com/siti-pengajaran",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=siti",
+    avatar: "/siti.svg",
   },
   {
     id: 3,
@@ -125,7 +125,7 @@ export const dosens: Dosen[] = [
     link_pengabdian: "https://example.com/bambang-pengabdian",
     link_penelitian: "https://example.com/bambang-penelitian",
     link_pengajaran: "https://example.com/bambang-pengajaran",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=bambang",
+    avatar: "/bambang.svg",
   },
 ]
 
