@@ -35,6 +35,7 @@ export interface Dosen {
 
 export interface MataKuliah {
   id: number
+  nama: string
   semester: number
   pilihan: boolean
   sks: number
@@ -130,12 +131,12 @@ export const dosens: Dosen[] = [
 ]
 
 export const mataKuliahs: MataKuliah[] = [
-  { id: 1, semester: 1, pilihan: false, sks: 3, kode: "TI101" },
-  { id: 2, semester: 1, pilihan: false, sks: 4, kode: "TI102" },
-  { id: 3, semester: 2, pilihan: false, sks: 3, kode: "TI201" },
-  { id: 4, semester: 3, pilihan: true, sks: 2, kode: "TI301" },
-  { id: 5, semester: 4, pilihan: false, sks: 3, kode: "TI401" },
-  { id: 6, semester: 5, pilihan: true, sks: 2, kode: "TI501" },
+  { id: 1, nama: "Matematika", semester: 1, pilihan: false, sks: 3, kode: "TI101" },
+  { id: 2, nama: "Bahasa Inggris", semester: 1, pilihan: false, sks: 4, kode: "TI102" },
+  { id: 3, nama: "Pemrograman Web", semester: 2, pilihan: false, sks: 3, kode: "TI201" },
+  { id: 4, nama: "Pemrograman Mobile", semester: 3, pilihan: true, sks: 2, kode: "TI301" },
+  { id: 5, nama: "Pemrograman Desktop", semester: 4, pilihan: false, sks: 3, kode: "TI401" },
+  { id: 6, nama: "Pemrograman Game", semester: 5, pilihan: true, sks: 2, kode: "TI501" },
 ]
 
 export const statistikMahasiswas: StatistikMahasiswa[] = [
