@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
 import { useState } from 'react'
@@ -9,21 +8,6 @@ import { DeleteAlert } from '@/components/DeleteAlert'
 import { statistikMahasiswas, type StatistikMahasiswa } from '@/lib/data'
 
 const formatNumber = (value: number) => value.toLocaleString('id-ID')
-
-const CustomTooltip = ({ active, payload }: any) => {
-  if (active && payload && payload[0]) {
-    const data = payload[0].payload
-    return (
-      <div className="bg-card border border-border rounded-lg shadow-lg p-3 backdrop-blur-sm">
-        <p className="font-semibold text-foreground">{data.tahun}</p>
-        <p className="text-sm text-muted-foreground">
-          Total Mahasiswa: <span className="font-medium text-primary">{formatNumber(data.total)}</span>
-        </p>
-      </div>
-    )
-  }
-  return null
-}
 
 export function DashboardStatistikContent() {
   const router = useRouter()
@@ -51,22 +35,58 @@ export function DashboardStatistikContent() {
         <p className="text-muted-foreground mt-2">Pantau pertumbuhan jumlah mahasiswa per tahun</p>
       </div>
 
-      <div className="bg-card border border-border rounded-lg p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-foreground mb-4">Pertumbuhan Mahasiswa</h2>
+      <div className="bg-card border border-border rounded-lg p-4 sm:p-6">
+        <h2 className="text-base sm:text-lg font-semibold text-foreground mb-4">
+          Statistik Mahasiswa per Tahun
+        </h2>
         <div className="overflow-x-auto">
-          <ResponsiveContainer width="100%" height={320} minWidth={300}>
-            <BarChart
-              data={data}
-              margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
-              barCategoryGap="20%"
-            >
-              <CartesianGrid strokeDasharray="4 4" stroke="var(--color-border)" opacity={0.6} />
-              <XAxis dataKey="tahun" stroke="var(--color-muted-foreground)" fontSize={14} tickMargin={8} />
-              <YAxis stroke="var(--color-muted-foreground)" fontSize={14} tickFormatter={formatNumber} tickMargin={8} />
-              <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} wrapperStyle={{ zIndex: 10 }} animationDuration={300} animationEasing="ease-out" />
-              <Bar dataKey="total" radius={[12, 12, 0, 0]} animationDuration={800}>
-                {data.map((entry, index) => (
-                    <Cell key={index} fill="var(--primary)" />                ))}
+          <ResponsiveContainer width="100%" height={300} minWidth={300}>
+            <BarChart data={data}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+              <XAxis
+                dataKey="tahun"
+                stroke="var(--color-muted-foreground)"
+                fontSize={13}
+                tickMargin={8}
+              />
+              <YAxis
+                stroke="var(--color-muted-foreground)"
+                fontSize={13}
+                tickFormatter={formatNumber}
+                tickMargin={8}
+              />
+              <Tooltip
+                cursor={{ fill: 'rgba(0, 0, 0, 0.04)' }}
+                contentStyle={{
+                  backgroundColor: 'var(--color-card)',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: '0.5rem',
+                  color: 'var(--color-foreground)',
+                  padding: '0.75rem',
+                }}
+                labelStyle={{ 
+                  color: 'var(--color-foreground)', 
+                  fontWeight: '600',
+                  marginBottom: '0.25rem',
+                }}
+                itemStyle={{
+                  color: 'var(--color-muted-foreground)',
+                }}
+                formatter={(value: number) => [
+                  <span key="value" className="font-medium text-chart-1">{formatNumber(value)}</span>,
+                  'Total Mahasiswa',
+                ]}
+                labelFormatter={(label: string) => `${label}`}
+              />
+              <Bar
+                dataKey="total"
+                fill="var(--color-chart-1)"
+                radius={[8, 8, 0, 0]}
+                animationDuration={800}
+              >
+                {data.map((entry) => (
+                  <Cell key={`cell-${entry.id}`} fill="var(--color-chart-1)" />
+                ))}
               </Bar>
             </BarChart>
           </ResponsiveContainer>
