@@ -75,7 +75,7 @@ export function LoginForm() {
                 <input
                   id="email"
                   type="email"
-                  placeholder="admin@teknik.ac.id"
+                  placeholder="admin@umc.ac.id"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all text-sm"
