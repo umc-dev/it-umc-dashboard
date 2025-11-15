@@ -9,7 +9,7 @@ import { FormButtons } from '@/components/FormButtons'
 import { ImageUpload } from '@/components/ImageUpload'
 
 
-export function FormUpdateBerita() {
+export function FormEditBerita() {
   const router = useRouter()
   const params = useParams()
   const id = Number(params.id)

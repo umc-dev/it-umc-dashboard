@@ -11,7 +11,7 @@ import { ImageUpload } from '@/components/ImageUpload'
 const inputClassName =
   'w-full px-4 py-2 border border-border rounded-lg bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-colors'
 
-export function FormUpdateDosen() {
+export function FormEditDosen() {
   const router = useRouter()
   const params = useParams()
   const id = Number(params.id)
