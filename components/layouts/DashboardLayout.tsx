@@ -132,7 +132,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
           <div className="flex items-center gap-3">
             <Image
-              src="avatar.svg"
+              src="/avatar.svg"
               alt="Admin Avatar"
               className="w-10 h-10 rounded-full shrink-0"
               width={40}
