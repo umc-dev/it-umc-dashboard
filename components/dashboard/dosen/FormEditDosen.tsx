@@ -54,7 +54,7 @@ export function FormEditDosen() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto py-6 sm:py-8 px-4 sm:px-6">
+    <div className="max-w-2xl mx-auto py-6 sm:py-8">
       <FormHeader title="Ubah Dosen" description="Ubah data dosen yang ada" />
 
       <form onSubmit={handleSubmit} className="bg-card border border-border rounded-lg p-6 sm:p-8 space-y-6">
