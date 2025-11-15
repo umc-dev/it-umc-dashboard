@@ -121,4 +121,12 @@
   body {
     @apply bg-background text-foreground;
   }
+
+}
+
+@layer components {
+  .bg-login {
+    @apply bg-cover bg-center bg-no-repeat;
+    background-image: url('/bg-login.webp');
+  }
 }
