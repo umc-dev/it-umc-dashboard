@@ -59,6 +59,18 @@ export interface KerjaSama {
   fileDownloadUrl: string;
 }
 
+export interface VisiMisi {
+  id: number;
+  visi: string;
+  misi: string;
+}
+
+export const visiMisiData: VisiMisi = {
+  id: 1,
+  visi: "Menjadi institusi pendidikan unggul yang berdaya saing global.",
+  misi: "1. Mengembangkan kualitas pendidikan.\n2. Meningkatkan kerja sama dengan industri.\n3. Mendorong riset dan inovasi.\n4. Memberikan layanan terbaik kepada masyarakat.",
+};
+
 export const admins: Admin[] = [
   {
     id: 1,

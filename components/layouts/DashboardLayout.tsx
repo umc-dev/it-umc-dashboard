@@ -16,6 +16,7 @@ import {
   Menu,
   X,
   Handshake,
+  Goal,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -40,6 +41,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       icon: BarChart3,
     },
     { label: "Kerja Sama", href: "/dashboard/kerja-sama", icon: Handshake },
+    { label: "Visi & Misi", href: "/dashboard/visi-misi", icon: Goal },
   ];
 
   const handleNavClick = () => {
