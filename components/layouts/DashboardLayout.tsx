@@ -1,21 +1,32 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import Link from "next/link"
-import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Users, FileText, Folder, BookOpen, BarChart3, LogOut, Menu, X } from 'lucide-react'
-import Image from "next/image"
+import { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import {
+  LayoutDashboard,
+  Users,
+  FileText,
+  Folder,
+  BookOpen,
+  BarChart3,
+  LogOut,
+  Menu,
+  X,
+  Handshake,
+} from "lucide-react";
+import Image from "next/image";
 
 interface DashboardLayoutProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [showLogoutDialog, setShowLogoutDialog] = useState(false)
-  const pathname = usePathname()
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+  const pathname = usePathname();
 
   const navItems = [
     { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -23,20 +34,25 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     { label: "Berita", href: "/dashboard/berita", icon: FileText },
     { label: "Kategori", href: "/dashboard/kategori", icon: Folder },
     { label: "Mata Kuliah", href: "/dashboard/matakuliah", icon: BookOpen },
-    { label: "Statistik Mahasiswa", href: "/dashboard/statistik", icon: BarChart3 },
-  ]
+    {
+      label: "Statistik Mahasiswa",
+      href: "/dashboard/statistik",
+      icon: BarChart3,
+    },
+    { label: "Kerja Sama", href: "/dashboard/kerja-sama", icon: Handshake },
+  ];
 
   const handleNavClick = () => {
-    const isDesktop = window.innerWidth >= 1024
+    const isDesktop = window.innerWidth >= 1024;
     if (!isDesktop) {
-      setSidebarOpen(false)
+      setSidebarOpen(false);
     }
-  }
+  };
 
   const handleLogout = () => {
-    setShowLogoutDialog(false)
-    window.location.href = "/login"
-  }
+    setShowLogoutDialog(false);
+    window.location.href = "/login";
+  };
 
   return (
     <div className="flex h-screen flex-col lg:flex-row bg-background">
@@ -57,15 +73,19 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="flex items-center justify-between p-4 border-b border-sidebar-border gap-3">
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <Image
-              src="/logo.svg" 
-              alt="Logo" 
+              src="/logo.svg"
+              alt="Logo"
               className="w-8 h-8 shrink-0"
               width={32}
               height={32}
-              />
+            />
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-bold text-sidebar-foreground leading-tight">Teknik Informatika</p>
-              <p className="text-xs text-sidebar-foreground/70 leading-tight truncate">Universitas Muhammadiyah Cirebon</p>
+              <p className="text-xs font-bold text-sidebar-foreground leading-tight">
+                Teknik Informatika
+              </p>
+              <p className="text-xs text-sidebar-foreground/70 leading-tight truncate">
+                Universitas Muhammadiyah Cirebon
+              </p>
             </div>
           </div>
           <button
@@ -80,8 +100,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         {/* Navigation Items */}
         <nav className="flex-1 overflow-y-auto p-3 space-y-2">
           {navItems.map((item) => {
-            const isActive = pathname === item.href
-            const Icon = item.icon
+            const isActive = pathname === item.href;
+            const Icon = item.icon;
             return (
               <Link
                 key={item.href}
@@ -96,7 +116,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 <Icon className="w-5 h-5 shrink-0" />
                 <span className="text-sm font-medium">{item.label}</span>
               </Link>
-            )
+            );
           })}
         </nav>
 
@@ -126,8 +146,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           </button>
 
           <div className="flex-1">
-            <h2 className="text-xl sm:text-2xl font-bold text-foreground">Admin Panel</h2>
-            <p className="text-xs sm:text-sm text-muted-foreground">Kelola konten website jurusan</p>
+            <h2 className="text-xl sm:text-2xl font-bold text-foreground">
+              Admin Panel
+            </h2>
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              Kelola konten website jurusan
+            </p>
           </div>
 
           <div className="flex items-center gap-3">
@@ -157,7 +181,9 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             {/* Header */}
             <div className="p-6 border-b border-border">
               <h2 className="text-lg font-bold text-foreground">Logout?</h2>
-              <p className="text-sm text-muted-foreground mt-2">Anda akan keluar dari sistem admin. Lanjutkan?</p>
+              <p className="text-sm text-muted-foreground mt-2">
+                Anda akan keluar dari sistem admin. Lanjutkan?
+              </p>
             </div>
 
             {/* Actions */}
@@ -179,5 +205,5 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         </div>
       )}
     </div>
-  )
+  );
 }
