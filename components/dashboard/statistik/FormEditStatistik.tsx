@@ -10,7 +10,7 @@ import { FormButtons } from '@/components/FormButtons'
 export function FormEditStatistik() {
   const router = useRouter()
   const params = useParams()
-  const id = Number(params.id)
+  const id = String(params.id)
   const statistik = statistikMahasiswas.find((s) => s.id === id)
 
   const [isLoading, setIsLoading] = useState(false)
@@ -50,6 +50,14 @@ export function FormEditStatistik() {
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">Tahun <span className="text-destructive">*</span></label>
           <input type="number" name="tahun" value={formData.tahun || ''} onChange={handleChange} placeholder="Masukkan tahun" min="2000" max={new Date().getFullYear() + 10} required className={inputClassName} />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-2">Mahasiswa Masuk <span className="text-destructive">*</span></label>
+          <input type="number" name="masuk" value={formData.masuk || ''} onChange={handleChange} placeholder="Masukkan jumlah mahasiswa masuk" min="0" required className={inputClassName} />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-2">Mahasiswa Keluar <span className="text-destructive">*</span></label>
+          <input type="number" name="keluar" value={formData.keluar || ''} onChange={handleChange} placeholder="Masukkan jumlah mahasiswa keluar" min="0" required className={inputClassName} />
         </div>
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">Total Mahasiswa <span className="text-destructive">*</span></label>

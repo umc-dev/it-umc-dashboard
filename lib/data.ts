@@ -43,8 +43,10 @@ export interface MataKuliah {
 }
 
 export interface StatistikMahasiswa {
-  id: number;
+  id: string;
   tahun: number;
+  masuk: number;
+  keluar: number;
   total: number;
 }
 
@@ -258,10 +260,10 @@ export const kerjaSamaList: KerjaSama[] = [
 ];
 
 export const statistikMahasiswas: StatistikMahasiswa[] = [
-  { id: 1, tahun: 2020, total: 120 },
-  { id: 2, tahun: 2021, total: 145 },
-  { id: 3, tahun: 2022, total: 168 },
-  { id: 4, tahun: 2023, total: 192 },
-  { id: 5, tahun: 2024, total: 215 },
-  { id: 6, tahun: 2025, total: 240 },
+  { id: "1", tahun: 2020, masuk: 130, keluar: 10,  total: 120 },
+  { id: "2", tahun: 2021, masuk: 140, keluar: 15,  total: 245 },
+  { id: "3", tahun: 2022, masuk: 155, keluar: 52,  total: 348 },
+  { id: "4", tahun: 2023, masuk: 170, keluar: 98,  total: 420 },
+  { id: "5", tahun: 2024, masuk: 185, keluar: 135, total: 470 },
+  { id: "6", tahun: 2025, masuk: 200, keluar: 160, total: 510 },
 ];

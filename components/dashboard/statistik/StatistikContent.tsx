@@ -98,6 +98,18 @@ export function DashboardStatistikContent() {
         columns={[
           { key: 'tahun', label: 'Tahun', sortable: true },
           {
+            key: 'masuk',
+            label: 'Mahasiswa Masuk',
+            sortable: true,
+            render: (value) => formatNumber(value as number),
+          },
+          {
+            key: 'keluar',
+            label: 'Mahasiswa Keluar',
+            sortable: true,
+            render: (value) => formatNumber(value as number),
+          },
+          {
             key: 'total',
             label: 'Total Mahasiswa',
             sortable: true,
