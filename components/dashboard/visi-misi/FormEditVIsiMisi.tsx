@@ -9,7 +9,7 @@ import { FormButtons } from "@/components/FormButtons";
 export function FormEditVisiMisi() {
   const router = useRouter();
   const params = useParams();
-  const id = Number(params.id);
+  const id = params.id as string;
 
   // Karena cuma 1 data, kita langsung cek dari constant
   const visiMisi: VisiMisi | null =
@@ -71,7 +71,7 @@ export function FormEditVisiMisi() {
             onChange={handleChange}
             required
             placeholder="Tulis visi institusi..."
-            className={inputClassName + " min-h-[80px]"}
+            className={inputClassName + " min-h-20"}
           />
         </div>
 

@@ -10,7 +10,7 @@ import { FormButtons } from '@/components/FormButtons'
 export function FormEditKategori() {
   const router = useRouter()
   const params = useParams()
-  const id = Number(params.id)
+  const id = params.id as string
   const kategori = kategoris.find((k) => k.id === id)
 
   const [isLoading, setIsLoading] = useState(false)

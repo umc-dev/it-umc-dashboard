@@ -12,7 +12,7 @@ import { ImageUpload } from '@/components/ImageUpload'
 export function FormEditBerita() {
   const router = useRouter()
   const params = useParams()
-  const id = Number(params.id)
+  const id = params.id as string
   const berita = beritas.find((b) => b.id === id)
 
   const [isLoading, setIsLoading] = useState(false)

@@ -1,7 +1,7 @@
 // Dummy data for dashboard
 
 export interface Admin {
-  id: number;
+  id: string;
   nama: string;
   email: string;
   password: string;
@@ -9,13 +9,13 @@ export interface Admin {
 }
 
 export interface Kategori {
-  id: number;
+  id: string;
   nama: string;
   slug: string;
 }
 
 export interface Berita {
-  id: number;
+  id: string;
   judul: string;
   body: string;
   thumbnail: string;
@@ -24,7 +24,7 @@ export interface Berita {
 }
 
 export interface Dosen {
-  id: number;
+  id: string;
   nama: string;
   spesialis: string;
   link_pengabdian: string;
@@ -34,7 +34,7 @@ export interface Dosen {
 }
 
 export interface MataKuliah {
-  id: number;
+  id: string;
   nama: string;
   semester: number;
   pilihan: boolean;
@@ -51,7 +51,7 @@ export interface StatistikMahasiswa {
 }
 
 export interface KerjaSama {
-  id: number;
+  id: string;
   namaMitra: string;
   logoUrl: string;
   tahun: number;
@@ -62,27 +62,27 @@ export interface KerjaSama {
 }
 
 export interface VisiMisi {
-  id: number;
+  id: string;
   visi: string;
   misi: string;
 }
 
 export const visiMisiData: VisiMisi = {
-  id: 1,
+  id: "1",
   visi: "Menjadi institusi pendidikan unggul yang berdaya saing global.",
   misi: "1. Mengembangkan kualitas pendidikan.\n2. Meningkatkan kerja sama dengan industri.\n3. Mendorong riset dan inovasi.\n4. Memberikan layanan terbaik kepada masyarakat.",
 };
 
 export const admins: Admin[] = [
   {
-    id: 1,
+    id: "1",
     nama: "Admin Utama",
     email: "admin@teknik.ac.id",
     password: "password123",
     avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=admin1",
   },
   {
-    id: 2,
+    id: "2",
     nama: "Admin Backup",
     email: "admin.backup@teknik.ac.id",
     password: "password456",
@@ -91,16 +91,16 @@ export const admins: Admin[] = [
 ];
 
 export const kategoris: Kategori[] = [
-  { id: 1, nama: "Pengumuman", slug: "pengumuman" },
-  { id: 2, nama: "Berita", slug: "berita" },
-  { id: 3, nama: "Event", slug: "event" },
-  { id: 4, nama: "Penelitian", slug: "penelitian" },
-  { id: 5, nama: "Prestasi", slug: "prestasi" },
+  { id: "1", nama: "Pengumuman", slug: "pengumuman" },
+  { id: "2", nama: "Berita", slug: "berita" },
+  { id: "3", nama: "Event", slug: "event" },
+  { id: "4", nama: "Penelitian", slug: "penelitian" },
+  { id: "5", nama: "Prestasi", slug: "prestasi" },
 ];
 
 export const beritas: Berita[] = [
   {
-    id: 1,
+    id: "1",
     judul: "Peluncuran Program Magang 2025",
     body: "Program magang terbuka untuk semua mahasiswa tahun ke-3 dan ke-4...",
     thumbnail: "/internship-office.webp",
@@ -108,7 +108,7 @@ export const beritas: Berita[] = [
     admin_id: 1,
   },
   {
-    id: 2,
+    id: "2",
     judul: "Workshop Artificial Intelligence",
     body: "Kami dengan bangga mempersembahkan workshop AI yang diisi oleh praktisi industri...",
     thumbnail: "/abstract-ai-network.webp",
@@ -116,7 +116,7 @@ export const beritas: Berita[] = [
     admin_id: 1,
   },
   {
-    id: 3,
+    id: "3",
     judul: "Mahasiswa Raih Juara Kompetisi Programming",
     body: "Tim programming kami berhasil meraih juara pertama dalam kompetisi nasional...",
     thumbnail: "/programming-concept.webp",
@@ -127,7 +127,7 @@ export const beritas: Berita[] = [
 
 export const dosens: Dosen[] = [
   {
-    id: 1,
+    id: "1",
     nama: "Dr. Ahmad Kusuma",
     spesialis: "Artificial Intelligence",
     link_pengabdian: "https://example.com/ahmad-pengabdian",
@@ -136,7 +136,7 @@ export const dosens: Dosen[] = [
     avatar: "/ahmad.svg",
   },
   {
-    id: 2,
+    id: "2",
     nama: "Prof. Siti Nurhaliza",
     spesialis: "Database & System Design",
     link_pengabdian: "https://example.com/siti-pengabdian",
@@ -145,7 +145,7 @@ export const dosens: Dosen[] = [
     avatar: "/siti.svg",
   },
   {
-    id: 3,
+    id: "3",
     nama: "Ir. Bambang Suryanto",
     spesialis: "Web Development",
     link_pengabdian: "https://example.com/bambang-pengabdian",
@@ -157,7 +157,7 @@ export const dosens: Dosen[] = [
 
 export const mataKuliahs: MataKuliah[] = [
   {
-    id: 1,
+    id: "1",
     nama: "Matematika",
     semester: 1,
     pilihan: false,
@@ -165,7 +165,7 @@ export const mataKuliahs: MataKuliah[] = [
     kode: "TI101",
   },
   {
-    id: 2,
+    id: "2",
     nama: "Bahasa Inggris",
     semester: 1,
     pilihan: false,
@@ -173,7 +173,7 @@ export const mataKuliahs: MataKuliah[] = [
     kode: "TI102",
   },
   {
-    id: 3,
+    id: "3",
     nama: "Pemrograman Web",
     semester: 2,
     pilihan: false,
@@ -181,7 +181,7 @@ export const mataKuliahs: MataKuliah[] = [
     kode: "TI201",
   },
   {
-    id: 4,
+    id: "4",
     nama: "Pemrograman Mobile",
     semester: 3,
     pilihan: true,
@@ -189,7 +189,7 @@ export const mataKuliahs: MataKuliah[] = [
     kode: "TI301",
   },
   {
-    id: 5,
+    id: "5",
     nama: "Pemrograman Desktop",
     semester: 4,
     pilihan: false,
@@ -197,7 +197,7 @@ export const mataKuliahs: MataKuliah[] = [
     kode: "TI401",
   },
   {
-    id: 6,
+    id: "6",
     nama: "Pemrograman Game",
     semester: 5,
     pilihan: true,
@@ -208,7 +208,7 @@ export const mataKuliahs: MataKuliah[] = [
 
 export const kerjaSamaList: KerjaSama[] = [
   {
-    id: 1,
+    id: "1",
     namaMitra: "PT Teknologi Nusantara",
     logoUrl: "/logos/teknologi-nusantara.png",
     tahun: 2023,
@@ -218,7 +218,7 @@ export const kerjaSamaList: KerjaSama[] = [
     fileDownloadUrl: "/docs/mou-teknologi-nusantara.pdf",
   },
   {
-    id: 2,
+    id: "2",
     namaMitra: "SMK Negeri 1 Cirebon",
     logoUrl: "/logos/smk1.png",
     tahun: 2022,
@@ -228,7 +228,7 @@ export const kerjaSamaList: KerjaSama[] = [
     fileDownloadUrl: "/docs/mou-smk1.pdf",
   },
   {
-    id: 3,
+    id: "3",
     namaMitra: "Universitas Budi Luhur",
     logoUrl: "/logos/budi-luhur.png",
     tahun: 2024,
@@ -238,7 +238,7 @@ export const kerjaSamaList: KerjaSama[] = [
     fileDownloadUrl: "/docs/mou-budi-luhur.pdf",
   },
   {
-    id: 4,
+    id: "4",
     namaMitra: "PT Mitra Digital Solusi",
     logoUrl: "/logos/mitra-digital.png",
     tahun: 2021,
@@ -248,7 +248,7 @@ export const kerjaSamaList: KerjaSama[] = [
     fileDownloadUrl: "/docs/mou-mitra-digital.pdf",
   },
   {
-    id: 5,
+    id: "5",
     namaMitra: "Pemerintah Daerah Cirebon",
     logoUrl: "/logos/pemda-cirebon.png",
     tahun: 2020,

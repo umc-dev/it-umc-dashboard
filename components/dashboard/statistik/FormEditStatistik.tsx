@@ -10,7 +10,7 @@ import { FormButtons } from '@/components/FormButtons'
 export function FormEditStatistik() {
   const router = useRouter()
   const params = useParams()
-  const id = String(params.id)
+  const id = params.id as string
   const statistik = statistikMahasiswas.find((s) => s.id === id)
 
   const [isLoading, setIsLoading] = useState(false)

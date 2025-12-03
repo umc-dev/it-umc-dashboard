@@ -14,7 +14,7 @@ const inputClassName =
 export function FormEditDosen() {
   const router = useRouter()
   const params = useParams()
-  const id = Number(params.id)
+  const id = params.id as string
   const dosen = dosens.find((d) => d.id === id)
 
   const [isLoading, setIsLoading] = useState(false)
