@@ -7,6 +7,51 @@ import { DataTable } from '@/components/DataTable'
 import { DeleteAlert } from '@/components/DeleteAlert'
 import { statistikMahasiswas, type StatistikMahasiswa } from '@/lib/data'
 
+// Custom Tooltip Component
+  interface CustomTooltipProps {
+    active?: boolean
+    payload?: Array<{
+      payload: StatistikMahasiswa
+    }>
+    label?: string
+  }
+
+  const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
+    if (active && payload && payload.length) {
+      const dataPoint = payload[0].payload
+      return (
+        <div
+          style={{
+            backgroundColor: 'var(--color-card)',
+            border: '1px solid var(--color-border)',
+            borderRadius: '0.5rem',
+            padding: '0.75rem',
+          }}
+        >
+          <p style={{ 
+            color: 'var(--color-foreground)', 
+            fontWeight: '600',
+            marginBottom: '0.5rem',
+          }}>
+            Tahun {label}
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+            <p style={{ color: 'var(--color-muted-foreground)', fontSize: '0.875rem' }}>
+              Mahasiswa Masuk: <span style={{ color: '#10b981', fontWeight: '500' }}>{formatNumber(dataPoint.masuk)}</span>
+            </p>
+            <p style={{ color: 'var(--color-muted-foreground)', fontSize: '0.875rem' }}>
+              Mahasiswa Keluar: <span style={{ color: '#ef4444', fontWeight: '500' }}>{formatNumber(dataPoint.keluar)}</span>
+            </p>
+            <p style={{ color: 'var(--color-foreground)', fontSize: '0.875rem', fontWeight: '600', marginTop: '0.25rem' }}>
+              Total: <span style={{ color: 'var(--color-chart-1)' }}>{formatNumber(dataPoint.total)}</span>
+            </p>
+          </div>
+        </div>
+      )
+    }
+    return null
+  }
+
 const formatNumber = (value: number) => value.toLocaleString('id-ID')
 
 export function DashboardStatistikContent() {
@@ -55,29 +100,7 @@ export function DashboardStatistikContent() {
                 tickFormatter={formatNumber}
                 tickMargin={8}
               />
-              <Tooltip
-                cursor={{ fill: 'rgba(0, 0, 0, 0.04)' }}
-                contentStyle={{
-                  backgroundColor: 'var(--color-card)',
-                  border: '1px solid var(--color-border)',
-                  borderRadius: '0.5rem',
-                  color: 'var(--color-foreground)',
-                  padding: '0.75rem',
-                }}
-                labelStyle={{ 
-                  color: 'var(--color-foreground)', 
-                  fontWeight: '600',
-                  marginBottom: '0.25rem',
-                }}
-                itemStyle={{
-                  color: 'var(--color-muted-foreground)',
-                }}
-                formatter={(value: number) => [
-                  <span key="value" className="font-medium text-chart-1">{formatNumber(value)}</span>,
-                  'Total Mahasiswa',
-                ]}
-                labelFormatter={(label: string) => `${label}`}
-              />
+              <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0, 0, 0, 0.04)' }} />
               <Bar
                 dataKey="total"
                 fill="var(--color-chart-1)"
