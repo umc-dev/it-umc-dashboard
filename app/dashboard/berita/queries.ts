@@ -1,5 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { deleteNews, getNews } from "./api";
+import {
+  createNews,
+  deleteNews,
+  getNews,
+  getNewsBySlug,
+  updateNews,
+} from "./api";
+import { UpdateNewsDto } from "./types";
 
 // GET ALL NEWS
 export const useNews = () => {
@@ -21,35 +28,36 @@ export const useDeleteNews = () => {
   });
 };
 
-// // GET ONE NEWS BY SLUG
-// export const useNewsById = (id: string) => {
-//   return useQuery({
-//     queryKey: ["news", id],
-//     queryFn: () => getNewsById(id),
-//     enabled: !!id, // fetch hanya kalau ID ada
-//   });
-// };
+// Get New by Slug
+export const useNewsBySlug = (slug: string) => {
+  return useQuery({
+    queryKey: ["news", slug],
+    queryFn: () => getNewsBySlug(slug),
+    enabled: !!slug, // fetch hanya kalau ID ada
+  });
+};
 
-// // CREATE NEWS
-// export const useCreateNews = () => {
-//   const qc = useQueryClient();
+// Create News
+export const useCreateNews = () => {
+  const qc = useQueryClient();
 
-//   return useMutation({
-//     mutationFn: createNews,
-//     onSuccess: () => {
-//       qc.invalidateQueries({ queryKey: ["news"] });
-//     },
-//   });
-// };
+  return useMutation({
+    mutationFn: createNews,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["news"] });
+    },
+  });
+};
 
-// // UPDATE NEWS
-// export const useUpdateNews = () => {
-//   const qc = useQueryClient();
+//  Update News
+export const useUpdateNews = () => {
+  const qc = useQueryClient();
 
-//   return useMutation({
-//     mutationFn: updateNews,
-//     onSuccess: () => {
-//       qc.invalidateQueries({ queryKey: ["news"] });
-//     },
-//   });
-// };
+  return useMutation({
+    mutationFn: ({ slug, data }: { slug: string; data: UpdateNewsDto }) =>
+      updateNews(slug, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["news"] });
+    },
+  });
+};

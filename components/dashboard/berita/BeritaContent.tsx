@@ -71,6 +71,7 @@ export function DashboardBeritaContent() {
                 width={100}
                 height={100}
                 className="w-16 h-10 object-cover rounded-md"
+                unoptimized
               />
             ),
           },

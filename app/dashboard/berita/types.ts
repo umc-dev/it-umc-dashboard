@@ -1,4 +1,6 @@
 import { PaginationMeta } from "@/lib/types";
+import { CreateNewsSchema, UpdateNewsSchema } from "./validator";
+import { z } from "zod";
 
 // Sementara
 export interface AdminResponse {
@@ -18,7 +20,29 @@ export interface CategoryResponse {
   updatedAt: string;
 }
 
-//
+// Request
+export type CreateNewsDto = z.infer<typeof CreateNewsSchema>;
+
+export interface CreateNewsData {
+  title: string;
+  content: string;
+  slug: string;
+  thumbnail: string;
+  categoryId: string;
+  authorId: string;
+}
+
+export type UpdateNewsDto = z.infer<typeof UpdateNewsSchema>;
+
+export interface UpdateNewsData {
+  title?: string;
+  content?: string;
+  categoryId?: string;
+  thumbnail?: string;
+  slug?: string;
+}
+
+// Response
 
 export interface NewsResponse {
   id: string;
