@@ -77,16 +77,16 @@ export const admins: Admin[] = [
   {
     id: "1",
     nama: "Admin Utama",
-    email: "admin@teknik.ac.id",
+    email: "admin@umc.ac.id",
     password: "password123",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=admin1",
+    avatar: "/avatar.svg",
   },
   {
     id: "2",
     nama: "Admin Backup",
-    email: "admin.backup@teknik.ac.id",
+    email: "admin.backup@umc.ac.id",
     password: "password456",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=admin2",
+    avatar: "/avatar.svg",
   },
 ];
 
