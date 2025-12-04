@@ -9,6 +9,11 @@ const nextConfig: NextConfig = {
         hostname: "picsum.photos",
         port: "",
       },
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "9090",
+      },
     ],
   },
 };

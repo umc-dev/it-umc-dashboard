@@ -7,6 +7,7 @@ import { DeleteAlert } from "@/components/DeleteAlert";
 import Image from "next/image";
 import { useDeleteNews, useNews } from "@/app/dashboard/berita/queries";
 import { NewsResponse } from "@/app/dashboard/berita/types";
+import { toast } from "sonner";
 
 export function DashboardBeritaContent() {
   const router = useRouter();
@@ -32,6 +33,16 @@ export function DashboardBeritaContent() {
     deleteNews.mutate(deleteAlert.item.slug, {
       onSuccess: () => {
         setDeleteAlert({ isOpen: false, item: null });
+
+        toast.success("Berita berhasil dihapus!", {
+          description: `${deleteAlert.item?.title}`,
+        });
+      },
+
+      onError: () => {
+        toast.error("Gagal menghapus berita", {
+          description: "Terjadi kesalahan pada server",
+        });
       },
     });
   };
@@ -72,7 +83,7 @@ export function DashboardBeritaContent() {
           },
         ]}
         onAdd={() => router.push("/dashboard/berita/tambah")}
-        onEdit={(item) => router.push(`/dashboard/berita/${item.id}/ubah`)}
+        onEdit={(item) => router.push(`/dashboard/berita/${item.slug}/ubah`)}
         onDeleteClick={handleDeleteClick}
         searchFields={["title"]}
       />
