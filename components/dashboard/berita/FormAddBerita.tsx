@@ -10,11 +10,11 @@ import { useCreateNews } from "@/app/dashboard/berita/queries";
 import { CreateNewsDto } from "@/app/dashboard/berita/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CreateNewsSchema } from "@/app/dashboard/berita/validator";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import axios from "axios";
 import { toast } from "sonner";
 import { useCategory } from "@/app/dashboard/kategori/queries";
-import { base64ToFile } from "@/lib/upload";
+import { useMemo } from "react";
 
 const inputClassName =
   "w-full px-4 py-2 border border-border rounded-lg bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-colors";
@@ -28,26 +28,36 @@ export function FormAddBerita() {
     register,
     handleSubmit,
     setValue,
-    watch,
+    control,
     formState: { errors },
   } = useForm<CreateNewsDto>({
     resolver: zodResolver(CreateNewsSchema),
+    defaultValues: {
+      thumbnail: null,
+    },
   });
 
-  const thumbnail = watch("thumbnail");
-  const body = watch("content");
+  const watchedThumbnail = useWatch({ control, name: "thumbnail" });
+  const watchedContent = useWatch({ control, name: "content" });
+
+  const thumbnail = useMemo(() => watchedThumbnail, [watchedThumbnail]);
+  const content = useMemo(() => watchedContent, [watchedContent]);
 
   const onSubmit = async (data: CreateNewsDto) => {
     try {
       const fd = new FormData();
       fd.append("title", data.title);
+
       fd.append("content", data.content);
+
       fd.append("categoryId", data.categoryId);
 
-      const file = base64ToFile(data.thumbnail, `${data.title}.png`);
-      fd.append("thumbnail", file);
+      if (!data.thumbnail) {
+        toast.error("Thumbnail wajib diupload");
+        return;
+      }
 
-      console.log(fd);
+      fd.append("thumbnail", data.thumbnail);
 
       await createNews.mutateAsync(fd);
 
@@ -104,7 +114,7 @@ export function FormAddBerita() {
           </label>
 
           <TiptapEditor
-            value={body}
+            value={content}
             onValueChange={(value) => setValue("content", value)}
           />
 
@@ -118,7 +128,6 @@ export function FormAddBerita() {
           label="Thumbnail Berita"
           value={thumbnail}
           onChange={(value) => setValue("thumbnail", value)}
-          preview={true}
         />
 
         {errors.thumbnail && (

@@ -54,7 +54,7 @@ export const useUpdateNews = () => {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ slug, data }: { slug: string; data: UpdateNewsDto }) =>
+    mutationFn: ({ slug, data }: { slug: string; data: FormData }) =>
       updateNews(slug, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["news"] });

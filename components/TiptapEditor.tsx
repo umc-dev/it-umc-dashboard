@@ -1,8 +1,10 @@
 "use client";
 
+import { useEffect } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
+import Image from "@tiptap/extension-image";
 import {
   Bold,
   Italic,
@@ -17,6 +19,7 @@ import {
   Heading3,
   Quote,
   Code,
+  ImageIcon,
 } from "lucide-react";
 
 interface TiptapEditorProps {
@@ -26,7 +29,7 @@ interface TiptapEditorProps {
 
 export function TiptapEditor({ value, onValueChange }: TiptapEditorProps) {
   const editor = useEditor({
-    extensions: [StarterKit, Underline],
+    extensions: [StarterKit, Underline, Image],
     content: value,
     immediatelyRender: false,
     onUpdate({ editor }) {
@@ -34,10 +37,24 @@ export function TiptapEditor({ value, onValueChange }: TiptapEditorProps) {
     },
   });
 
+  useEffect(() => {
+    if (editor && value !== editor.getHTML()) {
+      editor.commands.setContent(value);
+    }
+  }, [value, editor]);
+
   if (!editor) return null;
 
+  // Handler insert image via prompt
+  const handleInsertImage = () => {
+    const url = prompt("Masukkan URL gambar:");
+    if (url) {
+      editor.chain().focus().setImage({ src: url }).run();
+    }
+  };
+
   return (
-    <div className="space-y-2 text-foreground ">
+    <div className="space-y-2 text-foreground">
       {/* Toolbar */}
       <div className="flex flex-wrap gap-2 border rounded-lg p-2 bg-input">
         <ToolbarButton
@@ -116,6 +133,14 @@ export function TiptapEditor({ value, onValueChange }: TiptapEditorProps) {
           onClick={() => editor.chain().focus().toggleBlockquote().run()}
           active={editor.isActive("blockquote")}
           icon={<Quote size={18} />}
+        />
+
+        <Divider />
+
+        {/* Tambahkan tombol insert image */}
+        <ToolbarButton
+          onClick={handleInsertImage}
+          icon={<ImageIcon size={18} />}
         />
 
         <Divider />
