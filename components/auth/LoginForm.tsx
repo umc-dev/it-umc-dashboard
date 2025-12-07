@@ -1,149 +1,184 @@
-'use client'
+"use client";
 
-import type React from "react"
-import { useState } from "react"
-import Link from "next/link"
-import { useRouter } from 'next/navigation'
-import { Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react'
-import Image from "next/image"
+import type React from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Mail, Lock, Eye, EyeOff, LogIn, Loader2 } from "lucide-react";
+import Image from "next/image";
 
 export function LoginForm() {
-  const router = useRouter()
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState("")
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
-    setIsLoading(true)
+    e.preventDefault();
+    setError("");
+    setIsLoading(true);
 
+    // Simulasi delay login
     setTimeout(() => {
       if (email && password) {
-        router.push("/dashboard")
+        router.push("/dashboard");
       } else {
-        setError("Email dan password harus diisi")
+        setError("Email dan password harus diisi");
       }
-      setIsLoading(false)
-    }, 800)
-  }
+      setIsLoading(false);
+    }, 1200);
+  };
 
   return (
-    <div className="flex-1 flex flex-col justify-center items-center p-6 sm:p-8 lg:p-12">
-      <div className="w-full max-w-md">
-        {/* Logo for mobile */}
-        <div className="lg:hidden mb-8 text-center">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <Image 
-              src="/logo.svg"
-              alt="Logo"
-              width={64}
-              height={64}
-              className="w-16 h-16"
-            />
-            <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-primary">Teknik Informatika</h1>
-              <p className="text-xs text-muted-foreground">Universitas Muhammadiyah Cirebon</p>
+    <div className="flex-1 flex flex-col justify-center items-center p-8 lg:p-12 bg-white h-full">
+      <div className="w-full max-w-md space-y-8">
+        {/* 1. Header Section (Mobile Logo & Title) */}
+        <div className="text-center">
+          {/* Logo hanya muncul di mobile, di desktop sudah ada di Branding component */}
+          <div className="lg:hidden flex justify-center mb-6">
+            <div className="p-3 bg-blue-50 rounded-2xl">
+              <Image
+                src="/logo.svg"
+                alt="Logo UMC"
+                width={64}
+                height={64}
+                className="w-12 h-12"
+              />
             </div>
           </div>
-          <p className="text-sm text-muted-foreground">Sistem Manajemen Konten</p>
+
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900">
+            Selamat Datang
+          </h2>
+          <p className="mt-2 text-sm text-gray-500">
+            Masuk untuk mengelola konten website prodi.
+          </p>
         </div>
 
-        {/* Login Card */}
-        <div className="bg-card rounded-lg border border-border p-8 sm:p-10 shadow-lg">
-          <div className="mb-8">
-            <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Masuk Admin</h2>
-            <p className="text-sm text-muted-foreground">Masukkan kredensial untuk melanjutkan</p>
-          </div>
-
+        {/* 2. Form Section */}
+        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+          {/* Error Alert */}
           {error && (
-            <div className="mb-6 p-4 rounded-lg bg-destructive/10 border border-destructive/30">
-              <p className="text-sm text-destructive font-medium">{error}</p>
+            <div className="p-4 rounded-lg bg-red-50 border border-red-100 flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
+              <div className="w-1 h-8 bg-red-500 rounded-full" />
+              <p className="text-sm font-medium text-red-600">{error}</p>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="space-y-5">
             {/* Email Field */}
-            <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium text-foreground block">
-                Email
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 mb-1.5"
+              >
+                Email Kampus
               </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Mail className="h-5 w-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+                </div>
                 <input
                   id="email"
+                  name="email"
                   type="email"
+                  autoComplete="email"
+                  required
                   placeholder="admin@umc.ac.id"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all text-sm"
+                  className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all sm:text-sm bg-gray-50/50 focus:bg-white hover:bg-gray-50"
                   disabled={isLoading}
                 />
               </div>
             </div>
 
             {/* Password Field */}
-            <div className="space-y-2">
-              <label htmlFor="password" className="text-sm font-medium text-foreground block">
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 mb-1.5"
+              >
                 Password
               </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Lock className="h-5 w-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+                </div>
                 <input
                   id="password"
+                  name="password"
                   type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
+                  required
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-border bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all text-sm"
+                  className="block w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all sm:text-sm bg-gray-50/50 focus:bg-white hover:bg-gray-50"
                   disabled={isLoading}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
                   disabled={isLoading}
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer" />
+                  ) : (
+                    <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer" />
+                  )}
                 </button>
               </div>
             </div>
+          </div>
 
-            {/* Remember & Forgot */}
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center gap-2 cursor-pointer group">
-                <input type="checkbox" className="w-4 h-4 rounded border-border bg-input" />
-                <span className="text-muted-foreground group-hover:text-foreground transition-colors">
-                  Ingat saya
-                </span>
-              </label>
-              <Link href="#" className="text-accent hover:text-accent/90 font-medium transition-colors">
-                Lupa password?
-              </Link>
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
+          {/* Remember Me (Forgot Password removed) */}
+          <div className="flex items-center">
+            <input
+              id="remember-me"
+              name="remember-me"
+              type="checkbox"
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded cursor-pointer"
               disabled={isLoading}
-              className={`w-full py-2.5 px-4 rounded-lg font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90 active:scale-95 ${
-                isLoading ? "opacity-50 cursor-not-allowed" : ""
-              }`}
+            />
+            <label
+              htmlFor="remember-me"
+              className="ml-2 block text-sm text-gray-600 cursor-pointer select-none"
             >
-              <LogIn className="w-4 h-4" />
-              {isLoading ? "Memproses..." : "Masuk"}
-            </button>
-          </form>
-        </div>
+              Ingat saya di perangkat ini
+            </label>
+          </div>
 
-        {/* Footer */}
-        <p className="text-center text-xs text-muted-foreground mt-6">
-          © 2025 Teknik Informatika Universitas Muhammadiyah Cirebon. Semua hak dilindungi.
-        </p>
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-70 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4" />
+                Memproses...
+              </>
+            ) : (
+              <>
+                <LogIn className="-ml-1 mr-2 h-4 w-4" />
+                Masuk Dashboard
+              </>
+            )}
+          </button>
+        </form>
+
+        {/* Footer info */}
+        <div className="mt-6 border-t border-gray-100 pt-6">
+          <p className="text-center text-xs text-gray-400 leading-relaxed">
+            Sistem Informasi Teknik Informatika <br />©{" "}
+            {new Date().getFullYear()} Universitas Muhammadiyah Cirebon
+          </p>
+        </div>
       </div>
     </div>
-  )
+  );
 }

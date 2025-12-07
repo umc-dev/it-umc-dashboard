@@ -1,18 +1,18 @@
-
-import type { Metadata } from "next"
-import { LoginBranding } from "@/components/auth/LoginBranding"
-import { LoginForm } from "@/components/auth/LoginForm"
-
-export const metadata: Metadata = {
-  title: "Login - Sistem Manajemen Konten Teknik Informatika",
-  description: "Masuk ke Sistem Manajemen Konten Teknik Informatika",
-}
+import { LoginBranding } from "@/components/auth/LoginBranding";
+import { LoginOauth } from "@/components/auth/LoginOauth";
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-linear-to-br from-background via-background to-muted">
+    <div className="flex h-screen flex-col lg:flex-row overflow-hidden bg-background">
+      {/* Kiri: Branding (Tetap, tidak berubah) */}
       <LoginBranding />
-      <LoginForm />
+
+      {/* Kanan: Oauth Only */}
+      <div className="flex-1 flex flex-col overflow-y-auto bg-white">
+        <div className="grow flex items-center justify-center p-4">
+          <LoginOauth />
+        </div>
+      </div>
     </div>
-  )
+  );
 }
