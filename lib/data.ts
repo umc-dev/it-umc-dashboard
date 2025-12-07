@@ -67,6 +67,73 @@ export interface VisiMisi {
   misi: string;
 }
 
+export interface Alumni {
+  id: string;
+  name: string;
+  thn_lulus: number;
+  messages?: string;
+  video?: string;
+}
+
+export const alumni: Alumni[] = [
+  {
+    id: "1",
+    name: "Ahmad Rizki Pratama",
+    thn_lulus: 2015,
+    video: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    messages:
+      "Alhamdulillah bangga menjadi bagian dari SMA Negeri 7 Jakarta. Banyak ilmu dan kenangan indah yang sampai sekarang masih terus dikenang. Semoga sekolah semakin jaya!",
+  },
+  {
+    id: "2",
+    name: "Siti Nurhaliza",
+    thn_lulus: 2017,
+    video: "https://youtu.be/9bZkp7q19f0",
+    messages:
+      "Guru-guru yang sabar dan teman-teman yang solid membuat masa SMA saya sangat berkesan. Sekarang saya sedang menempuh S2 di Jepang berkat bekal dari sekolah ini.",
+  },
+  {
+    id: "3",
+    name: "Muhammad Fajar Siddiq",
+    thn_lulus: 2019,
+    video: "",
+    messages:
+      "Meski pandemi datang di kelas 12, tetap bersyukur bisa lulus dengan nilai memuaskan. Terima kasih kepada semua bapak/ibu guru yang tetap mengajar secara daring dengan penuh dedikasi.",
+  },
+  {
+    id: "4",
+    name: "Aisyah Putri Ramadhani",
+    thn_lulus: 2021,
+    video: "https://www.youtube.com/watch?v=ZgQ9v3Q9e9U",
+    messages:
+      "Dari sini saya belajar pentingnya disiplin dan kerja keras. Kini saya bekerja di salah satu perusahaan unicorn di Indonesia. Sukses selalu untuk adik-adik kelas!",
+  },
+  {
+    id: "5",
+    name: "Rendi Kurniawan",
+    thn_lulus: 2013,
+    video: "",
+    messages:
+      "Sudah 10 tahun berlalu, tapi kenangan OSIS, pramuka, dan lomba-lomba antar kelas masih terasa seperti kemarin. Semoga sekolah terus melahirkan generasi hebat.",
+  },
+  {
+    id: "6",
+    name: "Nadia Lestari",
+    thn_lulus: 2023,
+    video: "https://youtu.be/X123abc456",
+    messages:
+      "Baru lulus tahun lalu, sekarang kuliah di UI jurusan Teknik Informatika. Terima kasih atas bimbingan para guru, terutama Bu Wulan dan Pak Budi!",
+  },
+  {
+    id: "7",
+    name: "Dr. Hasan Basri, Sp.PD",
+    thn_lulus: 2008,
+    video: "",
+    messages:
+      "Dari SMA Negeri 7 sampai menjadi dokter spesialis penyakit dalam. Semua berawal dari sini. Bangga menjadi bagian dari keluarga besar alumni!",
+  },
+];
+
 export const visiMisiData: VisiMisi = {
   id: "1",
   visi: "Menjadi institusi pendidikan unggul yang berdaya saing global.",

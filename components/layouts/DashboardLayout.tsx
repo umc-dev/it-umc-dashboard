@@ -17,7 +17,8 @@ import {
   X,
   Handshake,
   Goal,
-  UserCog
+  UserCog,
+  GraduationCap
 } from "lucide-react";
 import Image from "next/image";
 
@@ -37,6 +38,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     { label: "Kategori", href: "/dashboard/kategori", icon: Folder },
     { label: "Mata Kuliah", href: "/dashboard/matakuliah", icon: BookOpen },
     { label: "Statistik Mahasiswa", href: "/dashboard/statistik", icon: BarChart3},
+    { label: "Alumni", href: "/dashboard/alumni", icon: GraduationCap },
     { label: "Kerja Sama", href: "/dashboard/kerja-sama", icon: Handshake },
     { label: "Visi & Misi", href: "/dashboard/visi-misi", icon: Goal },
     { label: "Admin", href: "/dashboard/admin", icon: UserCog },
