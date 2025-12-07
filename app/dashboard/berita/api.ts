@@ -18,7 +18,7 @@ export const createNews = async (data: FormData): Promise<NewsResponse> => {
 
 export const updateNews = async (
   slug: string,
-  data: UpdateNewsDto,
+  data: FormData,
 ): Promise<NewsResponse> => {
   const res = await api.put(`/news/${slug}`, data);
   return res.data.data;
