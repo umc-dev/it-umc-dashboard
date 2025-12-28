@@ -22,12 +22,11 @@ export function FormEditKerjaSama() {
       jangkaWaktu: "",
       tanggalMulai: "",
       tanggalBerakhir: "",
-      fileDownloadUrl: "",
-    }
+    },
   );
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -149,20 +148,6 @@ export function FormEditKerjaSama() {
             value={formData.tanggalBerakhir || ""}
             onChange={handleChange}
             required
-            className={inputClassName}
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
-            File Dokumen (URL)
-          </label>
-          <input
-            type="text"
-            name="fileDownloadUrl"
-            value={formData.fileDownloadUrl || ""}
-            onChange={handleChange}
-            placeholder="URL file kerja sama"
             className={inputClassName}
           />
         </div>

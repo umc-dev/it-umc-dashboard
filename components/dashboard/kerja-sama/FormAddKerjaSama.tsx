@@ -21,7 +21,7 @@ export function FormAddKerjaSama() {
   });
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -137,20 +137,6 @@ export function FormAddKerjaSama() {
             value={formData.tanggalBerakhir}
             onChange={handleChange}
             required
-            className={inputClassName}
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
-            File Dokumen (URL)
-          </label>
-          <input
-            type="text"
-            name="fileDownloadUrl"
-            value={formData.fileDownloadUrl}
-            onChange={handleChange}
-            placeholder="Masukkan URL dokumen"
             className={inputClassName}
           />
         </div>

@@ -58,7 +58,6 @@ export interface KerjaSama {
   jangkaWaktu: string;
   tanggalMulai: string;
   tanggalBerakhir: string;
-  fileDownloadUrl: string;
 }
 
 export interface VisiMisi {
@@ -282,7 +281,6 @@ export const kerjaSamaList: KerjaSama[] = [
     jangkaWaktu: "2 Tahun",
     tanggalMulai: "2023-01-10",
     tanggalBerakhir: "2025-01-10",
-    fileDownloadUrl: "/docs/mou-teknologi-nusantara.pdf",
   },
   {
     id: "2",
@@ -292,7 +290,6 @@ export const kerjaSamaList: KerjaSama[] = [
     jangkaWaktu: "3 Tahun",
     tanggalMulai: "2022-08-01",
     tanggalBerakhir: "2025-08-01",
-    fileDownloadUrl: "/docs/mou-smk1.pdf",
   },
   {
     id: "3",
@@ -302,7 +299,6 @@ export const kerjaSamaList: KerjaSama[] = [
     jangkaWaktu: "1 Tahun",
     tanggalMulai: "2024-03-15",
     tanggalBerakhir: "2025-03-15",
-    fileDownloadUrl: "/docs/mou-budi-luhur.pdf",
   },
   {
     id: "4",
@@ -312,7 +308,6 @@ export const kerjaSamaList: KerjaSama[] = [
     jangkaWaktu: "5 Tahun",
     tanggalMulai: "2021-05-20",
     tanggalBerakhir: "2026-05-20",
-    fileDownloadUrl: "/docs/mou-mitra-digital.pdf",
   },
   {
     id: "5",
@@ -322,15 +317,14 @@ export const kerjaSamaList: KerjaSama[] = [
     jangkaWaktu: "4 Tahun",
     tanggalMulai: "2020-11-01",
     tanggalBerakhir: "2024-11-01",
-    fileDownloadUrl: "/docs/mou-pemda.pdf",
   },
 ];
 
 export const statistikMahasiswas: StatistikMahasiswa[] = [
-  { id: "1", tahun: 2020, masuk: 130, keluar: 10,  total: 120 },
-  { id: "2", tahun: 2021, masuk: 140, keluar: 15,  total: 245 },
-  { id: "3", tahun: 2022, masuk: 155, keluar: 52,  total: 348 },
-  { id: "4", tahun: 2023, masuk: 170, keluar: 98,  total: 420 },
+  { id: "1", tahun: 2020, masuk: 130, keluar: 10, total: 120 },
+  { id: "2", tahun: 2021, masuk: 140, keluar: 15, total: 245 },
+  { id: "3", tahun: 2022, masuk: 155, keluar: 52, total: 348 },
+  { id: "4", tahun: 2023, masuk: 170, keluar: 98, total: 420 },
   { id: "5", tahun: 2024, masuk: 185, keluar: 135, total: 470 },
   { id: "6", tahun: 2025, masuk: 200, keluar: 160, total: 510 },
 ];

@@ -61,19 +61,6 @@ export function DashboardKerjaSamaContent() {
           { key: "jangkaWaktu", label: "Jangka Waktu", sortable: true },
           { key: "tanggalMulai", label: "Mulai", sortable: true },
           { key: "tanggalBerakhir", label: "Berakhir", sortable: true },
-          {
-            key: "fileDownloadUrl",
-            label: "Dokumen",
-            render: (val) => (
-              <a
-                href={val}
-                target="_blank"
-                className="text-blue-600 underline text-sm"
-              >
-                Download
-              </a>
-            ),
-          },
         ]}
         onAdd={() => router.push("/dashboard/kerja-sama/tambah")}
         onEdit={(item) => router.push(`/dashboard/kerja-sama/${item.id}/ubah`)}
