@@ -1,10 +1,9 @@
 import { LoginBranding } from "@/components/auth/LoginBranding";
-import { LoginOauth } from "@/components/auth/LoginOauth";
+import { LoginForm } from "@/components/auth/LoginForm";
 import { getSession } from "@/lib/getSession";
 import { redirect } from "next/navigation";
 
 export default function LoginPage() {
-
   const session = getSession();
 
   if (!session) {
@@ -18,7 +17,7 @@ export default function LoginPage() {
       {/* Kanan: Oauth Only */}
       <div className="flex-1 flex flex-col overflow-y-auto bg-white">
         <div className="grow flex items-center justify-center p-4">
-          <LoginOauth />
+          <LoginForm />
         </div>
       </div>
     </div>

@@ -1,183 +1,176 @@
 "use client";
 
-import type React from "react";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Mail, Lock, Eye, EyeOff, LogIn, Loader2 } from "lucide-react";
+import { Loader2, Lock, Mail } from "lucide-react";
 import Image from "next/image";
 
+const GoogleIcon = () => (
+  <svg
+    viewBox="0 0 24 24"
+    width="24"
+    height="24"
+    xmlns="http://www.w3.org/2000/svg"
+    className="w-6 h-6 shrink-0"
+  >
+    <g transform="matrix(1, 0, 0, 1, 27.009001, -39.238998)">
+      <path
+        fill="#4285F4"
+        d="M -3.264 51.509 C -3.264 50.719 -3.334 49.969 -3.454 49.239 L -14.754 49.239 L -14.754 53.749 L -8.284 53.749 C -8.574 55.229 -9.424 56.479 -10.684 57.329 L -10.684 60.329 L -6.824 60.329 C -4.564 58.239 -3.264 55.159 -3.264 51.509 Z"
+      />
+      <path
+        fill="#34A853"
+        d="M -14.754 63.239 C -11.514 63.239 -8.804 62.159 -6.824 60.329 L -10.684 57.329 C -11.764 58.049 -13.134 58.489 -14.754 58.489 C -17.884 58.489 -20.534 56.379 -21.484 53.529 L -25.464 53.529 L -25.464 56.619 C -23.494 60.539 -19.424 63.239 -14.754 63.239 Z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M -21.484 53.529 C -21.734 52.809 -21.864 52.039 -21.864 51.239 C -21.864 50.439 -21.734 49.669 -21.484 48.949 L -21.484 45.859 L -25.464 45.859 C -26.284 47.479 -26.754 49.299 -26.754 51.239 C -26.754 53.179 -26.284 54.999 -25.464 56.619 L -21.484 53.529 Z"
+      />
+      <path
+        fill="#EA4335"
+        d="M -14.754 43.989 C -12.984 43.989 -11.404 44.599 -10.154 45.789 L -6.734 42.369 C -8.804 40.429 -11.514 39.239 -14.754 39.239 C -19.424 39.239 -23.494 41.939 -25.464 45.859 L -21.484 48.949 C -20.534 46.099 -17.884 43.989 -14.754 43.989 Z"
+      />
+    </g>
+  </svg>
+);
+
 export function LoginForm() {
-  const router = useRouter();
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [formLoading, setFormLoading] = useState(false);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleGoogleLogin = () => {
+    setGoogleLoading(true);
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`;
+  };
+
+  const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setIsLoading(true);
+    setFormLoading(true);
+    setError(null);
 
-    // Simulasi delay login
-    setTimeout(() => {
-      if (email && password) {
-        router.push("/dashboard");
-      } else {
-        setError("Email dan password harus diisi");
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include", // Penting kalo pake karena pake Cookies
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Email atau password salah");
       }
-      setIsLoading(false);
-    }, 1200);
+
+      window.location.href = "/dashboard";
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Terjadi kesalahan saat login";
+
+      setError(message);
+    } finally {
+      setFormLoading(false);
+    }
   };
 
   return (
-    <div className="flex-1 flex flex-col justify-center items-center p-8 lg:p-12 bg-white h-full">
-      <div className="w-full max-w-md space-y-8">
-        {/* 1. Header Section (Mobile Logo & Title) */}
-        <div className="text-center">
-          {/* Logo hanya muncul di mobile, di desktop sudah ada di Branding component */}
-          <div className="lg:hidden flex justify-center mb-6">
-            <div className="p-3 bg-blue-50 rounded-2xl">
-              <Image
-                src="/logo.svg"
-                alt="Logo UMC"
-                width={64}
-                height={64}
-                className="w-12 h-12"
-              />
+    <div className="flex-1 flex flex-col justify-center items-center p-8 bg-white h-full">
+      <div className="w-full max-w-sm space-y-8">
+        {/* Header */}
+        <div className="text-center space-y-4">
+          <div className="flex justify-center">
+            <div className="p-3 bg-blue-50 rounded-2xl border shadow-sm">
+              <Image src="/logo.svg" alt="Logo" width={56} height={56} />
             </div>
           </div>
-
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900">
+          <h2 className="text-3xl font-extrabold text-gray-900">
             Selamat Datang
           </h2>
-          <p className="mt-2 text-sm text-gray-500">
-            Masuk untuk mengelola konten website prodi.
+          <p className="text-sm text-gray-500">
+            Login ke dashboard admin Teknik Informatika
           </p>
         </div>
 
-        {/* 2. Form Section */}
-        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
-          {/* Error Alert */}
-          {error && (
-            <div className="p-4 rounded-lg bg-red-50 border border-red-100 flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
-              <div className="w-1 h-8 bg-red-500 rounded-full" />
-              <p className="text-sm font-medium text-red-600">{error}</p>
-            </div>
-          )}
-
-          <div className="space-y-5">
-            {/* Email Field */}
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-1.5"
-              >
-                Email Kampus
-              </label>
-              <div className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
-                </div>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  placeholder="admin@umc.ac.id"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all sm:text-sm bg-gray-50/50 focus:bg-white hover:bg-gray-50"
-                  disabled={isLoading}
-                />
-              </div>
-            </div>
-
-            {/* Password Field */}
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-1.5"
-              >
-                Password
-              </label>
-              <div className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
-                </div>
-                <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  autoComplete="current-password"
-                  required
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all sm:text-sm bg-gray-50/50 focus:bg-white hover:bg-gray-50"
-                  disabled={isLoading}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  disabled={isLoading}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer" />
-                  ) : (
-                    <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer" />
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Remember Me (Forgot Password removed) */}
-          <div className="flex items-center">
-            <input
-              id="remember-me"
-              name="remember-me"
-              type="checkbox"
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded cursor-pointer"
-              disabled={isLoading}
+        {/* Email Login */}
+        <form onSubmit={handleEmailLogin} className="space-y-4">
+          <div className="relative">
+            <Mail
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+              size={18}
             />
-            <label
-              htmlFor="remember-me"
-              className="ml-2 block text-sm text-gray-600 cursor-pointer select-none"
-            >
-              Ingat saya di perangkat ini
-            </label>
+            <input
+              type="email"
+              placeholder="Email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full pl-12 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+            />
           </div>
 
-          {/* Submit Button */}
+          <div className="relative">
+            <Lock
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+              size={18}
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full pl-12 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+          </div>
+
+          {error && <p className="text-sm text-red-500 text-center">{error}</p>}
+
           <button
             type="submit"
-            disabled={isLoading}
-            className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-70 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
+            disabled={formLoading}
+            className="w-full py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition disabled:opacity-70"
           >
-            {isLoading ? (
-              <>
-                <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4" />
-                Memproses...
-              </>
+            {formLoading ? (
+              <Loader2 className="mx-auto animate-spin" />
             ) : (
-              <>
-                <LogIn className="-ml-1 mr-2 h-4 w-4" />
-                Masuk Dashboard
-              </>
+              "Masuk"
             )}
           </button>
         </form>
 
-        {/* Footer info */}
-        <div className="mt-6 border-t border-gray-100 pt-6">
-          <p className="text-center text-xs text-gray-400 leading-relaxed">
-            Sistem Informasi Teknik Informatika <br />©{" "}
-            {new Date().getFullYear()} Universitas Muhammadiyah Cirebon
-          </p>
+        {/* Divider */}
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs">
+            <span className="bg-white px-4 text-gray-400">
+              atau login dengan Google
+            </span>
+          </div>
         </div>
+
+        {/* Google Login */}
+        <button
+          onClick={handleGoogleLogin}
+          disabled={googleLoading}
+          className="w-full flex justify-center items-center gap-3 px-6 py-4 border rounded-2xl hover:bg-gray-50 transition disabled:opacity-70"
+        >
+          {googleLoading ? (
+            <Loader2 className="animate-spin" />
+          ) : (
+            <>
+              <GoogleIcon />
+              <span className="font-semibold">Masuk dengan Google</span>
+            </>
+          )}
+        </button>
+
+        {/* Note */}
+        <p className="text-xs text-center text-gray-400">
+          Gunakan email institusi <b>@umc.ac.id</b>
+        </p>
       </div>
     </div>
   );
