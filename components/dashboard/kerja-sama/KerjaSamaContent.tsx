@@ -4,30 +4,53 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { DataTable } from "@/components/DataTable";
 import { DeleteAlert } from "@/components/DeleteAlert";
-import { kerjaSamaList, type KerjaSama } from "@/lib/data";
 import Image from "next/image";
+import {
+  useDeletePartnership,
+  usePartnerships,
+} from "@/app/dashboard/kerja-sama/queries";
+import { PartnershipResponse } from "@/app/dashboard/kerja-sama/types";
+import { toast } from "sonner";
 
 export function DashboardKerjaSamaContent() {
   const router = useRouter();
-  const [data, setData] = useState<KerjaSama[]>(kerjaSamaList);
+
+  const { data, isLoading } = usePartnerships();
+  const deletePartnership = useDeletePartnership();
+
   const [deleteAlert, setDeleteAlert] = useState<{
     isOpen: boolean;
-    item: KerjaSama | null;
+    item: PartnershipResponse | null;
   }>({
     isOpen: false,
     item: null,
   });
 
-  const handleDeleteClick = (item: KerjaSama) => {
+  const handleDeleteClick = (item: PartnershipResponse) => {
     setDeleteAlert({ isOpen: true, item });
   };
 
   const handleConfirmDelete = () => {
-    if (deleteAlert.item) {
-      setData(data.filter((ks) => ks.id !== deleteAlert.item!.id));
-      setDeleteAlert({ isOpen: false, item: null });
-    }
+    if (!deleteAlert.item) return;
+
+    deletePartnership.mutate(deleteAlert.item.id, {
+      onSuccess: () => {
+        setDeleteAlert({ isOpen: false, item: null });
+
+        toast.success("Kerja sama berhasil dihapus!", {
+          description: `${deleteAlert.item?.name}`,
+        });
+      },
+
+      onError: () => {
+        toast.error("Gagal menghapus kerja sama", {
+          description: "Terjadi kesalahan pada server",
+        });
+      },
+    });
   };
+
+  if (isLoading) return <h1>Loading....</h1>;
 
   return (
     <div className="space-y-6">
@@ -36,49 +59,45 @@ export function DashboardKerjaSamaContent() {
           Manajemen Kerja Sama
         </h1>
         <p className="text-muted-foreground mt-2">
-          Kelola daftar kerja sama antara kampus dan mitra
+          Kelola kerja sama dan mitra
         </p>
       </div>
 
       <DataTable
-        data={data}
+        data={data?.data ?? []}
         columns={[
           {
-            key: "logoUrl",
+            key: "photo",
             label: "Logo",
-            render: (val) => (
-              <Image
-                src={val}
-                alt="Logo Mitra"
-                width={40}
-                height={40}
-                className="rounded"
-              />
-            ),
+            render: (value) =>
+              value ? (
+                <Image
+                  src={value}
+                  alt="Logo Mitra"
+                  width={100}
+                  height={100}
+                  className="w-16 h-10 object-cover rounded-md"
+                  unoptimized
+                />
+              ) : (
+                <span>-</span>
+              ),
           },
-          { key: "namaMitra", label: "Mitra", sortable: true },
-          { key: "tahun", label: "Tahun", sortable: true },
-          { key: "jangkaWaktu", label: "Jangka Waktu", sortable: true },
-          { key: "tanggalMulai", label: "Mulai", sortable: true },
-          { key: "tanggalBerakhir", label: "Berakhir", sortable: true },
+          { key: "name", label: "Nama Mitra", sortable: true },
+          { key: "startDate", label: "Tanggal Mulai", sortable: true },
+          { key: "endDate", label: "Tanggal Berakhir", sortable: true },
         ]}
         onAdd={() => router.push("/dashboard/kerja-sama/tambah")}
         onEdit={(item) => router.push(`/dashboard/kerja-sama/${item.id}/ubah`)}
         onDeleteClick={handleDeleteClick}
-        searchFields={[
-          "namaMitra",
-          "tahun",
-          "jangkaWaktu",
-          "tanggalMulai",
-          "tanggalBerakhir",
-        ]}
+        searchFields={["name"]}
       />
 
       <DeleteAlert
         isOpen={deleteAlert.isOpen}
         title="Hapus Kerja Sama"
         description="Pastikan anda ingin menghapus kerja sama ini"
-        itemName={deleteAlert.item?.namaMitra || ""}
+        itemName={deleteAlert.item?.name || ""}
         onConfirm={handleConfirmDelete}
         onCancel={() => setDeleteAlert({ isOpen: false, item: null })}
       />
