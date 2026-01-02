@@ -1,118 +1,171 @@
-'use client'
+"use client";
 
-import type React from 'react'
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { FormHeader } from '@/components/FormHeader'
-import { FormButtons } from '@/components/FormButtons'
-import { ImageUpload } from '@/components/ImageUpload'
+import type React from "react";
+import { useRouter } from "next/navigation";
+import { FormHeader } from "@/components/FormHeader";
+import { FormButtons } from "@/components/FormButtons";
+import { ImageUpload } from "@/components/ImageUpload";
+import { useCreateDosen } from "@/app/dashboard/dosen/queries";
+import { CreateDosenDto } from "@/app/dashboard/dosen/types";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { CreateDosenSchema } from "@/app/dashboard/dosen/validator";
+import { useForm, useWatch } from "react-hook-form";
+import axios from "axios";
+import { toast } from "sonner";
+import { useMemo } from "react";
 
 const inputClassName =
-  'w-full px-4 py-2 border border-border rounded-lg bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-colors'
+  "w-full px-4 py-2 border border-border rounded-lg bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-colors";
 
 export function FormAddDosen() {
-  const router = useRouter()
-  const [isLoading, setIsLoading] = useState(false)
-  const [formData, setFormData] = useState({
-    nama: '',
-    spesialis: '',
-    link_pengabdian: '',
-    link_penelitian: '',
-    link_pengajaran: '',
-    avatar: '',
-  })
+  const router = useRouter();
+  const createDosen = useCreateDosen();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    control,
+    formState: { errors },
+  } = useForm<CreateDosenDto>({
+    resolver: zodResolver(CreateDosenSchema),
+    defaultValues: {
+      photo: null,
+    },
+  });
 
-  const handleImageChange = (value: string) => {
-    setFormData((prev) => ({ ...prev, avatar: value }))
-  }
+  const watchedPhoto = useWatch({ control, name: "photo" });
+  const photo = useMemo(() => watchedPhoto, [watchedPhoto]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    router.push('/dashboard/dosen')
-  }
+  const onSubmit = async (data: CreateDosenDto) => {
+    try {
+      const fd = new FormData();
+      fd.append("name", data.name);
+      fd.append("expertise", data.expertise);
+      fd.append("research", data.research);
+      fd.append("teaching", data.teaching);
+
+      if (!data.photo) {
+        toast.error("Foto wajib diupload");
+        return;
+      }
+
+      fd.append("photo", data.photo);
+
+      await createDosen.mutateAsync(fd);
+
+      toast.success("Dosen berhasil dibuat!", {
+        description: data.name,
+      });
+
+      router.push("/dashboard/dosen");
+    } catch (error: unknown) {
+      let message = "Gagal membuat dosen.";
+
+      if (axios.isAxiosError(error)) {
+        message = error.response?.data?.message || message;
+      }
+
+      toast.error("Terjadi kesalahan!", {
+        description: message,
+      });
+    }
+  };
 
   return (
     <div className="max-w-2xl mx-auto py-6 sm:py-8">
-      <FormHeader title="Tambah Dosen" description="Tambahkan data dosen baru ke sistem" />
+      <FormHeader
+        title="Tambah Dosen"
+        description="Tambahkan data dosen baru ke sistem"
+      />
 
-      <form onSubmit={handleSubmit} className="bg-card border border-border rounded-lg p-6 sm:p-8 space-y-6">
-        <ImageUpload label="Foto Dosen" value={formData.avatar} onChange={handleImageChange} preview={true} />
-
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="bg-card border border-border rounded-lg p-6 sm:p-8 space-y-6"
+      >
+        {/* NAMA */}
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
             Nama Dosen <span className="text-destructive">*</span>
           </label>
+
           <input
-            type="text"
-            name="nama"
-            value={formData.nama}
-            onChange={handleChange}
+            {...register("name")}
             placeholder="Masukkan nama dosen"
-            required
             className={inputClassName}
           />
+
+          {errors.name && (
+            <p className="text-destructive text-sm">{errors.name.message}</p>
+          )}
         </div>
 
+        {/* EXPERTISE */}
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
-            Spesialis <span className="text-destructive">*</span>
+            Spesialisasi <span className="text-destructive">*</span>
           </label>
+
           <input
-            type="text"
-            name="spesialis"
-            value={formData.spesialis}
-            onChange={handleChange}
+            {...register("expertise")}
             placeholder="Masukkan spesialisasi"
-            required
             className={inputClassName}
           />
+
+          {errors.expertise && (
+            <p className="text-destructive text-sm">{errors.expertise.message}</p>
+          )}
         </div>
 
+        {/* RESEARCH */}
         <div>
-          <label className="block text-sm font-medium text-foreground mb-2">Link Pengabdian</label>
+          <label className="block text-sm font-medium text-foreground mb-2">
+            Link Penelitian <span className="text-destructive">*</span>
+          </label>
+
           <input
             type="url"
-            name="link_pengabdian"
-            value={formData.link_pengabdian}
-            onChange={handleChange}
+            {...register("research")}
             placeholder="https://..."
             className={inputClassName}
           />
+
+          {errors.research && (
+            <p className="text-destructive text-sm">{errors.research.message}</p>
+          )}
         </div>
 
+        {/* TEACHING */}
         <div>
-          <label className="block text-sm font-medium text-foreground mb-2">Link Penelitian</label>
+          <label className="block text-sm font-medium text-foreground mb-2">
+            Link Pengajaran <span className="text-destructive">*</span>
+          </label>
+
           <input
             type="url"
-            name="link_penelitian"
-            value={formData.link_penelitian}
-            onChange={handleChange}
+            {...register("teaching")}
             placeholder="https://..."
             className={inputClassName}
           />
+
+          {errors.teaching && (
+            <p className="text-destructive text-sm">{errors.teaching.message}</p>
+          )}
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-foreground mb-2">Link Pengajaran</label>
-          <input
-            type="url"
-            name="link_pengajaran"
-            value={formData.link_pengajaran}
-            onChange={handleChange}
-            placeholder="https://..."
-            className={inputClassName}
-          />
-        </div>
+        {/* PHOTO */}
+        <ImageUpload
+          label="Foto Dosen"
+          value={photo}
+          onChange={(value) => setValue("photo", value)}
+        />
 
-        <FormButtons isLoading={isLoading} />
+        {errors.photo && (
+          <p className="text-destructive text-sm">{errors.photo.message}</p>
+        )}
+
+        <FormButtons isLoading={createDosen.isPending} />
       </form>
     </div>
-  )
+  );
 }
