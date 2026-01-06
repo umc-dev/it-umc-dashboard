@@ -1,109 +1,142 @@
 "use client";
 
-import { useState } from "react";
+import type React from "react";
 import { useRouter } from "next/navigation";
 import { FormHeader } from "@/components/FormHeader";
 import { FormButtons } from "@/components/FormButtons";
+import { useCreateAlumni } from "@/app/dashboard/alumni/queries";
+import { CreateAlumniDto } from "@/app/dashboard/alumni/types";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { CreateAlumniSchema } from "@/app/dashboard/alumni/validator";
+import { useForm } from "react-hook-form";
+import axios from "axios";
+import { toast } from "sonner";
 
 const inputClassName =
   "w-full px-4 py-2 border border-border rounded-lg bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-colors";
 
 export function FormAddAlumni() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    video: "",
-    messages: "",
-    thn_lulus: "",
+  const createAlumni = useCreateAlumni();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<CreateAlumniDto>({
+    resolver: zodResolver(CreateAlumniSchema),
+    defaultValues: {
+      name: "",
+      video: "",
+      message: "",
+      year: 2000,
+    },
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  const onSubmit = async (data: CreateAlumniDto) => {
+    try {
+      await createAlumni.mutateAsync(data);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    router.push("/dashboard/alumni");
+      toast.success("Alumni berhasil dibuat!", {
+        description: data.name,
+      });
+
+      router.push("/dashboard/alumni");
+    } catch (error: unknown) {
+      let message = "Gagal membuat alumni.";
+
+      if (axios.isAxiosError(error)) {
+        message = error.response?.data?.message || message;
+      }
+
+      toast.error("Terjadi kesalahan!", {
+        description: message,
+      });
+    }
   };
 
   return (
     <div className="max-w-2xl mx-auto py-6 sm:py-8">
       <FormHeader
         title="Tambah Alumni"
-        description="Tambahkan data alumni baru ke dalam sistem"
+        description="Buat data alumni baru di sistem"
       />
 
       <form
-        onSubmit={handleSubmit}
+        onSubmit={handleSubmit(onSubmit)}
         className="bg-card border border-border rounded-lg p-6 sm:p-8 space-y-6"
       >
+        {/* NAMA */}
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
-            Nama Lengkap <span className="text-destructive">*</span>
+            Nama Alumni <span className="text-destructive">*</span>
           </label>
+
           <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
+            {...register("name")}
             placeholder="Masukkan nama alumni"
-            required
             className={inputClassName}
           />
+
+          {errors.name && (
+            <p className="text-destructive text-sm">{errors.name.message}</p>
+          )}
         </div>
 
+        {/* TAHUN LULUS */}
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
             Tahun Lulus <span className="text-destructive">*</span>
           </label>
+
           <input
+            {...register("year", { valueAsNumber: true })}
             type="number"
-            name="thn_lulus"
-            value={formData.thn_lulus}
-            onChange={handleChange}
-            placeholder="Contoh: 2020"
-            required
-            min="1900"
-            max="2100"
+            placeholder="Masukkan tahun lulus"
             className={inputClassName}
           />
+
+          {errors.year && (
+            <p className="text-destructive text-sm">{errors.year.message}</p>
+          )}
         </div>
 
+        {/* VIDEO */}
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
-            Link Video (Opsional)
+            Link Video <span className="text-destructive">*</span>
           </label>
+
           <input
-            type="url"
-            name="video"
-            value={formData.video}
-            onChange={handleChange}
-            placeholder="https://youtube.com/..."
+            {...register("video")}
+            placeholder="Masukkan link video"
             className={inputClassName}
           />
+
+          {errors.video && (
+            <p className="text-destructive text-sm">{errors.video.message}</p>
+          )}
         </div>
 
+        {/* MESSAGE */}
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
             Pesan/Kesan <span className="text-destructive">*</span>
           </label>
+
           <textarea
-            name="messages"
-            value={formData.messages}
-            onChange={handleChange}
-            placeholder="Tuliskan kesan dan pesan alumni..."
-            required
+            {...register("message")}
+            placeholder="Masukkan pesan/kesan"
             rows={5}
             className={inputClassName}
           />
+
+          {errors.message && (
+            <p className="text-destructive text-sm">{errors.message.message}</p>
+          )}
         </div>
 
-        <FormButtons isLoading={isLoading} />
+        <FormButtons isLoading={createAlumni.isPending} />
       </form>
     </div>
   );

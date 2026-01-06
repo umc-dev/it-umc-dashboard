@@ -4,47 +4,68 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { DataTable } from "@/components/DataTable";
 import { DeleteAlert } from "@/components/DeleteAlert";
-import { alumni, type Alumni } from "@/lib/data";
+import { useDeleteAlumni, useAlumni } from "@/app/dashboard/alumni/queries";
+import { AlumniResponse } from "@/app/dashboard/alumni/types";
+import { toast } from "sonner";
 
 export function AlumniContent() {
   const router = useRouter();
-  const [data, setData] = useState<Alumni[]>(alumni);
+
+  const { data, isLoading } = useAlumni();
+  const deleteAlumni = useDeleteAlumni();
+
   const [deleteAlert, setDeleteAlert] = useState<{
     isOpen: boolean;
-    item: Alumni | null;
-  }>({ isOpen: false, item: null });
+    item: AlumniResponse | null;
+  }>({
+    isOpen: false,
+    item: null,
+  });
 
-  const handleDeleteClick = (item: Alumni) => {
+  const handleDeleteClick = (item: AlumniResponse) => {
     setDeleteAlert({ isOpen: true, item });
   };
 
   const handleConfirmDelete = () => {
-    if (deleteAlert.item) {
-      setData(data.filter((a) => a.id !== deleteAlert.item!.id));
-      setDeleteAlert({ isOpen: false, item: null });
-    }
+    if (!deleteAlert.item) return;
+
+    deleteAlumni.mutate(deleteAlert.item.id, {
+      onSuccess: () => {
+        setDeleteAlert({ isOpen: false, item: null });
+
+        toast.success("Alumni berhasil dihapus!", {
+          description: `${deleteAlert.item?.name}`,
+        });
+      },
+
+      onError: () => {
+        toast.error("Gagal menghapus alumni", {
+          description: "Terjadi kesalahan pada server",
+        });
+      },
+    });
   };
+
+  if (isLoading) return <h1>Loading....</h1>;
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-foreground">Manajemen Alumni</h1>
         <p className="text-muted-foreground mt-2">
-          Kelola data alumni sekolah
+          Kelola data alumni
         </p>
       </div>
 
       <DataTable
-        data={data}
+        data={data?.data ?? []}
         columns={[
           { key: "name", label: "Nama", sortable: true },
-          { key: "thn_lulus", label: "Tahun Lulus", sortable: true },
+          { key: "year", label: "Tahun Lulus", sortable: true },
           {
-            key: "messages",
+            key: "message",
             label: "Pesan",
-            render: (value) => (
-              <p className="max-w-xs truncate">{value || "-"}</p>
-            ),
+            render: (value) => <span className="truncate max-w-xs block">{value || "-"}</span>,
           },
           {
             key: "video",
@@ -68,13 +89,13 @@ export function AlumniContent() {
         onAdd={() => router.push("/dashboard/alumni/tambah")}
         onEdit={(item) => router.push(`/dashboard/alumni/${item.id}/ubah`)}
         onDeleteClick={handleDeleteClick}
-        searchFields={["name", "messages"]}
+        searchFields={["name", "year", "message"]}
       />
 
       <DeleteAlert
         isOpen={deleteAlert.isOpen}
         title="Hapus Alumni"
-        description="Data alumni ini akan dihapus permanen"
+        description="Pastikan anda ingin menghapus alumni ini"
         itemName={deleteAlert.item?.name || ""}
         onConfirm={handleConfirmDelete}
         onCancel={() => setDeleteAlert({ isOpen: false, item: null })}
