@@ -3,11 +3,11 @@ import { getMe, logoutApi } from "./api";
 import type { AdminResponse } from "./types";
 
 export const useMe = () => {
-  return useQuery<AdminResponse>({
+  return useQuery<AdminResponse | null>({
     queryKey: ["me"],
     queryFn: getMe,
     retry: false,
-    staleTime: 5 * 60 * 1000, // 5 menit
+    staleTime: 5 * 60 * 1000,
   });
 };
 
