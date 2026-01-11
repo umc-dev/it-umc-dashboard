@@ -30,7 +30,7 @@ interface DataTableProps<T> {
   itemsPerPage?: number;
 }
 
-export function DataTable<T extends { id: string }>({
+export function DataTable<T extends { id: string | number }>({
   data,
   columns,
   onAdd,
