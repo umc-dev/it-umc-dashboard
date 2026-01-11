@@ -1,49 +1,100 @@
 "use client";
 
 import type React from "react";
-import { useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { kerjaSamaList, type KerjaSama } from "@/lib/data";
 import { FormHeader } from "@/components/FormHeader";
 import { FormButtons } from "@/components/FormButtons";
+import { ImageUpload } from "@/components/ImageUpload";
+import {
+  usePartnershipById,
+  useUpdatePartnership,
+} from "@/app/dashboard/kerja-sama/queries";
+import { useForm, useWatch } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { UpdatePartnershipSchema } from "@/app/dashboard/kerja-sama/validator";
+import { UpdatePartnershipDto } from "@/app/dashboard/kerja-sama/types";
+import Image from "next/image";
+import { toast } from "sonner";
+import axios from "axios";
+
+const inputClassName =
+  "w-full px-4 py-2 border border-border rounded-lg bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-colors";
 
 export function FormEditKerjaSama() {
   const router = useRouter();
   const params = useParams();
-  const id = Number(params.id);
-  const kerjaSama = kerjaSamaList.find((k) => k.id === id);
+  const id = params.id as string;
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState<Partial<KerjaSama>>(
-    kerjaSama || {
-      namaMitra: "",
-      logoUrl: "",
-      tahun: new Date().getFullYear(),
-      jangkaWaktu: "",
-      tanggalMulai: "",
-      tanggalBerakhir: "",
-      fileDownloadUrl: "",
+  const updatePartnership = useUpdatePartnership();
+
+  const { data: partnership, isLoading: isLoadingPartnership } =
+    usePartnershipById(id);
+
+  const {
+    register,
+    setValue,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    control,
+  } = useForm({
+    resolver: zodResolver(UpdatePartnershipSchema),
+  });
+
+  useEffect(() => {
+    if (partnership) {
+      reset({
+        name: partnership.name,
+        startDate: partnership.startDate.split("T")[0], // Format to YYYY-MM-DD
+        endDate: partnership.endDate.split("T")[0],
+      });
     }
-  );
+  }, [partnership, reset]);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  // Ambil nilai pakai useWatch
+  const watchedPhoto = useWatch({ control, name: "photo" });
+  const photo = useMemo(() => watchedPhoto, [watchedPhoto]);
+
+  const onSubmit = async (data: UpdatePartnershipDto) => {
+    try {
+      const fd = new FormData();
+      fd.append("name", data.name || "");
+      fd.append("startDate", data.startDate || "");
+      fd.append("endDate", data.endDate || "");
+
+      if (data.photo) {
+        fd.append("photo", data.photo);
+      }
+
+      await updatePartnership.mutateAsync({
+        id,
+        data: fd,
+      });
+
+      toast.success("Kerja sama berhasil diperbarui!", {
+        description: data.name,
+      });
+
+      router.push("/dashboard/kerja-sama");
+    } catch (err: unknown) {
+      let message = "Gagal memperbarui kerja sama.";
+
+      if (axios.isAxiosError(err)) {
+        message = err.response?.data?.message || message;
+      }
+
+      toast.error("Terjadi kesalahan!", { description: message });
+    }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    router.push("/dashboard/kerja-sama");
-  };
+  if (isLoadingPartnership) {
+    return (
+      <p className="text-center py-10 text-muted-foreground">Loading...</p>
+    );
+  }
 
-  if (!kerjaSama) {
+  if (!partnership) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <p className="text-muted-foreground">Kerja sama tidak ditemukan</p>
@@ -51,123 +102,86 @@ export function FormEditKerjaSama() {
     );
   }
 
-  const inputClassName =
-    "w-full px-4 py-2 border border-border rounded-lg bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-colors";
-
   return (
-    <div className="max-w-2xl mx-auto py-6 sm:py-8">
+    <div className="max-w-3xl mx-auto py-6">
       <FormHeader
-        title="Ubah Kerja Sama"
-        description="Perbarui data kerja sama kampus"
+        title="Edit Kerja Sama"
+        description="Perbarui data kerja sama"
       />
 
       <form
-        onSubmit={handleSubmit}
-        className="bg-card border border-border rounded-lg p-6 sm:p-8 space-y-6"
+        onSubmit={handleSubmit(onSubmit)}
+        className="bg-card border border-border rounded-lg p-6 space-y-6"
       >
+        {/* NAMA MITRA */}
         <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
-            Nama Mitra <span className="text-destructive">*</span>
-          </label>
+          <label>Nama Mitra</label>
           <input
-            type="text"
-            name="namaMitra"
-            value={formData.namaMitra || ""}
-            onChange={handleChange}
+            {...register("name")}
+            className={inputClassName}
             placeholder="Masukkan nama mitra"
-            required
-            className={inputClassName}
           />
+          {errors.name && (
+            <p className="text-destructive text-sm">{errors.name.message}</p>
+          )}
         </div>
 
+        {/* TANGGAL MULAI */}
         <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
-            URL Logo <span className="text-destructive">*</span>
-          </label>
-          <input
-            type="text"
-            name="logoUrl"
-            value={formData.logoUrl || ""}
-            onChange={handleChange}
-            placeholder="Masukkan URL logo"
-            required
-            className={inputClassName}
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
-            Tahun <span className="text-destructive">*</span>
-          </label>
-          <input
-            type="number"
-            name="tahun"
-            value={formData.tahun || ""}
-            onChange={handleChange}
-            placeholder="Masukkan tahun kerja sama"
-            required
-            className={inputClassName}
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
-            Jangka Waktu <span className="text-destructive">*</span>
-          </label>
-          <input
-            type="text"
-            name="jangkaWaktu"
-            value={formData.jangkaWaktu || ""}
-            onChange={handleChange}
-            placeholder="Contoh: 2 Tahun"
-            required
-            className={inputClassName}
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
-            Tanggal Mulai <span className="text-destructive">*</span>
-          </label>
+          <label>Tanggal Mulai</label>
           <input
             type="date"
-            name="tanggalMulai"
-            value={formData.tanggalMulai || ""}
-            onChange={handleChange}
-            required
+            {...register("startDate")}
             className={inputClassName}
           />
+          {errors.startDate && (
+            <p className="text-destructive text-sm">
+              {errors.startDate.message}
+            </p>
+          )}
         </div>
 
+        {/* TANGGAL BERAKHIR */}
         <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
-            Tanggal Berakhir <span className="text-destructive">*</span>
-          </label>
+          <label>Tanggal Berakhir</label>
           <input
             type="date"
-            name="tanggalBerakhir"
-            value={formData.tanggalBerakhir || ""}
-            onChange={handleChange}
-            required
+            {...register("endDate")}
             className={inputClassName}
           />
+          {errors.endDate && (
+            <p className="text-destructive text-sm">{errors.endDate.message}</p>
+          )}
         </div>
 
+        {/* PHOTO */}
         <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
-            File Dokumen (URL)
-          </label>
-          <input
-            type="text"
-            name="fileDownloadUrl"
-            value={formData.fileDownloadUrl || ""}
-            onChange={handleChange}
-            placeholder="URL file kerja sama"
-            className={inputClassName}
+          <label>Logo Lama</label>
+
+          {/* Logo lama */}
+          {partnership.photo && (
+            <Image
+              src={partnership.photo}
+              alt="Logo lama"
+              width={200}
+              height={120}
+              className="rounded mb-3"
+              unoptimized
+            />
+          )}
+
+          <ImageUpload
+            label="Logo Mitra"
+            value={photo ?? null}
+            onChange={(value) => setValue("photo", value)}
           />
+
+          {errors.photo && (
+            <p className="text-destructive text-sm">{errors.photo.message}</p>
+          )}
         </div>
 
-        <FormButtons isLoading={isLoading} />
+        <FormButtons isLoading={updatePartnership.isPending} />
       </form>
     </div>
   );

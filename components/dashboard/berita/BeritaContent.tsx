@@ -4,30 +4,50 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { DataTable } from "@/components/DataTable";
 import { DeleteAlert } from "@/components/DeleteAlert";
-import { beritas, kategoris, type Berita } from "@/lib/data";
 import Image from "next/image";
+import { useDeleteNews, useNews } from "@/app/dashboard/berita/queries";
+import { NewsResponse } from "@/app/dashboard/berita/types";
+import { toast } from "sonner";
 
 export function DashboardBeritaContent() {
   const router = useRouter();
-  const [data, setData] = useState<Berita[]>(beritas);
+
+  const { data, isLoading } = useNews();
+  const deleteNews = useDeleteNews();
+
   const [deleteAlert, setDeleteAlert] = useState<{
     isOpen: boolean;
-    item: Berita | null;
+    item: NewsResponse | null;
   }>({
     isOpen: false,
     item: null,
   });
 
-  const handleDeleteClick = (item: Berita) => {
+  const handleDeleteClick = (item: NewsResponse) => {
     setDeleteAlert({ isOpen: true, item });
   };
 
   const handleConfirmDelete = () => {
-    if (deleteAlert.item) {
-      setData(data.filter((b) => b.id !== deleteAlert.item!.id));
-      setDeleteAlert({ isOpen: false, item: null });
-    }
+    if (!deleteAlert.item) return;
+
+    deleteNews.mutate(deleteAlert.item.slug, {
+      onSuccess: () => {
+        setDeleteAlert({ isOpen: false, item: null });
+
+        toast.success("Berita berhasil dihapus!", {
+          description: `${deleteAlert.item?.title}`,
+        });
+      },
+
+      onError: () => {
+        toast.error("Gagal menghapus berita", {
+          description: "Terjadi kesalahan pada server",
+        });
+      },
+    });
   };
+
+  if (isLoading) return <h1>Loading....</h1>;
 
   return (
     <div className="space-y-6">
@@ -39,7 +59,7 @@ export function DashboardBeritaContent() {
       </div>
 
       <DataTable
-        data={data}
+        data={data?.data ?? []}
         columns={[
           {
             key: "thumbnail",
@@ -51,30 +71,29 @@ export function DashboardBeritaContent() {
                 width={100}
                 height={100}
                 className="w-16 h-10 object-cover rounded-md"
+                unoptimized
               />
             ),
           },
-          { key: "judul", label: "Judul", sortable: true },
+          { key: "title", label: "Title", sortable: true },
+
           {
-            key: "kategori_id",
+            key: "category",
             label: "Kategori",
-            render: (val) => {
-              const kategori = kategoris.find((k) => k.id === val);
-              return <span>{kategori?.nama || "-"}</span>;
-            },
+            render: (value) => <span>{value?.name || "-"}</span>,
           },
         ]}
         onAdd={() => router.push("/dashboard/berita/tambah")}
-        onEdit={(item) => router.push(`/dashboard/berita/${item.id}/ubah`)}
+        onEdit={(item) => router.push(`/dashboard/berita/${item.slug}/ubah`)}
         onDeleteClick={handleDeleteClick}
-        searchFields={["judul"]}
+        searchFields={["title"]}
       />
 
       <DeleteAlert
         isOpen={deleteAlert.isOpen}
         title="Hapus Berita"
         description="Pastikan anda ingin menghapus berita ini"
-        itemName={deleteAlert.item?.judul || ""}
+        itemName={deleteAlert.item?.title || ""}
         onConfirm={handleConfirmDelete}
         onCancel={() => setDeleteAlert({ isOpen: false, item: null })}
       />

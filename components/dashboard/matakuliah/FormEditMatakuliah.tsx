@@ -10,7 +10,7 @@ import { FormButtons } from '@/components/FormButtons'
 export function FormEditMatakuliah() {
   const router = useRouter()
   const params = useParams()
-  const id = Number(params.id)
+  const id = params.id as string
   const mataKuliah = mataKuliahs.find((mk) => mk.id === id)
 
   const [isLoading, setIsLoading] = useState(false)

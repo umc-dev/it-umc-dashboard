@@ -1,29 +1,36 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useMemo } from "react"
-import { Search, ChevronUp, ChevronDown, Edit, Trash2, Plus } from 'lucide-react'
+import { useState, useMemo } from "react";
+import {
+  Search,
+  ChevronUp,
+  ChevronDown,
+  Edit,
+  Trash2,
+  Plus,
+} from "lucide-react";
 
 interface Column<T> {
-  key: keyof T
-  label: string
-  sortable?: boolean
-  render?: (value: any, row: T) => React.ReactNode
+  key: keyof T;
+  label: string;
+  sortable?: boolean;
+  render?: (value: any, row: T) => React.ReactNode;
 }
 
 interface DataTableProps<T> {
-  data: T[]
-  columns: Column<T>[]
-  onAdd: () => void
-  onEdit: (item: T) => void
-  onDeleteClick: (item: T) => void
-  searchFields?: (keyof T)[]
-  itemsPerPage?: number
+  data: T[];
+  columns: Column<T>[];
+  onAdd: () => void;
+  onEdit: (item: T) => void;
+  onDeleteClick: (item: T) => void;
+  searchFields?: (keyof T)[];
+  itemsPerPage?: number;
 }
 
-export function DataTable<T extends { id: number }>({
+export function DataTable<T extends { id: string }>({
   data,
   columns,
   onAdd,
@@ -32,47 +39,49 @@ export function DataTable<T extends { id: number }>({
   searchFields = [],
   itemsPerPage = 10,
 }: DataTableProps<T>) {
-  const [searchTerm, setSearchTerm] = useState("")
+  const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState<{
-    key: keyof T
-    direction: "asc" | "desc"
-  } | null>(null)
-  const [currentPage, setCurrentPage] = useState(1)
+    key: keyof T;
+    direction: "asc" | "desc";
+  } | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const filteredData = useMemo(() => {
     return data.filter((item) => {
-      if (!searchTerm) return true
-      return searchFields.some((field) => String(item[field]).toLowerCase().includes(searchTerm.toLowerCase()))
-    })
-  }, [data, searchTerm, searchFields])
+      if (!searchTerm) return true;
+      return searchFields.some((field) =>
+        String(item[field]).toLowerCase().includes(searchTerm.toLowerCase()),
+      );
+    });
+  }, [data, searchTerm, searchFields]);
 
   const sortedData = useMemo(() => {
-    if (!sortConfig) return filteredData
-    const { key, direction } = sortConfig
+    if (!sortConfig) return filteredData;
+    const { key, direction } = sortConfig;
     return [...filteredData].sort((a, b) => {
-      const aVal = a[key]
-      const bVal = b[key]
-      if (aVal < bVal) return direction === "asc" ? -1 : 1
-      if (aVal > bVal) return direction === "asc" ? 1 : -1
-      return 0
-    })
-  }, [filteredData, sortConfig])
+      const aVal = a[key];
+      const bVal = b[key];
+      if (aVal < bVal) return direction === "asc" ? -1 : 1;
+      if (aVal > bVal) return direction === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [filteredData, sortConfig]);
 
   const paginatedData = useMemo(() => {
-    const start = (currentPage - 1) * itemsPerPage
-    return sortedData.slice(start, start + itemsPerPage)
-  }, [sortedData, currentPage, itemsPerPage])
+    const start = (currentPage - 1) * itemsPerPage;
+    return sortedData.slice(start, start + itemsPerPage);
+  }, [sortedData, currentPage, itemsPerPage]);
 
-  const totalPages = Math.ceil(sortedData.length / itemsPerPage)
+  const totalPages = Math.ceil(sortedData.length / itemsPerPage);
 
   const handleSort = (key: keyof T) => {
     setSortConfig((prev) => {
       if (prev?.key === key) {
-        return { key, direction: prev.direction === "asc" ? "desc" : "asc" }
+        return { key, direction: prev.direction === "asc" ? "desc" : "asc" };
       }
-      return { key, direction: "asc" }
-    })
-  }
+      return { key, direction: "asc" };
+    });
+  };
 
   return (
     <div className="space-y-4">
@@ -85,8 +94,8 @@ export function DataTable<T extends { id: number }>({
             placeholder="Cari data..."
             value={searchTerm}
             onChange={(e) => {
-              setSearchTerm(e.target.value)
-              setCurrentPage(1)
+              setSearchTerm(e.target.value);
+              setCurrentPage(1);
             }}
             className="w-full pl-10 pr-4 py-2 border border-border rounded-lg bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-colors"
           />
@@ -119,14 +128,16 @@ export function DataTable<T extends { id: number }>({
                       <div className="flex flex-col gap-0.5">
                         <ChevronUp
                           className={`w-3 h-3 ${
-                            sortConfig?.key === col.key && sortConfig.direction === "asc"
+                            sortConfig?.key === col.key &&
+                            sortConfig.direction === "asc"
                               ? "text-primary"
                               : "text-muted-foreground"
                           }`}
                         />
                         <ChevronDown
                           className={`w-3 h-3 ${
-                            sortConfig?.key === col.key && sortConfig.direction === "desc"
+                            sortConfig?.key === col.key &&
+                            sortConfig.direction === "desc"
                               ? "text-primary"
                               : "text-muted-foreground"
                           }`}
@@ -143,10 +154,18 @@ export function DataTable<T extends { id: number }>({
           </thead>
           <tbody>
             {paginatedData.map((item) => (
-              <tr key={item.id} className="border-b border-border hover:bg-muted/50 transition-colors">
+              <tr
+                key={item.id}
+                className="border-b border-border hover:bg-muted/50 transition-colors"
+              >
                 {columns.map((col) => (
-                  <td key={String(col.key)} className="px-3 sm:px-6 py-4 text-xs sm:text-sm text-foreground">
-                    {col.render ? col.render(item[col.key], item) : String(item[col.key])}
+                  <td
+                    key={String(col.key)}
+                    className="px-3 sm:px-6 py-4 text-xs sm:text-sm text-foreground"
+                  >
+                    {col.render
+                      ? col.render(item[col.key], item)
+                      : String(item[col.key])}
                   </td>
                 ))}
                 <td className="px-3 sm:px-6 py-4 text-sm">
@@ -175,7 +194,9 @@ export function DataTable<T extends { id: number }>({
         </table>
 
         {paginatedData.length === 0 && (
-          <div className="px-6 py-8 text-center text-muted-foreground">Tidak ada data</div>
+          <div className="px-6 py-8 text-center text-muted-foreground">
+            Tidak ada data
+          </div>
         )}
       </div>
 
@@ -184,7 +205,8 @@ export function DataTable<T extends { id: number }>({
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs sm:text-sm text-muted-foreground">
             Menampilkan {(currentPage - 1) * itemsPerPage + 1} sampai{" "}
-            {Math.min(currentPage * itemsPerPage, sortedData.length)} dari {sortedData.length} data
+            {Math.min(currentPage * itemsPerPage, sortedData.length)} dari{" "}
+            {sortedData.length} data
           </p>
           <div className="flex flex-wrap items-center justify-center gap-1 sm:gap-2">
             <button
@@ -196,7 +218,7 @@ export function DataTable<T extends { id: number }>({
             </button>
             <div className="flex items-center gap-1">
               {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                const page = currentPage > 3 ? currentPage - 2 + i : i + 1
+                const page = currentPage > 3 ? currentPage - 2 + i : i + 1;
                 return page <= totalPages ? (
                   <button
                     key={page}
@@ -209,7 +231,7 @@ export function DataTable<T extends { id: number }>({
                   >
                     {page}
                   </button>
-                ) : null
+                ) : null;
               })}
             </div>
             <button
@@ -223,5 +245,5 @@ export function DataTable<T extends { id: number }>({
         </div>
       )}
     </div>
-  )
+  );
 }

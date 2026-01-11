@@ -1,48 +1,98 @@
-'use client'
+"use client";
 
-import type React from 'react'
-import { useState } from 'react'
-import { useRouter, useParams } from 'next/navigation'
-import { dosens, type Dosen } from '@/lib/data'
-import { FormHeader } from '@/components/FormHeader'
-import { FormButtons } from '@/components/FormButtons'
-import { ImageUpload } from '@/components/ImageUpload'
+import type React from "react";
+import { useEffect, useMemo } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { FormHeader } from "@/components/FormHeader";
+import { FormButtons } from "@/components/FormButtons";
+import { ImageUpload } from "@/components/ImageUpload";
+import {
+  useDosenById,
+  useUpdateDosen,
+} from "@/app/dashboard/dosen/queries";
+import { useForm, useWatch } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { UpdateDosenSchema } from "@/app/dashboard/dosen/validator";
+import { UpdateDosenDto } from "@/app/dashboard/dosen/types";
+import Image from "next/image";
+import { toast } from "sonner";
+import axios from "axios";
 
 const inputClassName =
-  'w-full px-4 py-2 border border-border rounded-lg bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-colors'
+  "w-full px-4 py-2 border border-border rounded-lg bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-colors";
 
 export function FormEditDosen() {
-  const router = useRouter()
-  const params = useParams()
-  const id = Number(params.id)
-  const dosen = dosens.find((d) => d.id === id)
+  const router = useRouter();
+  const params = useParams();
+  const id = params.id as string;
 
-  const [isLoading, setIsLoading] = useState(false)
-  const [formData, setFormData] = useState<Partial<Dosen>>(
-    dosen || {
-      nama: '',
-      spesialis: '',
-      link_pengabdian: '',
-      link_penelitian: '',
-      link_pengajaran: '',
-      avatar: '',
-    },
-  )
+  const updateDosen = useUpdateDosen();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+  const { data: dosen, isLoading: isLoadingDosen } = useDosenById(id);
 
-  const handleImageChange = (value: string) => {
-    setFormData((prev) => ({ ...prev, avatar: value }))
-  }
+  const {
+    register,
+    setValue,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    control,
+  } = useForm({
+    resolver: zodResolver(UpdateDosenSchema),
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    router.push('/dashboard/dosen')
+  useEffect(() => {
+    if (dosen) {
+      reset({
+        name: dosen.name,
+        expertise: dosen.expertise,
+        research: dosen.research,
+        teaching: dosen.teaching,
+      });
+    }
+  }, [dosen, reset]);
+
+  // Ambil nilai pakai useWatch
+  const watchedPhoto = useWatch({ control, name: "photo" });
+  const photo = useMemo(() => watchedPhoto, [watchedPhoto]);
+
+  const onSubmit = async (data: UpdateDosenDto) => {
+    try {
+      const fd = new FormData();
+      fd.append("name", data.name || "");
+      fd.append("expertise", data.expertise || "");
+      fd.append("research", data.research || "");
+      fd.append("teaching", data.teaching || "");
+
+      if (data.photo) {
+        fd.append("photo", data.photo);
+      }
+
+      await updateDosen.mutateAsync({
+        id,
+        data: fd,
+      });
+
+      toast.success("Dosen berhasil diperbarui!", {
+        description: data.name,
+      });
+
+      router.push("/dashboard/dosen");
+    } catch (err: unknown) {
+      let message = "Gagal memperbarui dosen.";
+
+      if (axios.isAxiosError(err)) {
+        message = err.response?.data?.message || message;
+      }
+
+      toast.error("Terjadi kesalahan!", { description: message });
+    }
+  };
+
+  if (isLoadingDosen) {
+    return (
+      <p className="text-center py-10 text-muted-foreground">Loading...</p>
+    );
   }
 
   if (!dosen) {
@@ -50,84 +100,100 @@ export function FormEditDosen() {
       <div className="flex items-center justify-center min-h-screen">
         <p className="text-muted-foreground">Dosen tidak ditemukan</p>
       </div>
-    )
+    );
   }
 
   return (
-    <div className="max-w-2xl mx-auto py-6 sm:py-8">
-      <FormHeader title="Ubah Dosen" description="Ubah data dosen yang ada" />
+    <div className="max-w-3xl mx-auto py-6">
+      <FormHeader title="Edit Dosen" description="Perbarui data dosen" />
 
-      <form onSubmit={handleSubmit} className="bg-card border border-border rounded-lg p-6 sm:p-8 space-y-6">
-        <ImageUpload label="Foto Dosen" value={formData.avatar || ''} onChange={handleImageChange} preview={true} />
-
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="bg-card border border-border rounded-lg p-6 space-y-6"
+      >
+        {/* NAMA */}
         <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
-            Nama Dosen <span className="text-destructive">*</span>
-          </label>
+          <label>Nama Dosen</label>
           <input
-            type="text"
-            name="nama"
-            value={formData.nama || ''}
-            onChange={handleChange}
+            {...register("name")}
+            className={inputClassName}
             placeholder="Masukkan nama dosen"
-            required
-            className={inputClassName}
           />
+          {errors.name && (
+            <p className="text-destructive text-sm">{errors.name.message}</p>
+          )}
         </div>
 
+        {/* EXPERTISE */}
         <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
-            Spesialis <span className="text-destructive">*</span>
-          </label>
+          <label>Spesialisasi</label>
           <input
-            type="text"
-            name="spesialis"
-            value={formData.spesialis || ''}
-            onChange={handleChange}
+            {...register("expertise")}
+            className={inputClassName}
             placeholder="Masukkan spesialisasi"
-            required
-            className={inputClassName}
           />
+          {errors.expertise && (
+            <p className="text-destructive text-sm">{errors.expertise.message}</p>
+          )}
         </div>
 
+        {/* RESEARCH */}
         <div>
-          <label className="block text-sm font-medium text-foreground mb-2">Link Pengabdian</label>
+          <label>Link Penelitian</label>
           <input
             type="url"
-            name="link_pengabdian"
-            value={formData.link_pengabdian || ''}
-            onChange={handleChange}
-            placeholder="https://..."
+            {...register("research")}
             className={inputClassName}
+            placeholder="https://..."
           />
+          {errors.research && (
+            <p className="text-destructive text-sm">{errors.research.message}</p>
+          )}
         </div>
 
+        {/* TEACHING */}
         <div>
-          <label className="block text-sm font-medium text-foreground mb-2">Link Penelitian</label>
+          <label>Link Pengajaran</label>
           <input
             type="url"
-            name="link_penelitian"
-            value={formData.link_penelitian || ''}
-            onChange={handleChange}
-            placeholder="https://..."
+            {...register("teaching")}
             className={inputClassName}
+            placeholder="https://..."
           />
+          {errors.teaching && (
+            <p className="text-destructive text-sm">{errors.teaching.message}</p>
+          )}
         </div>
 
+        {/* PHOTO */}
         <div>
-          <label className="block text-sm font-medium text-foreground mb-2">Link Pengajaran</label>
-          <input
-            type="url"
-            name="link_pengajaran"
-            value={formData.link_pengajaran || ''}
-            onChange={handleChange}
-            placeholder="https://..."
-            className={inputClassName}
+          <label>Foto Lama</label>
+
+          {/* Foto lama */}
+          {dosen.photo && (
+            <Image
+              src={dosen.photo}
+              alt="Foto lama"
+              width={200}
+              height={120}
+              className="rounded mb-3"
+              unoptimized
+            />
+          )}
+
+          <ImageUpload
+            label="Foto Dosen"
+            value={photo ?? null}
+            onChange={(value) => setValue("photo", value)}
           />
+
+          {errors.photo && (
+            <p className="text-destructive text-sm">{errors.photo.message}</p>
+          )}
         </div>
 
-        <FormButtons isLoading={isLoading} />
+        <FormButtons isLoading={updateDosen.isPending} />
       </form>
     </div>
-  )
+  );
 }

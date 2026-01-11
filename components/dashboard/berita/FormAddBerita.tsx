@@ -1,122 +1,173 @@
-'use client'
+"use client";
 
-import type React from 'react'
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { kategoris, admins } from '@/lib/data'
-import { FormHeader } from '@/components/FormHeader'
-import { FormButtons } from '@/components/FormButtons'
-import { ImageUpload } from '@/components/ImageUpload'
+import type React from "react";
+import { useRouter } from "next/navigation";
+import { FormHeader } from "@/components/FormHeader";
+import { FormButtons } from "@/components/FormButtons";
+import { ImageUpload } from "@/components/ImageUpload";
+import { TiptapEditor } from "@/components/TiptapEditor";
+import { useCreateNews } from "@/app/dashboard/berita/queries";
+import { CreateNewsDto } from "@/app/dashboard/berita/types";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { CreateNewsSchema } from "@/app/dashboard/berita/validator";
+import { useForm, useWatch } from "react-hook-form";
+import axios from "axios";
+import { toast } from "sonner";
+import { useCategory } from "@/app/dashboard/kategori/queries";
+import { useMemo } from "react";
 
 const inputClassName =
-  'w-full px-4 py-2 border border-border rounded-lg bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-colors'
+  "w-full px-4 py-2 border border-border rounded-lg bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-colors";
 
 export function FormAddBerita() {
-  const router = useRouter()
-  const [isLoading, setIsLoading] = useState(false)
-  const [formData, setFormData] = useState({
-    judul: '',
-    body: '',
-    thumbnail: '',
-    kategori_id: '',
-    admin_id: '',
-  })
+  const router = useRouter();
+  const createNews = useCreateNews();
+  const { data, isLoading } = useCategory();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    control,
+    formState: { errors },
+  } = useForm<CreateNewsDto>({
+    resolver: zodResolver(CreateNewsSchema),
+    defaultValues: {
+      thumbnail: null,
+    },
+  });
 
-  const handleImageChange = (value: string) => {
-    setFormData((prev) => ({ ...prev, thumbnail: value }))
-  }
+  const watchedThumbnail = useWatch({ control, name: "thumbnail" });
+  const watchedContent = useWatch({ control, name: "content" });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    router.push('/dashboard/berita')
-  }
+  const thumbnail = useMemo(() => watchedThumbnail, [watchedThumbnail]);
+  const content = useMemo(() => watchedContent, [watchedContent]);
+
+  const onSubmit = async (data: CreateNewsDto) => {
+    try {
+      const fd = new FormData();
+      fd.append("title", data.title);
+
+      fd.append("content", data.content);
+
+      fd.append("categoryId", data.categoryId);
+
+      if (!data.thumbnail) {
+        toast.error("Thumbnail wajib diupload");
+        return;
+      }
+
+      fd.append("thumbnail", data.thumbnail);
+
+      await createNews.mutateAsync(fd);
+
+      toast.success("Berita berhasil dibuat!", {
+        description: data.title,
+      });
+
+      router.push("/dashboard/berita");
+    } catch (error: unknown) {
+      let message = "Gagal membuat berita.";
+
+      if (axios.isAxiosError(error)) {
+        message = error.response?.data?.message || message;
+      }
+
+      toast.error("Terjadi kesalahan!", {
+        description: message,
+      });
+    }
+  };
 
   return (
     <div className="max-w-2xl mx-auto py-6 sm:py-8">
-      <FormHeader title="Tambah Berita" description="Buat berita baru di sistem" />
+      <FormHeader
+        title="Tambah Berita"
+        description="Buat berita baru di sistem"
+      />
 
-      <form onSubmit={handleSubmit} className="bg-card border border-border rounded-lg p-6 sm:p-8 space-y-6">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="bg-card border border-border rounded-lg p-6 sm:p-8 space-y-6"
+      >
+        {/* JUDUL */}
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
             Judul Berita <span className="text-destructive">*</span>
           </label>
+
           <input
-            type="text"
-            name="judul"
-            value={formData.judul}
-            onChange={handleChange}
+            {...register("title")}
             placeholder="Masukkan judul berita"
-            required
             className={inputClassName}
           />
+
+          {errors.title && (
+            <p className="text-destructive text-sm">{errors.title.message}</p>
+          )}
         </div>
 
+        {/* BODY */}
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
             Isi Berita <span className="text-destructive">*</span>
           </label>
-          <textarea
-            name="body"
-            value={formData.body}
-            onChange={handleChange}
-            placeholder="Masukkan isi berita"
-            required
-            rows={6}
-            className={`${inputClassName} resize-none`}
+
+          <TiptapEditor
+            value={content}
+            onValueChange={(value) => setValue("content", value)}
           />
+
+          {errors.content && (
+            <p className="text-destructive text-sm">{errors.content.message}</p>
+          )}
         </div>
 
-        <ImageUpload label="Thumbnail Berita" value={formData.thumbnail} onChange={handleImageChange} preview={true} />
+        {/* THUMBNAIL */}
+        <ImageUpload
+          label="Thumbnail Berita"
+          value={thumbnail}
+          onChange={(value) => setValue("thumbnail", value)}
+        />
 
+        {errors.thumbnail && (
+          <p className="text-destructive text-sm">{errors.thumbnail.message}</p>
+        )}
+
+        {/* KATEGORI */}
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
             Kategori <span className="text-destructive">*</span>
           </label>
-          <select
-            name="kategori_id"
-            value={formData.kategori_id}
-            onChange={handleChange}
-            required
-            className={inputClassName}
-          >
-            <option value="">Pilih Kategori</option>
-            {kategoris.map((k) => (
-              <option key={k.id} value={k.id}>
-                {k.nama}
-              </option>
-            ))}
-          </select>
+
+          {isLoading ? (
+            // Spinner state
+            <div className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg bg-muted animate-pulse text-muted-foreground">
+              <div className="h-4 w-4 border-2 border-muted-foreground border-t-transparent rounded-full animate-spin" />
+              <span>Memuat kategori...</span>
+            </div>
+          ) : (
+            // Normal select
+            <select {...register("categoryId")} className={inputClassName}>
+              <option value="">Pilih kategori...</option>
+
+              {data?.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+          )}
+
+          {errors.categoryId && (
+            <p className="text-destructive text-sm">
+              {errors.categoryId.message}
+            </p>
+          )}
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
-            Admin <span className="text-destructive">*</span>
-          </label>
-          <select
-            name="admin_id"
-            value={formData.admin_id}
-            onChange={handleChange}
-            required
-            className={inputClassName}
-          >
-            <option value="">Pilih Admin</option>
-            {admins.map((a) => (
-              <option key={a.id} value={a.id}>
-                {a.nama}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <FormButtons isLoading={isLoading} />
+        <FormButtons isLoading={createNews.isPending} />
       </form>
     </div>
-  )
+  );
 }

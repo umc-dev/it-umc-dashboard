@@ -1,0 +1,105 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { DataTable } from "@/components/DataTable";
+import { DeleteAlert } from "@/components/DeleteAlert";
+import { useDeleteAlumni, useAlumni } from "@/app/dashboard/alumni/queries";
+import { AlumniResponse } from "@/app/dashboard/alumni/types";
+import { toast } from "sonner";
+
+export function AlumniContent() {
+  const router = useRouter();
+
+  const { data, isLoading } = useAlumni();
+  const deleteAlumni = useDeleteAlumni();
+
+  const [deleteAlert, setDeleteAlert] = useState<{
+    isOpen: boolean;
+    item: AlumniResponse | null;
+  }>({
+    isOpen: false,
+    item: null,
+  });
+
+  const handleDeleteClick = (item: AlumniResponse) => {
+    setDeleteAlert({ isOpen: true, item });
+  };
+
+  const handleConfirmDelete = () => {
+    if (!deleteAlert.item) return;
+
+    deleteAlumni.mutate(deleteAlert.item.id, {
+      onSuccess: () => {
+        setDeleteAlert({ isOpen: false, item: null });
+
+        toast.success("Alumni berhasil dihapus!", {
+          description: `${deleteAlert.item?.name}`,
+        });
+      },
+
+      onError: () => {
+        toast.error("Gagal menghapus alumni", {
+          description: "Terjadi kesalahan pada server",
+        });
+      },
+    });
+  };
+
+  if (isLoading) return <h1>Loading....</h1>;
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-foreground">Manajemen Alumni</h1>
+        <p className="text-muted-foreground mt-2">
+          Kelola data alumni
+        </p>
+      </div>
+
+      <DataTable
+        data={data?.data ?? []}
+        columns={[
+          { key: "name", label: "Nama", sortable: true },
+          { key: "year", label: "Tahun Lulus", sortable: true },
+          {
+            key: "message",
+            label: "Pesan",
+            render: (value) => <span className="truncate max-w-xs block">{value || "-"}</span>,
+          },
+          {
+            key: "video",
+            label: "Video",
+            render: (value) => (
+              value ? (
+                <a
+                  href={value}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  Lihat Video
+                </a>
+              ) : (
+                "-"
+              )
+            ),
+          },
+        ]}
+        onAdd={() => router.push("/dashboard/alumni/tambah")}
+        onEdit={(item) => router.push(`/dashboard/alumni/${item.id}/ubah`)}
+        onDeleteClick={handleDeleteClick}
+        searchFields={["name", "year", "message"]}
+      />
+
+      <DeleteAlert
+        isOpen={deleteAlert.isOpen}
+        title="Hapus Alumni"
+        description="Pastikan anda ingin menghapus alumni ini"
+        itemName={deleteAlert.item?.name || ""}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeleteAlert({ isOpen: false, item: null })}
+      />
+    </div>
+  );
+}
