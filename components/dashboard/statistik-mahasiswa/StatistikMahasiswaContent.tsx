@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
   BarChart,
@@ -10,7 +10,7 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Cell,
+  TooltipProps,
 } from "recharts";
 import { DataTable } from "@/components/DataTable";
 import { DeleteAlert } from "@/components/DeleteAlert";
@@ -21,10 +21,17 @@ import {
 import { StatisticStudentResponse } from "@/app/dashboard/statistik-mahasiswa/types";
 import { toast } from "sonner";
 
-interface CustomTooltipProps {
+interface ChartData {
+  tahun: number;
+  masuk: number;
+  keluar: number;
+  total: number;
+}
+
+interface CustomTooltipProps extends TooltipProps<number, string> {
   active?: boolean;
   payload?: Array<{
-    payload: StatisticStudentResponse & { total: number };
+    payload: ChartData;
   }>;
   label?: string;
 }
@@ -33,57 +40,25 @@ const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     const dataPoint = payload[0].payload;
     return (
-      <div
-        style={{
-          backgroundColor: "var(--color-card)",
-          border: "1px solid var(--color-border)",
-          borderRadius: "0.5rem",
-          padding: "0.75rem",
-        }}
-      >
-        <p
-          style={{
-            color: "var(--color-foreground)",
-            fontWeight: "600",
-            marginBottom: "0.5rem",
-          }}
-        >
-          Tahun {label}
-        </p>
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
-          <p
-            style={{
-              color: "var(--color-muted-foreground)",
-              fontSize: "0.875rem",
-            }}
-          >
+      <div className="bg-card border border-border rounded-lg p-3">
+        <p className="text-foreground font-semibold mb-2">Tahun {label}</p>
+        <div className="space-y-1">
+          <p className="text-muted-foreground text-sm">
             Mahasiswa Masuk:{" "}
-            <span style={{ color: "#10b981", fontWeight: "500" }}>
-              {formatNumber(dataPoint.enteredStudents)}
+            <span className="text-green-500 font-medium">
+              {dataPoint.masuk.toLocaleString("id-ID")}
             </span>
           </p>
-          <p
-            style={{
-              color: "var(--color-muted-foreground)",
-              fontSize: "0.875rem",
-            }}
-          >
+          <p className="text-muted-foreground text-sm">
             Mahasiswa Keluar:{" "}
-            <span style={{ color: "#ef4444", fontWeight: "500" }}>
-              {formatNumber(dataPoint.graduatedStudents)}
+            <span className="text-red-500 font-medium">
+              {dataPoint.keluar.toLocaleString("id-ID")}
             </span>
           </p>
-          <p
-            style={{
-              color: "var(--color-foreground)",
-              fontSize: "0.875rem",
-              fontWeight: "600",
-              marginTop: "0.25rem",
-            }}
-          >
+          <p className="text-foreground text-sm font-semibold mt-1">
             Total:{" "}
-            <span style={{ color: "var(--color-chart-1)" }}>
-              {formatNumber(dataPoint.total)}
+            <span className="text-chart-1">
+              {dataPoint.total.toLocaleString("id-ID")}
             </span>
           </p>
         </div>
@@ -98,7 +73,7 @@ const formatNumber = (value: number) => value.toLocaleString("id-ID");
 export function DashboardStatistikMahasiswaContent() {
   const router = useRouter();
 
-  const { data, isLoading } = useStatisticStudents();
+  const { data: statisticsData, isLoading } = useStatisticStudents();
   const deleteStatisticStudent = useDeleteStatisticStudent();
 
   const [deleteAlert, setDeleteAlert] = useState<{
@@ -133,14 +108,29 @@ export function DashboardStatistikMahasiswaContent() {
     });
   };
 
-  if (isLoading) return <h1>Loading....</h1>;
+  // Transform statistics data for chart
+  const chartData = useMemo(() => {
+    if (!statisticsData?.data) return [];
 
-  // Transform data untuk chart dengan total
-  const chartData =
-    data?.data.map((item) => ({
-      ...item,
-      total: item.enteredStudents + item.graduatedStudents,
-    })) || [];
+    // Sort by year ascending
+    const sortedData = [...statisticsData.data].sort((a, b) => a.year - b.year);
+
+    let cumulativeTotal = 0;
+
+    return sortedData.map((stat: StatisticStudentResponse) => {
+      // Cumulative calculation: previous total + entered - graduated
+      cumulativeTotal += stat.enteredStudents - stat.graduatedStudents;
+
+      return {
+        tahun: stat.year,
+        masuk: stat.enteredStudents,
+        keluar: stat.graduatedStudents,
+        total: cumulativeTotal, // Total mahasiswa aktif hingga tahun ini
+      };
+    });
+  }, [statisticsData]);
+
+  if (isLoading) return <h1>Loading....</h1>;
 
   return (
     <div className="space-y-6">
@@ -160,37 +150,28 @@ export function DashboardStatistikMahasiswaContent() {
         <div className="overflow-x-auto">
           <ResponsiveContainer width="100%" height={300} minWidth={300}>
             <BarChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-              <XAxis
-                dataKey="year"
-                stroke="var(--color-muted-foreground)"
-                fontSize={13}
-                tickMargin={8}
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="var(--color-border)"
               />
-              <YAxis
-                stroke="var(--color-muted-foreground)"
-                fontSize={13}
-                tickFormatter={formatNumber}
-                tickMargin={8}
+              <XAxis dataKey="tahun" stroke="var(--color-muted-foreground)" />
+              <YAxis stroke="var(--color-muted-foreground)" />
+              <Tooltip
+                content={<CustomTooltip />}
+                cursor={{ fill: "rgba(0, 0, 0, 0.04)" }}
               />
-              <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(0, 0, 0, 0.04)" }} />
               <Bar
                 dataKey="total"
                 fill="var(--color-chart-1)"
                 radius={[8, 8, 0, 0]}
-                animationDuration={800}
-              >
-                {chartData.map((entry) => (
-                  <Cell key={`cell-${entry.id}`} fill="var(--color-chart-1)" />
-                ))}
-              </Bar>
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>
       </div>
 
       <DataTable
-        data={data?.data ?? []}
+        data={statisticsData?.data ?? []}
         columns={[
           { key: "year", label: "Tahun", sortable: true },
           {
