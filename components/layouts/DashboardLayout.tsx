@@ -24,7 +24,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     { label: "Berita", href: "/dashboard/berita", icon: FileText },
     { label: "Kategori", href: "/dashboard/kategori", icon: Folder },
     { label: "Mata Kuliah", href: "/dashboard/matakuliah", icon: BookOpen },
-    { label: "Statistik Mahasiswa", href: "/dashboard/statistik", icon: BarChart3 },
+    { label: "Statistik Mahasiswa", href: "/dashboard/statistik-mahasiswa", icon: BarChart3 },
     { label: "Alumni", href: "/dashboard/alumni", icon: GraduationCap },
     { label: "Kerja Sama", href: "/dashboard/kerja-sama", icon: Handshake },
     { label: "Visi & Misi", href: "/dashboard/visi-misi", icon: Goal },

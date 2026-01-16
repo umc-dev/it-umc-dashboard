@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { FormAddStatistik } from '@/components/dashboard/statistik/FormAddStatistik'
+import { FormAddStatistikMahasiswa } from '@/components/dashboard/statistik-mahasiswa/FormAddStatistikMahasiswa'
 
 export const metadata: Metadata = {
   title: 'Tambah Statistik - Sistem Manajemen Konten',
@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 }
 
 export default function TambahStatistikPage() {
-  return <FormAddStatistik />
+  return <FormAddStatistikMahasiswa />
 }

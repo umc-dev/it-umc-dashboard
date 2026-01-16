@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 
 interface Column<T> {
-  key: keyof T;
+  key: keyof T | string;
   label: string;
   sortable?: boolean;
   render?: (value: any, row: T) => React.ReactNode;
@@ -120,7 +120,7 @@ export function DataTable<T extends { id: string | number }>({
                   className={`px-3 sm:px-6 py-3 text-left text-xs sm:text-sm font-semibold text-foreground whitespace-nowrap ${
                     col.sortable ? "cursor-pointer hover:bg-muted/80" : ""
                   }`}
-                  onClick={() => col.sortable && handleSort(col.key)}
+                  onClick={() => col.sortable && handleSort(col.key as keyof T)}
                 >
                   <div className="flex items-center gap-1 sm:gap-2">
                     {col.label}
@@ -164,8 +164,8 @@ export function DataTable<T extends { id: string | number }>({
                     className="px-3 sm:px-6 py-4 text-xs sm:text-sm text-foreground"
                   >
                     {col.render
-                      ? col.render(item[col.key], item)
-                      : String(item[col.key])}
+                      ? col.render(item[col.key as keyof T], item)
+                      : String(item[col.key as keyof T])}
                   </td>
                 ))}
                 <td className="px-3 sm:px-6 py-4 text-sm">
