@@ -1,5 +1,15 @@
 "use client";
 
+// import { useAdmins } from "@/app/dashboard/admin/queries";
+import { useAlumni } from "@/app/dashboard/alumni/queries";
+import { useNews } from "@/app/dashboard/berita/queries";
+import { useDosens } from "@/app/dashboard/dosen/queries";
+import { useCategory } from "@/app/dashboard/kategori/queries";
+import { usePartnerships } from "@/app/dashboard/kerja-sama/queries";
+// import { useStudies } from "@/app/dashboard/matakuliah/queries";
+import { useStatisticStudents } from "@/app/dashboard/statistik-mahasiswa/queries";
+import { StatisticStudentResponse } from "@/app/dashboard/statistik-mahasiswa/types";
+import { useMe } from "@/app/login/queries";
 import { useMemo } from "react";
 import {
   BarChart,
@@ -9,21 +19,21 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  TooltipProps,
 } from "recharts";
-import {
-  statistikMahasiswas,
-  beritas,
-  dosens,
-  kategoris,
-  mataKuliahs,
-  type StatistikMahasiswa,
-} from "@/lib/data";
 
-// Custom Tooltip Component
-interface CustomTooltipProps {
+
+interface ChartData {
+  tahun: number;
+  masuk: number;
+  keluar: number;
+  total: number;
+}
+
+interface CustomTooltipProps extends TooltipProps<number, string> {
   active?: boolean;
   payload?: Array<{
-    payload: StatistikMahasiswa;
+    payload: ChartData;
   }>;
   label?: string;
 }
@@ -32,59 +42,25 @@ const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     const dataPoint = payload[0].payload;
     return (
-      <div
-        style={{
-          backgroundColor: "var(--color-card)",
-          border: "1px solid var(--color-border)",
-          borderRadius: "0.5rem",
-          padding: "0.75rem",
-        }}
-      >
-        <p
-          style={{
-            color: "var(--color-foreground)",
-            fontWeight: "600",
-            marginBottom: "0.5rem",
-          }}
-        >
-          Tahun {label}
-        </p>
-        <div
-          style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}
-        >
-          <p
-            style={{
-              color: "var(--color-muted-foreground)",
-              fontSize: "0.875rem",
-            }}
-          >
+      <div className="bg-card border border-border rounded-lg p-3">
+        <p className="text-foreground font-semibold mb-2">Tahun {label}</p>
+        <div className="space-y-1">
+          <p className="text-muted-foreground text-sm">
             Mahasiswa Masuk:{" "}
-            <span style={{ color: "#10b981", fontWeight: "500" }}>
-              {formatNumber(dataPoint.masuk)}
+            <span className="text-green-500 font-medium">
+              {dataPoint.masuk.toLocaleString("id-ID")}
             </span>
           </p>
-          <p
-            style={{
-              color: "var(--color-muted-foreground)",
-              fontSize: "0.875rem",
-            }}
-          >
+          <p className="text-muted-foreground text-sm">
             Mahasiswa Keluar:{" "}
-            <span style={{ color: "#ef4444", fontWeight: "500" }}>
-              {formatNumber(dataPoint.keluar)}
+            <span className="text-red-500 font-medium">
+              {dataPoint.keluar.toLocaleString("id-ID")}
             </span>
           </p>
-          <p
-            style={{
-              color: "var(--color-foreground)",
-              fontSize: "0.875rem",
-              fontWeight: "600",
-              marginTop: "0.25rem",
-            }}
-          >
+          <p className="text-foreground text-sm font-semibold mt-1">
             Total:{" "}
-            <span style={{ color: "var(--color-chart-1)" }}>
-              {formatNumber(dataPoint.total)}
+            <span className="text-chart-1">
+              {dataPoint.total.toLocaleString("id-ID")}
             </span>
           </p>
         </div>
@@ -94,71 +70,167 @@ const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   return null;
 };
 
-const formatNumber = (value: number) => value.toLocaleString("id-ID");
-
 export function DashboardMainContent() {
+  // Fetch data from API
+  const { data: admin } = useMe();
+  const { data: statisticsData } = useStatisticStudents();
+  const { data: newsData } = useNews();
+  const { data: dosensData } = useDosens();
+  const { data: categoriesData } = useCategory();
+  const { data: partnershipsData } = usePartnerships();
+  const { data: alumniData } = useAlumni();
+  // const { data: studiesData } = useStudies();
+  // const { data: adminsData } = useAdmins();
+
+  // Calculate cumulative total students across all years
+  const totalStudents = useMemo(() => {
+    if (!statisticsData?.data || statisticsData.data.length === 0) return 0;
+    
+    // Total = Sum of all students entered - Sum of all students graduated
+    const totalEntered = statisticsData.data.reduce(
+      (sum, stat) => sum + stat.enteredStudents,
+      0
+    );
+    const totalGraduated = statisticsData.data.reduce(
+      (sum, stat) => sum + stat.graduatedStudents,
+      0
+    );
+    
+    return totalEntered - totalGraduated;
+  }, [statisticsData]);
+
+  // Prepare stats cards
   const stats = useMemo(
     () => [
-      { label: "Total Dosen", value: dosens.length, color: "bg-chart-1" },
-      { label: "Total Berita", value: beritas.length, color: "bg-chart-2" },
       {
-        label: "Total Mata Kuliah",
-        value: mataKuliahs.length,
-        color: "bg-chart-3",
+        label: "Total Dosen",
+        value: dosensData?.data?.length || 0,
       },
-      { label: "Total Kategori", value: kategoris.length, color: "bg-chart-4" },
+      {
+        label: "Total Berita",
+        value: newsData?.data?.length || 0,
+      },
+      {
+        label: "Total Alumni",
+        value: alumniData?.data?.length || 0,
+      },
+      {
+        label: "Total Kategori",
+        value: categoriesData?.length || 0,
+      },
       {
         label: "Total Mahasiswa",
-        value: statistikMahasiswas[statistikMahasiswas.length - 1].total,
-        color: "bg-chart-5",
+        value: totalStudents,      },
+      {
+        label: "Total Kerja Sama",
+        value: partnershipsData?.data?.length || 0,
       },
+      // {
+      //   label: "Total Studi",
+      //   value: studiesData?.data?.length || 0,
+      // },
+      // {
+      //   label: "Total Admin",
+      //   value: adminsData?.data?.length || 0,
+      // },
     ],
-    []
+    [
+      dosensData,
+      newsData,
+      alumniData,
+      categoriesData,
+      totalStudents,
+      partnershipsData,
+      // studiesData,
+      // adminsData,
+    ]
   );
+
+  // Transform statistics data for chart
+  const chartData = useMemo(() => {
+    if (!statisticsData?.data) return [];
+    
+    // Sort by year ascending
+    const sortedData = [...statisticsData.data].sort((a, b) => a.year - b.year);
+    
+    let cumulativeTotal = 0;
+    
+    return sortedData.map((stat: StatisticStudentResponse) => {
+      // Cumulative calculation: previous total + entered - graduated
+      cumulativeTotal += stat.enteredStudents - stat.graduatedStudents;
+      
+      return {
+        tahun: stat.year,
+        masuk: stat.enteredStudents,
+        keluar: stat.graduatedStudents,
+        total: cumulativeTotal, // Total mahasiswa aktif hingga tahun ini
+      };
+    });
+  }, [statisticsData]);
+
+  // Get latest news
+  const latestNews = useMemo(() => {
+    if (!newsData?.data) return [];
+    return newsData.data.slice(0, 3);
+  }, [newsData]);
 
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-          Dashboard
+          Selamat Datang di Dashboard, {admin?.name}! 
         </h1>
+        <p className="text-sm text-muted-foreground">
+          {new Date().toLocaleDateString("id-ID", {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
+        </p>
+
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4">
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {stats.map((stat, idx) => (
           <div
             key={idx}
-            className="bg-card border border-border rounded-lg p-4 sm:p-6 text-center hover:shadow-md transition-shadow"
+            className="bg-card border border-border rounded-lg p-6 text-center hover:shadow-md transition-shadow"
           >
-            <p className="text-xs sm:text-sm font-medium text-muted-foreground mb-2">
+            <p className="text-sm font-medium text-muted-foreground mb-2">
               {stat.label}
             </p>
-            <p className="text-2xl sm:text-4xl font-bold text-foreground">
-              {stat.value}
-            </p>
+            <p className="text-4xl font-bold text-foreground">{stat.value}</p>
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-        <div className="bg-card border border-border rounded-lg p-4 sm:p-6">
-          <h2 className="text-base sm:text-lg font-semibold text-foreground mb-4">
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Student Statistics Chart */}
+        <div className="bg-card border border-border rounded-lg p-6">
+          <h2 className="text-lg font-semibold text-foreground mb-4">
             Statistik Mahasiswa per Tahun
           </h2>
           <div className="overflow-x-auto">
             <ResponsiveContainer width="100%" height={300} minWidth={300}>
-              <BarChart data={statistikMahasiswas}>
+              <BarChart data={chartData}>
                 <CartesianGrid
                   strokeDasharray="3 3"
                   stroke="var(--color-border)"
                 />
-                <XAxis dataKey="tahun" stroke="var(--color-muted-foreground)" />
+                <XAxis
+                  dataKey="tahun"
+                  stroke="var(--color-muted-foreground)"
+                />
                 <YAxis stroke="var(--color-muted-foreground)" />
                 <Tooltip
                   content={<CustomTooltip />}
                   cursor={{ fill: "rgba(0, 0, 0, 0.04)" }}
                 />
-
                 <Bar
                   dataKey="total"
                   fill="var(--color-chart-1)"
@@ -169,23 +241,28 @@ export function DashboardMainContent() {
           </div>
         </div>
 
-        <div className="bg-card border border-border rounded-lg p-4 sm:p-6">
-          <h2 className="text-base sm:text-lg font-semibold text-foreground mb-4">
-            Distribusi Mata Kuliah
+        {/* Categories Distribution */}
+        <div className="bg-card border border-border rounded-lg p-6">
+          <h2 className="text-lg font-semibold text-foreground mb-4">
+            Distribusi Kategori Berita
           </h2>
           <div className="space-y-4">
-            {Array.from({ length: 6 }, (_, i) => i + 1).map((sem) => {
-              const count = mataKuliahs.filter(
-                (mk) => mk.semester === sem
-              ).length;
-              const percentage = (count / mataKuliahs.length) * 100;
+            {categoriesData?.map((category) => {
+              const count =
+                newsData?.data?.filter(
+                  (news) => news.categoryId === category.id
+                ).length || 0;
+              const percentage =
+                newsData?.data && newsData.data.length > 0
+                  ? (count / newsData.data.length) * 100
+                  : 0;
               return (
-                <div key={sem}>
+                <div key={category.id}>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs sm:text-sm font-medium text-foreground">
-                      Semester {sem}
+                    <span className="text-sm font-medium text-foreground truncate">
+                      {category.name}
                     </span>
-                    <span className="text-xs sm:text-sm text-muted-foreground">
+                    <span className="text-sm text-muted-foreground ml-2">
                       {count}
                     </span>
                   </div>
@@ -193,7 +270,7 @@ export function DashboardMainContent() {
                     <div
                       className="bg-primary h-2 rounded-full transition-all duration-300"
                       style={{ width: `${percentage}%` }}
-                    ></div>
+                    />
                   </div>
                 </div>
               );
@@ -202,22 +279,29 @@ export function DashboardMainContent() {
         </div>
       </div>
 
-      <div className="bg-card border border-border rounded-lg p-4 sm:p-6">
-        <h2 className="text-base sm:text-lg font-semibold text-foreground mb-4">
+      {/* Latest News Section */}
+      <div className="bg-card border border-border rounded-lg p-6">
+        <h2 className="text-lg font-semibold text-foreground mb-4">
           Berita Terbaru
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {beritas.slice(0, 3).map((berita) => (
+          {latestNews.map((news) => (
             <div
-              key={berita.id}
+              key={news.id}
               className="border border-border rounded-lg p-4 hover:shadow-md transition-shadow"
             >
-              <h3 className="font-semibold text-foreground line-clamp-2">
-                {berita.judul}
+              <h3 className="font-semibold text-foreground line-clamp-2 mb-2">
+                {news.title}
               </h3>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-2 line-clamp-3">
-                {berita.body}
+              <p className="text-sm text-muted-foreground line-clamp-3">
+                {news.content.replace(/<[^>]*>/g, "")}
               </p>
+              <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
+                <span>{news.category.name}</span>
+                <span>
+                  {new Date(news.createdAt).toLocaleDateString("id-ID")}
+                </span>
+              </div>
             </div>
           ))}
         </div>
