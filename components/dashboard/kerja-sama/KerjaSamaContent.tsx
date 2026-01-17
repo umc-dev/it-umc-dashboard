@@ -10,6 +10,7 @@ import {
   usePartnerships,
 } from "@/app/dashboard/kerja-sama/queries";
 import { PartnershipResponse } from "@/app/dashboard/kerja-sama/types";
+import { formatDateTimeIndo } from "@/lib/formatDateTimeIndo";
 import { toast } from "sonner";
 
 export function DashboardKerjaSamaContent() {
@@ -69,29 +70,37 @@ export function DashboardKerjaSamaContent() {
           {
             key: "photo",
             label: "Logo",
-            render: (value) =>
-              value ? (
-                <Image
+            render: (value) => (
+              <Image
                   src={value}
                   alt="Logo Mitra"
                   width={100}
                   height={100}
-                  className="w-16 h-10 object-cover rounded-md"
+                  className="w-16  h-16 rounded-full object-cover"
                   unoptimized
                 />
-              ) : (
-                <span>-</span>
-              ),
+              )
           },
           { key: "name", label: "Nama Mitra", sortable: true },
-          { key: "startDate", label: "Tanggal Mulai", sortable: true },
-          { key: "endDate", label: "Tanggal Berakhir", sortable: true },
+          {
+            key: "startDate",
+            label: "Tanggal Mulai",
+            sortable: true,
+            render: (value) => formatDateTimeIndo(value),
+          },
+          {
+            key: "endDate",
+            label: "Tanggal Berakhir",
+            sortable: true,
+            render: (value) => formatDateTimeIndo(value),
+          },
         ]}
         onAdd={() => router.push("/dashboard/kerja-sama/tambah")}
         onEdit={(item) => router.push(`/dashboard/kerja-sama/${item.id}/ubah`)}
         onDeleteClick={handleDeleteClick}
         searchFields={["name"]}
       />
+
 
       <DeleteAlert
         isOpen={deleteAlert.isOpen}

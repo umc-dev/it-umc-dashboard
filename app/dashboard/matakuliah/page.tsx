@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { DashboardMataKuliahContent } from '@/components/dashboard/matakuliah/MatakuliahContent'
+import { DashboardMatakuliahContent } from '@/components/dashboard/matakuliah/MatakuliahContent'
 
 export const metadata: Metadata = {
   title: 'Manajemen Mata Kuliah - Sistem Manajemen Konten',
@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 }
 
 export default function MataKuliahPage() {
-  return <DashboardMataKuliahContent />
+  return <DashboardMatakuliahContent />
 }

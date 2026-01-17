@@ -1,79 +1,136 @@
-'use client'
+"use client";
 
-import type React from 'react'
-import { useState } from 'react'
-import { useRouter, useParams } from 'next/navigation'
-import { mataKuliahs, type MataKuliah } from '@/lib/data'
-import { FormHeader } from '@/components/FormHeader'
-import { FormButtons } from '@/components/FormButtons'
+import { useEffect, useMemo } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { FormHeader } from "@/components/FormHeader";
+import { FormButtons } from "@/components/FormButtons";
+import { PdfUpload } from "@/components/PdfUpload";
+import { useStudyById, useUpdateStudy } from "@/app/dashboard/matakuliah/queries";
+import { useForm, useWatch } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { UpdateStudySchema } from "@/app/dashboard/matakuliah/validator";
+import { UpdateStudyDto } from "@/app/dashboard/matakuliah/types";
+import { toast } from "sonner";
+import axios from "axios";
+import Link from "next/link";
 
 export function FormEditMatakuliah() {
-  const router = useRouter()
-  const params = useParams()
-  const id = params.id as string
-  const mataKuliah = mataKuliahs.find((mk) => mk.id === id)
+  const router = useRouter();
+  const params = useParams();
+  const id = Number(params.id);
 
-  const [isLoading, setIsLoading] = useState(false)
-  const [formData, setFormData] = useState<Partial<MataKuliah>>(
-    mataKuliah || { semester: 0, kode: '', sks: 0, pilihan: false },
-  )
+  const updateStudy = useUpdateStudy();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
-    }))
+  const { data: study, isLoading: isLoadingStudy } = useStudyById(id);
+
+  const {
+    setValue,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    control,
+  } = useForm<UpdateStudyDto>({
+    resolver: zodResolver(UpdateStudySchema),
+    defaultValues: {
+      source: null,
+    },
+  });
+
+  useEffect(() => {
+    if (study) {
+      reset({});
+    }
+  }, [study, reset]);
+
+  const watchedSource = useWatch({ control, name: "source" });
+  const source = useMemo(() => watchedSource, [watchedSource]);
+
+  const onSubmit = async (data: UpdateStudyDto) => {
+    try {
+      const fd = new FormData();
+
+      if (data.source) {
+        fd.append("source", data.source);
+      }
+
+      await updateStudy.mutateAsync({
+        id,
+        data: fd,
+      });
+
+      toast.success("Dokumen berhasil diperbarui!");
+
+      router.push("/dashboard/matakuliah");
+    } catch (err: unknown) {
+      let message = "Gagal memperbarui dokumen.";
+
+      if (axios.isAxiosError(err)) {
+        message = err.response?.data?.message || message;
+      }
+
+      toast.error("Terjadi kesalahan!", { description: message });
+    }
+  };
+
+  if (isLoadingStudy) {
+    return (
+      <p className="text-center py-10 text-muted-foreground">Loading...</p>
+    );
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    router.push('/dashboard/matakuliah')
-  }
-
-  if (!mataKuliah) {
+  if (!study) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p className="text-muted-foreground">Mata kuliah tidak ditemukan</p>
+        <p className="text-muted-foreground">Dokumen tidak ditemukan</p>
       </div>
-    )
+    );
   }
 
-  const inputClassName = 'w-full px-4 py-2 border border-border rounded-lg bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-colors'
-
   return (
-    <div className="max-w-2xl mx-auto py-6 sm:py-8">
-      <FormHeader title="Ubah Mata Kuliah" description="Ubah data mata kuliah yang ada" />
-      <form onSubmit={handleSubmit} className="bg-card border border-border rounded-lg p-6 sm:p-8 space-y-6">
+    <div className="max-w-3xl mx-auto py-6">
+      <FormHeader
+        title="Edit Dokumen Mata Kuliah"
+        description="Perbarui dokumen mata kuliah"
+      />
+
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="bg-card border border-border rounded-lg p-6 space-y-6"
+      >
         <div>
-          <label className="block text-sm font-medium text-foreground mb-2">Semester <span className="text-destructive">*</span></label>
-          <select name="semester" value={formData.semester || ''} onChange={handleChange} required className={inputClassName}>
-            <option value="">Pilih Semester</option>
-            {Array.from({ length: 8 }, (_, i) => (
-              <option key={i + 1} value={i + 1}>Semester {i + 1}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-foreground mb-2">Kode Mata Kuliah <span className="text-destructive">*</span></label>
-          <input type="text" name="kode" value={formData.kode || ''} onChange={handleChange} placeholder="Masukkan kode mata kuliah" required className={inputClassName} />
-        </div>
-        <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Nama Mata Kuliah <span className="text-destructive">*</span></label>
-            <input type="text" name="nama" value={formData.nama || ''} onChange={handleChange} placeholder="Masukkan nama mata kuliah" required className={inputClassName} />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-foreground mb-2">SKS <span className="text-destructive">*</span></label>
-          <input type="number" name="sks" value={formData.sks || ''} onChange={handleChange} placeholder="Masukkan jumlah SKS" min="1" max="6" required className={inputClassName} />
-        </div>
-        <div className="flex items-center gap-3">
-          <input type="checkbox" name="pilihan" checked={formData.pilihan || false} onChange={handleChange} className="w-4 h-4 border border-border rounded accent-primary cursor-pointer" />
-          <label className="text-sm font-medium text-foreground cursor-pointer">Mata Kuliah Pilihan</label>
-        </div>
-        <FormButtons isLoading={isLoading} />
+  <label className="block text-sm font-medium text-foreground mb-2">
+    Dokumen Lama
+  </label>
+
+  {study.source ? (
+    <Link
+      href={study.source}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-primary hover:underline"
+    >
+      Lihat Dokumen Saat Ini
+    </Link>
+  ) : (
+    <p className="text-muted-foreground text-sm">
+      Belum ada dokumen
+    </p>
+  )}
+</div>
+
+
+        <PdfUpload
+          label="Dokumen PDF Baru"
+          value={source ?? null}
+          onChange={(value) => setValue("source", value)}
+        />
+
+        {errors.source && (
+          <p className="text-destructive text-sm">{errors.source.message}</p>
+        )}
+
+        <FormButtons isLoading={updateStudy.isPending} />
       </form>
     </div>
-  )
+  );
 }

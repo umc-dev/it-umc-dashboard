@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { FormEditStatistik } from '@/components/dashboard/statistik/FormEditStatistik'
+import { FormEditStatistikMahasiswa } from '@/components/dashboard/statistik-mahasiswa/FormEditStatistikMahasiswa'
 
 export const metadata: Metadata = {
   title: 'Ubah Statistik - Sistem Manajemen Konten',
@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 }
 
 export default function UbahStatistikPage() {
-  return <FormEditStatistik />
+  return <FormEditStatistikMahasiswa />
 }
