@@ -83,6 +83,15 @@ export function DashboardDosenContent() {
           },
           { key: "name", label: "Nama", sortable: true },
           { key: "expertise", label: "Spesialisasi", sortable: true },
+          {
+            key: "lectureship",
+            label: "Jabatan Dosen",
+            render: (value, row) => (
+              <span className="text-sm">
+                {row.lectureship?.name ?? "-"}
+              </span>
+            ),
+          },
         ]}
         onAdd={() => router.push("/dashboard/dosen/tambah")}
         onEdit={(item) => router.push(`/dashboard/dosen/${item.id}/ubah`)}

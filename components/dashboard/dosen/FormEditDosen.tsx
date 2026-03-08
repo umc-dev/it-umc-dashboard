@@ -10,10 +10,12 @@ import {
   useDosenById,
   useUpdateDosen,
 } from "@/app/dashboard/dosen/queries";
+import { useLectureships } from "@/app/dashboard/lectureships/queries";
+import { LectureshipResponse } from "@/app/dashboard/lectureships/types";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UpdateDosenSchema } from "@/app/dashboard/dosen/validator";
-import { UpdateDosenDto } from "@/app/dashboard/dosen/types";
+import { UpdateDosenDto, UpdateDosenInputDto } from "@/app/dashboard/dosen/types";
 import Image from "next/image";
 import { toast } from "sonner";
 import axios from "axios";
@@ -29,7 +31,9 @@ export function FormEditDosen() {
   const updateDosen = useUpdateDosen();
 
   const { data: dosen, isLoading: isLoadingDosen } = useDosenById(id);
+  const { data: lectureships } = useLectureships();
 
+  // Gunakan z.input<> (tipe sebelum transform) sebagai generic useForm
   const {
     register,
     setValue,
@@ -37,7 +41,7 @@ export function FormEditDosen() {
     formState: { errors },
     reset,
     control,
-  } = useForm({
+  } = useForm<UpdateDosenInputDto, unknown, UpdateDosenDto>({
     resolver: zodResolver(UpdateDosenSchema),
   });
 
@@ -48,14 +52,16 @@ export function FormEditDosen() {
         expertise: dosen.expertise,
         research: dosen.research,
         teaching: dosen.teaching,
+        // Kembalikan ke string karena form field bertipe string (sebelum transform)
+        lectureshipId: dosen.lectureship?.id != null ? String(dosen.lectureship.id) : "",
       });
     }
   }, [dosen, reset]);
 
-  // Ambil nilai pakai useWatch
   const watchedPhoto = useWatch({ control, name: "photo" });
   const photo = useMemo(() => watchedPhoto, [watchedPhoto]);
 
+  // data sudah bertipe UpdateDosenDto (output setelah transform zod)
   const onSubmit = async (data: UpdateDosenDto) => {
     try {
       const fd = new FormData();
@@ -68,10 +74,11 @@ export function FormEditDosen() {
         fd.append("photo", data.photo);
       }
 
-      await updateDosen.mutateAsync({
-        id,
-        data: fd,
-      });
+      if (data.lectureshipId !== undefined && data.lectureshipId !== null) {
+        fd.append("lectureshipId", String(data.lectureshipId));
+      }
+
+      await updateDosen.mutateAsync({ id, data: fd });
 
       toast.success("Dosen berhasil diperbarui!", {
         description: data.name,
@@ -113,7 +120,7 @@ export function FormEditDosen() {
       >
         {/* NAMA */}
         <div>
-          <label>Nama Dosen</label>
+          <label className="block text-sm font-medium text-foreground mb-2">Nama Dosen</label>
           <input
             {...register("name")}
             className={inputClassName}
@@ -126,7 +133,7 @@ export function FormEditDosen() {
 
         {/* EXPERTISE */}
         <div>
-          <label>Spesialisasi</label>
+          <label className="block text-sm font-medium text-foreground mb-2">Spesialisasi</label>
           <input
             {...register("expertise")}
             className={inputClassName}
@@ -139,7 +146,7 @@ export function FormEditDosen() {
 
         {/* RESEARCH */}
         <div>
-          <label>Link Penelitian</label>
+          <label className="block text-sm font-medium text-foreground mb-2">Link Penelitian</label>
           <input
             type="url"
             {...register("research")}
@@ -153,7 +160,7 @@ export function FormEditDosen() {
 
         {/* TEACHING */}
         <div>
-          <label>Link Pengajaran</label>
+          <label className="block text-sm font-medium text-foreground mb-2">Link Pengajaran</label>
           <input
             type="url"
             {...register("teaching")}
@@ -165,11 +172,28 @@ export function FormEditDosen() {
           )}
         </div>
 
+        {/* LECTURESHIP */}
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-2">
+            Jabatan Dosen
+          </label>
+          <select {...register("lectureshipId")} className={inputClassName}>
+            <option value="">-- Pilih Jabatan Dosen  --</option>
+            {lectureships?.data?.map((ls: LectureshipResponse) => (
+              <option key={ls.id} value={ls.id}>
+                {ls.name}
+              </option>
+            ))}
+          </select>
+          {errors.lectureshipId && (
+            <p className="text-destructive text-sm">{errors.lectureshipId.message as string}</p>
+          )}
+        </div>
+
         {/* PHOTO */}
         <div>
-          <label>Foto Lama</label>
+          <label className="block text-sm font-medium text-foreground mb-2">Foto Lama</label>
 
-          {/* Foto lama */}
           {dosen.photo && (
             <Image
               src={dosen.photo}

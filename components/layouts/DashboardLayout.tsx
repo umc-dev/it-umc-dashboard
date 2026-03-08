@@ -4,8 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  LayoutDashboard, Users, FileText, Folder, BookOpen,
-  BarChart3, LogOut, Menu, X, Handshake, Goal, UserCog, GraduationCap
+  LayoutDashboard, Users, FileText, Folder, BookOpen, UserCog, Briefcase ,
+  BarChart3, LogOut, Menu, X, Handshake, Goal, GraduationCap,
 } from "lucide-react";
 import Image from "next/image";
 import { useMe, useLogout } from "@/app/login/queries";
@@ -21,6 +21,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const navItems = [
     { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { label: "Dosen", href: "/dashboard/dosen", icon: Users },
+    { label: "Jabatan Dosen", href: "/dashboard/lectureships", icon: Briefcase   },
     { label: "Berita", href: "/dashboard/berita", icon: FileText },
     { label: "Kategori", href: "/dashboard/kategori", icon: Folder },
     { label: "Mata Kuliah", href: "/dashboard/matakuliah", icon: BookOpen },
