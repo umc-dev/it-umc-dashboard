@@ -1,18 +1,35 @@
 import { z } from "zod";
 
+const PositionSchema = z
+  .object({
+    lectureshipId: z
+      .string()
+      .min(1, "Jabatan dosen wajib dipilih")
+      .transform((val) => Number(val)),
+    startDate: z.string().min(1, "Tanggal mulai wajib diisi"),
+    endDate: z
+      .string()
+      .optional()
+      .nullable()
+      .transform((val) => (!val ? null : val)),
+  })
+  .refine((data) => !data.endDate || data.endDate >= data.startDate, {
+    message: "Tanggal selesai harus setelah atau sama dengan tanggal mulai",
+    path: ["endDate"],
+  });
+
 export const CreateDosenSchema = z.object({
   name: z.string().min(1, "Nama wajib diisi"),
   expertise: z.string().min(1, "Spesialisasi wajib diisi"),
-  research: z.string().url("Link penelitian harus URL valid").min(1, "Link penelitian wajib diisi"),
-  teaching: z.string().url("Link pengajaran harus URL valid").min(1, "Link pengajaran wajib diisi"),
-  lectureshipId: z
+  research: z
     .string()
-    .optional()
-    .transform((val) => {
-      if (!val || val === "") return undefined;
-      const num = Number(val);
-      return isNaN(num) ? undefined : num;
-    }),
+    .url("Link penelitian harus URL valid")
+    .min(1, "Link penelitian wajib diisi"),
+  teaching: z
+    .string()
+    .url("Link pengajaran harus URL valid")
+    .min(1, "Link pengajaran wajib diisi"),
+  positions: z.array(PositionSchema).default([]),
   photo: z
     .instanceof(File)
     .nullable()
@@ -26,13 +43,6 @@ export const UpdateDosenSchema = z.object({
   expertise: z.string().optional(),
   research: z.string().url("Link penelitian harus URL valid").optional(),
   teaching: z.string().url("Link pengajaran harus URL valid").optional(),
-  lectureshipId: z
-    .string()
-    .optional()
-    .transform((val) => {
-      if (!val || val === "") return undefined;
-      const num = Number(val);
-      return isNaN(num) ? undefined : num;
-    }),
+  positions: z.array(PositionSchema).optional(),
   photo: z.instanceof(File).nullable().optional(),
 });

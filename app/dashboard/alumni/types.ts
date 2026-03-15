@@ -2,49 +2,32 @@ import { PaginationMeta } from "@/lib/types";
 import { z } from "zod";
 import { CreateAlumniSchema, UpdateAlumniSchema } from "./validator";
 
-// Alumni Interface
 export interface Alumni {
   id: string;
   name: string;
-  video: string;
-  message: string; 
-  year: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-// Request DTOs
-export type CreateAlumniDto = z.infer<typeof CreateAlumniSchema>;
-
-export interface CreateAlumniData {
-  name: string;
+  photo: string | null;
   video: string;
   message: string;
   year: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export type UpdateAlumniDto = z.infer<typeof UpdateAlumniSchema>;
+export type CreateAlumniDto = z.output<typeof CreateAlumniSchema>;
+export type CreateAlumniInputDto = z.input<typeof CreateAlumniSchema>;
 
-export interface UpdateAlumniData {
-  name?: string;
-  video?: string;
-  message?: string;
-  year?: number;
-}
+export type UpdateAlumniDto = z.output<typeof UpdateAlumniSchema>;
+export type UpdateAlumniInputDto = z.input<typeof UpdateAlumniSchema>;
 
-// Response DTOs
 export interface AlumniResponse {
   id: string;
   name: string;
+  photo: string | null;
   video: string;
   message: string;
   year: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface AlumniListResponse {
-  alumni: AlumniResponse[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface PaginatedAlumniResponse {

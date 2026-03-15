@@ -1,17 +1,18 @@
 "use client";
 
-import type React from "react";
 import { useRouter } from "next/navigation";
 import { FormHeader } from "@/components/FormHeader";
 import { FormButtons } from "@/components/FormButtons";
 import { ImageUpload } from "@/components/ImageUpload";
 import { useCreateDosen } from "@/app/dashboard/dosen/queries";
 import { useLectureships } from "@/app/dashboard/lectureships/queries";
-import { LectureshipResponse } from "@/app/dashboard/lectureships/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CreateDosenSchema } from "@/app/dashboard/dosen/validator";
-import { CreateDosenInputDto, CreateDosenDto } from "@/app/dashboard/dosen/types";
-import { useForm, useWatch } from "react-hook-form";
+import {
+  CreateDosenDto,
+  CreateDosenInputDto,
+} from "@/app/dashboard/dosen/types";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import axios from "axios";
 import { toast } from "sonner";
 import { useMemo } from "react";
@@ -24,8 +25,6 @@ export function FormAddDosen() {
   const createDosen = useCreateDosen();
   const { data: lectureships } = useLectureships();
 
-  // Gunakan z.input<> (tipe sebelum transform) sebagai generic useForm
-  // agar zodResolver dapat menginfer tipe dengan benar
   const {
     register,
     handleSubmit,
@@ -36,13 +35,18 @@ export function FormAddDosen() {
     resolver: zodResolver(CreateDosenSchema),
     defaultValues: {
       photo: null,
+      positions: [{ lectureshipId: "", startDate: "", endDate: "" }],
     },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "positions",
   });
 
   const watchedPhoto = useWatch({ control, name: "photo" });
   const photo = useMemo(() => watchedPhoto, [watchedPhoto]);
 
-  // data sudah bertipe CreateDosenDto (output setelah transform zod)
   const onSubmit = async (data: CreateDosenDto) => {
     try {
       const fd = new FormData();
@@ -57,10 +61,7 @@ export function FormAddDosen() {
       }
 
       fd.append("photo", data.photo);
-
-      if (data.lectureshipId !== undefined && data.lectureshipId !== null) {
-        fd.append("lectureshipId", String(data.lectureshipId));
-      }
+      fd.append("positions", JSON.stringify(data.positions));
 
       await createDosen.mutateAsync(fd);
 
@@ -83,47 +84,46 @@ export function FormAddDosen() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto py-6 sm:py-8">
+    <div className="max-w-3xl mx-auto py-6">
       <FormHeader
         title="Tambah Dosen"
-        description="Tambahkan data dosen baru ke sistem"
+        description="Buat data dosen beserta riwayat jabatan"
       />
 
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="bg-card border border-border rounded-lg p-6 sm:p-8 space-y-6"
+        className="bg-card border border-border rounded-lg p-6 space-y-6"
       >
-        {/* NAMA */}
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
             Nama Dosen <span className="text-destructive">*</span>
           </label>
           <input
             {...register("name")}
-            placeholder="Masukkan nama dosen"
             className={inputClassName}
+            placeholder="Masukkan nama dosen"
           />
           {errors.name && (
             <p className="text-destructive text-sm">{errors.name.message}</p>
           )}
         </div>
 
-        {/* EXPERTISE */}
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
             Spesialisasi <span className="text-destructive">*</span>
           </label>
           <input
             {...register("expertise")}
-            placeholder="Masukkan spesialisasi"
             className={inputClassName}
+            placeholder="Masukkan spesialisasi"
           />
           {errors.expertise && (
-            <p className="text-destructive text-sm">{errors.expertise.message}</p>
+            <p className="text-destructive text-sm">
+              {errors.expertise.message}
+            </p>
           )}
         </div>
 
-        {/* RESEARCH */}
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
             Link Penelitian <span className="text-destructive">*</span>
@@ -131,15 +131,16 @@ export function FormAddDosen() {
           <input
             type="url"
             {...register("research")}
-            placeholder="https://..."
             className={inputClassName}
+            placeholder="https://..."
           />
           {errors.research && (
-            <p className="text-destructive text-sm">{errors.research.message}</p>
+            <p className="text-destructive text-sm">
+              {errors.research.message}
+            </p>
           )}
         </div>
 
-        {/* TEACHING */}
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
             Link Pengajaran <span className="text-destructive">*</span>
@@ -147,44 +148,130 @@ export function FormAddDosen() {
           <input
             type="url"
             {...register("teaching")}
-            placeholder="https://..."
             className={inputClassName}
+            placeholder="https://..."
           />
           {errors.teaching && (
-            <p className="text-destructive text-sm">{errors.teaching.message}</p>
+            <p className="text-destructive text-sm">
+              {errors.teaching.message}
+            </p>
           )}
         </div>
 
-        {/* LECTURESHIP */}
-        <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
-            Jabatan Dosen
-          </label>
-          <select
-            {...register("lectureshipId")}
-            className={inputClassName}
-          >
-            <option value="">-- Pilih Jabatan Dosen --</option>
-            {lectureships?.data?.map((ls: LectureshipResponse) => (
-              <option key={ls.id} value={ls.id}>
-                {ls.name}
-              </option>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h3 className="text-sm font-medium text-foreground">
+                Riwayat Jabatan
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Tambahkan satu atau lebih jabatan dosen beserta periodenya.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() =>
+                append({ lectureshipId: "", startDate: "", endDate: "" })
+              }
+              className="px-3 py-2 text-sm border border-border rounded-lg hover:bg-muted"
+            >
+              Tambah Jabatan
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            {fields.map((field, index) => (
+              <div
+                key={field.id}
+                className="border border-border rounded-lg p-4 space-y-4"
+              >
+                <div className="flex items-center justify-between gap-4">
+                  <h4 className="font-medium text-foreground">
+                    Jabatan #{index + 1}
+                  </h4>
+                  {fields.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => remove(index)}
+                      className="text-sm text-destructive hover:underline"
+                    >
+                      Hapus
+                    </button>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Jabatan <span className="text-destructive">*</span>
+                  </label>
+                  <select
+                    {...register(`positions.${index}.lectureshipId`)}
+                    className={inputClassName}
+                  >
+                    <option value="">-- Pilih Jabatan Dosen --</option>
+                    {lectureships?.data?.map((lectureship) => (
+                      <option key={lectureship.id} value={lectureship.id}>
+                        {lectureship.name}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.positions?.[index]?.lectureshipId && (
+                    <p className="text-destructive text-sm">
+                      {errors.positions[index]?.lectureshipId?.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                      Tanggal Mulai <span className="text-destructive">*</span>
+                    </label>
+                    <input
+                      type="date"
+                      {...register(`positions.${index}.startDate`)}
+                      className={inputClassName}
+                    />
+                    {errors.positions?.[index]?.startDate && (
+                      <p className="text-destructive text-sm">
+                        {errors.positions[index]?.startDate?.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                      Tanggal Selesai
+                    </label>
+                    <input
+                      type="date"
+                      {...register(`positions.${index}.endDate`)}
+                      className={inputClassName}
+                    />
+                    {errors.positions?.[index]?.endDate && (
+                      <p className="text-destructive text-sm">
+                        {errors.positions[index]?.endDate?.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
             ))}
-          </select>
-          {errors.lectureshipId && (
-            <p className="text-destructive text-sm">{errors.lectureshipId.message as string}</p>
-          )}
+          </div>
         </div>
 
-        {/* PHOTO */}
-        <ImageUpload
-          label="Foto Dosen"
-          value={photo}
-          onChange={(value) => setValue("photo", value)}
-        />
-        {errors.photo && (
-          <p className="text-destructive text-sm">{errors.photo.message}</p>
-        )}
+        <div>
+          <ImageUpload
+            label="Foto Dosen"
+            value={photo ?? null}
+            onChange={(value) => setValue("photo", value)}
+            required
+          />
+
+          {errors.photo && (
+            <p className="text-destructive text-sm">{errors.photo.message}</p>
+          )}
+        </div>
 
         <FormButtons isLoading={createDosen.isPending} />
       </form>

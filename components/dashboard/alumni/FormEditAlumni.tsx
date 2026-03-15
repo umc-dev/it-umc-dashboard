@@ -1,15 +1,19 @@
 "use client";
 
-import type React from "react";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { FormHeader } from "@/components/FormHeader";
 import { FormButtons } from "@/components/FormButtons";
+import { ImageUpload } from "@/components/ImageUpload";
 import { useAlumniById, useUpdateAlumni } from "@/app/dashboard/alumni/queries";
-import { UpdateAlumniDto } from "@/app/dashboard/alumni/types";
+import {
+  UpdateAlumniDto,
+  UpdateAlumniInputDto,
+} from "@/app/dashboard/alumni/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UpdateAlumniSchema } from "@/app/dashboard/alumni/validator";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
+import Image from "next/image";
 import { toast } from "sonner";
 import axios from "axios";
 
@@ -22,7 +26,6 @@ export function FormEditAlumni() {
   const id = params.id as string;
 
   const updateAlumni = useUpdateAlumni();
-
   const { data: alumni, isLoading: isLoadingAlumni } = useAlumniById(id);
 
   const {
@@ -30,11 +33,12 @@ export function FormEditAlumni() {
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<UpdateAlumniDto>({
+    setValue,
+    control,
+  } = useForm<UpdateAlumniInputDto, unknown, UpdateAlumniDto>({
     resolver: zodResolver(UpdateAlumniSchema),
   });
 
-  // Populate form with existing data
   useEffect(() => {
     if (alumni) {
       reset({
@@ -46,15 +50,25 @@ export function FormEditAlumni() {
     }
   }, [alumni, reset]);
 
+  const watchedPhoto = useWatch({ control, name: "photo" });
+  const photo = useMemo(() => watchedPhoto, [watchedPhoto]);
+
   const onSubmit = async (data: UpdateAlumniDto) => {
     try {
+      const fd = new FormData();
+      if (data.name) fd.append("name", data.name);
+      if (data.video) fd.append("video", data.video);
+      if (data.message) fd.append("message", data.message);
+      if (data.year !== undefined) fd.append("year", String(data.year));
+      if (data.photo) fd.append("photo", data.photo);
+
       await updateAlumni.mutateAsync({
         id,
-        data,
+        data: fd,
       });
 
       toast.success("Alumni berhasil diperbarui!", {
-        description: data.name,
+        description: data.name || alumni?.name,
       });
 
       router.push("/dashboard/alumni");
@@ -70,9 +84,7 @@ export function FormEditAlumni() {
   };
 
   if (isLoadingAlumni) {
-    return (
-      <p className="text-center py-10 text-muted-foreground">Loading...</p>
-    );
+    return <p className="text-center py-10 text-muted-foreground">Loading...</p>;
   }
 
   if (!alumni) {
@@ -91,7 +103,6 @@ export function FormEditAlumni() {
         onSubmit={handleSubmit(onSubmit)}
         className="bg-card border border-border rounded-lg p-6 space-y-6"
       >
-        {/* NAMA */}
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
             Nama Alumni
@@ -106,13 +117,12 @@ export function FormEditAlumni() {
           )}
         </div>
 
-        {/* TAHUN LULUS */}
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
             Tahun Lulus
           </label>
           <input
-            {...register("year", { valueAsNumber: true })}
+            {...register("year")}
             type="number"
             className={inputClassName}
             placeholder="Masukkan tahun lulus"
@@ -122,7 +132,6 @@ export function FormEditAlumni() {
           )}
         </div>
 
-        {/* VIDEO */}
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
             Link Video
@@ -137,7 +146,6 @@ export function FormEditAlumni() {
           )}
         </div>
 
-        {/* MESSAGE */}
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
             Pesan/Kesan
@@ -152,6 +160,35 @@ export function FormEditAlumni() {
             <p className="text-destructive text-sm">{errors.message.message}</p>
           )}
         </div>
+
+        <div className="space-y-3">
+          <label className="block text-sm font-medium text-foreground mb-2">
+            Foto Lama
+          </label>
+
+          {alumni.photo ? (
+            <Image
+              src={alumni.photo}
+              alt="Foto alumni"
+              width={200}
+              height={200}
+              className="rounded-lg object-cover"
+              unoptimized
+            />
+          ) : (
+            <p className="text-sm text-muted-foreground">Belum ada foto.</p>
+          )}
+        </div>
+
+        <ImageUpload
+          label="Foto Alumni Baru"
+          value={photo ?? null}
+          onChange={(value) => setValue("photo", value)}
+        />
+
+        {errors.photo && (
+          <p className="text-destructive text-sm">{errors.photo.message}</p>
+        )}
 
         <FormButtons isLoading={updateAlumni.isPending} />
       </form>

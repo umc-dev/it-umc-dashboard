@@ -7,33 +7,19 @@ export interface LectureshipRef {
   name: string;
 }
 
-// REQUEST DTO — gunakan z.output untuk tipe setelah transform
+export interface DosenPosition {
+  id: number;
+  startDate: string;
+  endDate: string | null;
+  lectureship: LectureshipRef;
+}
+
 export type CreateDosenDto = z.output<typeof CreateDosenSchema>;
 export type CreateDosenInputDto = z.input<typeof CreateDosenSchema>;
 
-export interface CreateDosenData {
-  name: string;
-  expertise: string;
-  research: string;
-  teaching: string;
-  photo: string | null;
-  lectureshipId?: number | null;
-}
-
-// UPDATE DTO
 export type UpdateDosenDto = z.output<typeof UpdateDosenSchema>;
 export type UpdateDosenInputDto = z.input<typeof UpdateDosenSchema>;
 
-export interface UpdateDosenData {
-  name?: string;
-  expertise?: string;
-  research?: string;
-  teaching?: string;
-  photo?: string | null;
-  lectureshipId?: number | null;
-}
-
-// RESPONSE DTO
 export interface DosenResponse {
   id: string;
   name: string;
@@ -41,13 +27,9 @@ export interface DosenResponse {
   research: string;
   teaching: string;
   photo: string | null;
-  lectureship: LectureshipRef | null;
+  positions: DosenPosition[];
   createdAt: string;
   updatedAt: string;
-}
-
-export interface DosenListResponse {
-  dosens: DosenResponse[];
 }
 
 export interface PaginatedDosenResponse {
