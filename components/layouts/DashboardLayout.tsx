@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -9,6 +9,9 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useMe, useLogout } from "@/app/login/queries";
+import type { AdminResponse } from "@/app/login/types";
+
+type Role = AdminResponse["role"];
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -32,6 +35,24 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     { label: "Visi & Misi", href: "/dashboard/visi-misi", icon: Goal },
     { label: "Admin", href: "/dashboard/admin", icon: UserCog },
   ];
+
+  const visibleNavItems = useMemo(() => {
+    const role = admin?.role;
+
+    if (!role) return [];
+
+    if (role === "SUPER_ADMIN") {
+      return navItems;
+    }
+
+    if (role === "EDITOR") {
+      return navItems.filter((item) =>
+        ["/dashboard/berita", "/dashboard/kategori"].includes(item.href),
+      );
+    }
+
+    return navItems.filter((item) => item.href !== "/dashboard/admin");
+  }, [admin?.role]);
 
   const handleLogout = () => {
     setShowLogoutDialog(false);
@@ -63,9 +84,11 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
         {/* Nav */}
         <nav className="flex-1 overflow-y-auto p-3 space-y-2">
-          {navItems.map((item) => {
+          {visibleNavItems.map((item) => {
             const Icon = item.icon;
-            const isActive = pathname === item.href;
+            const isActive =
+              pathname === item.href ||
+              (item.href !== "/dashboard" && pathname.startsWith(`${item.href}/`));
             return (
               <Link
                 key={item.href}
