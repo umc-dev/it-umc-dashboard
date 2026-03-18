@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Users, FileText, Folder, BookOpen, UserCog, Briefcase ,
-  BarChart3, LogOut, Menu, X, Handshake, Goal, GraduationCap, Trophy,
+  BarChart3, LogOut, Menu, X, Handshake, Goal, GraduationCap, Trophy, Building
 } from "lucide-react";
 import Image from "next/image";
 import { useMe, useLogout } from "@/app/login/queries";
@@ -32,6 +32,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     { label: "Alumni", href: "/dashboard/alumni", icon: GraduationCap },
     { label: "Prestasi", href: "/dashboard/achievement", icon: Trophy },
     { label: "Kerja Sama", href: "/dashboard/kerja-sama", icon: Handshake },
+    { label: "Fasilitas", href: "/dashboard/fasilitas", icon: Building },
     { label: "Visi & Misi", href: "/dashboard/visi-misi", icon: Goal },
     { label: "Admin", href: "/dashboard/admin", icon: UserCog },
   ];
