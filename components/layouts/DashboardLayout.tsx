@@ -26,15 +26,15 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     { label: "Dosen", href: "/dashboard/dosen", icon: Users },
     { label: "Jabatan Dosen", href: "/dashboard/lectureships", icon: Briefcase   },
     { label: "Berita", href: "/dashboard/berita", icon: FileText },
-    { label: "Kategori", href: "/dashboard/kategori", icon: Folder },
-    { label: "Mata Kuliah", href: "/dashboard/matakuliah", icon: BookOpen },
+    { label: "Kategori Berita", href: "/dashboard/kategori", icon: Folder },
+    { label: "Distribusi Mata Kuliah", href: "/dashboard/matakuliah", icon: BookOpen },
     { label: "Statistik Mahasiswa", href: "/dashboard/statistik-mahasiswa", icon: BarChart3 },
-    { label: "Alumni", href: "/dashboard/alumni", icon: GraduationCap },
+    { label: "Testimoni Alumni", href: "/dashboard/alumni", icon: GraduationCap },
     { label: "Prestasi", href: "/dashboard/achievement", icon: Trophy },
     { label: "Kerja Sama", href: "/dashboard/kerja-sama", icon: Handshake },
     { label: "Fasilitas", href: "/dashboard/fasilitas", icon: Building },
     { label: "Visi & Misi", href: "/dashboard/visi-misi", icon: Goal },
-    { label: "Admin", href: "/dashboard/admin", icon: UserCog },
+    { label: "Manajemen Pengguna", href: "/dashboard/admin", icon: UserCog },
   ];
 
   const visibleNavItems = useMemo(() => {
