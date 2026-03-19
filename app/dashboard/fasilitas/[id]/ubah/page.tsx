@@ -6,6 +6,6 @@ export const metadata: Metadata = {
   description: "Perbarui data fasilitas",
 };
 
-export default function UbahFasilitasPage({ params }: { params: { id: string } }) {
-  return <FormEditFasilitas id={params.id} />;
+export default function UbahFasilitasPage() {
+  return <FormEditFasilitas />;
 }

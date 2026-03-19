@@ -21,8 +21,11 @@ import axios from "axios";
 const inputClassName =
   "w-full px-4 py-2 border border-border rounded-lg bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-colors";
 
-export function FormEditFasilitas({ id }: { id: string }) {
+export function FormEditFasilitas() {
   const router = useRouter();
+  const params = useParams();
+  const id = params.id as string;
+
   const updateFacility = useUpdateFacility();
 
   const { data: facility, isLoading: isLoadingFacility } =
