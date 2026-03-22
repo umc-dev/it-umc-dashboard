@@ -138,6 +138,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               width={40}
               height={40}
               className="w-10 h-10 rounded-full shrink-0"
+              unoptimized
             />
             <div className="hidden sm:block">
               <p className="text-sm font-medium">
