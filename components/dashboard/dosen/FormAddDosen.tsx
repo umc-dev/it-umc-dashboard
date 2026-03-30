@@ -50,6 +50,7 @@ export function FormAddDosen() {
   const onSubmit = async (data: CreateDosenDto) => {
     try {
       const fd = new FormData();
+      fd.append("nidn", data.nidn);
       fd.append("name", data.name);
       fd.append("expertise", data.expertise);
       fd.append("research", data.research);
@@ -94,6 +95,20 @@ export function FormAddDosen() {
         onSubmit={handleSubmit(onSubmit)}
         className="bg-card border border-border rounded-lg p-6 space-y-6"
       >
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-2">
+            NIDN <span className="text-destructive">*</span>
+          </label>
+          <input
+            {...register("nidn")}
+            className={inputClassName}
+            placeholder="Masukkan NIDN dosen"
+          />
+          {errors.nidn && (
+            <p className="text-destructive text-sm">{errors.nidn.message}</p>
+          )}
+        </div>
+
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
             Nama Dosen <span className="text-destructive">*</span>

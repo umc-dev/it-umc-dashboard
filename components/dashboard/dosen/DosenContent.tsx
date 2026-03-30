@@ -93,6 +93,7 @@ export function DashboardDosenContent() {
                 <span>-</span>
               ),
           },
+          { key: "nidn", label: "NIDN", sortable: true },
           { key: "name", label: "Nama", sortable: true },
           { key: "expertise", label: "Spesialisasi", sortable: true },
           {

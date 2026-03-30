@@ -55,6 +55,7 @@ export function FormEditDosen() {
   useEffect(() => {
     if (dosen) {
       reset({
+        nidn: dosen.nidn,
         name: dosen.name,
         expertise: dosen.expertise,
         research: dosen.research,
@@ -82,6 +83,7 @@ export function FormEditDosen() {
   const onSubmit = async (data: UpdateDosenDto) => {
     try {
       const fd = new FormData();
+      if (data.nidn) fd.append("nidn", data.nidn);
       if (data.name) fd.append("name", data.name);
       if (data.expertise) fd.append("expertise", data.expertise);
       if (data.research) fd.append("research", data.research);
@@ -129,6 +131,20 @@ export function FormEditDosen() {
         onSubmit={handleSubmit(onSubmit)}
         className="bg-card border border-border rounded-lg p-6 space-y-6"
       >
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-2">
+            NIDN
+          </label>
+          <input
+            {...register("nidn")}
+            className={inputClassName}
+            placeholder="Masukkan NIDN dosen"
+          />
+          {errors.nidn && (
+            <p className="text-destructive text-sm">{errors.nidn.message}</p>
+          )}
+        </div>
+
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
             Nama Dosen

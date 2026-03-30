@@ -22,6 +22,7 @@ export type UpdateDosenInputDto = z.input<typeof UpdateDosenSchema>;
 
 export interface DosenResponse {
   id: string;
+  nidn: string;
   name: string;
   expertise: string;
   research: string;

@@ -19,6 +19,7 @@ const PositionSchema = z
   });
 
 export const CreateDosenSchema = z.object({
+  nidn: z.string().min(1, "NIDN wajib diisi"),
   name: z.string().min(1, "Nama wajib diisi"),
   expertise: z.string().min(1, "Spesialisasi wajib diisi"),
   research: z
@@ -39,6 +40,7 @@ export const CreateDosenSchema = z.object({
 });
 
 export const UpdateDosenSchema = z.object({
+  nidn: z.string().min(1, "NIDN wajib diisi").optional(),
   name: z.string().optional(),
   expertise: z.string().optional(),
   research: z.string().url("Link penelitian harus URL valid").optional(),
