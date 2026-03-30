@@ -1,13 +1,13 @@
-"use client"
+"use client";
 
-import { useRouter } from "next/navigation"
+import { useRouter } from "next/navigation";
 
 interface FormButtonsProps {
-  isLoading?: boolean
+  isLoading?: boolean;
 }
 
 export function FormButtons({ isLoading = false }: FormButtonsProps) {
-  const router = useRouter()
+  const router = useRouter();
 
   return (
     <div className="flex gap-3 pt-6 border-t border-border">
@@ -26,5 +26,5 @@ export function FormButtons({ isLoading = false }: FormButtonsProps) {
         {isLoading ? "Menyimpan..." : "Simpan"}
       </button>
     </div>
-  )
+  );
 }
