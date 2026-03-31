@@ -7,6 +7,7 @@ import { DeleteAlert } from "@/components/DeleteAlert";
 import { useDeleteAlumni, useAlumni } from "@/app/dashboard/alumni/queries";
 import { AlumniResponse } from "@/app/dashboard/alumni/types";
 import { toast } from "sonner";
+import Image from "next/image";
 
 export function AlumniContent() {
   const router = useRouter();
@@ -52,25 +53,42 @@ export function AlumniContent() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-foreground">Manajemen Alumni</h1>
-        <p className="text-muted-foreground mt-2">
-          Kelola data alumni
-        </p>
+        <p className="text-muted-foreground mt-2">Kelola data alumni</p>
       </div>
 
       <DataTable
         data={data?.data ?? []}
         columns={[
+          {
+            key: "photo",
+            label: "Foto",
+            render: (value) =>
+              value ? (
+                <Image
+                  src={value}
+                  alt="Foto Alumni"
+                  width={80}
+                  height={80}
+                  className="w-10 h-10 rounded-full object-cover"
+                  unoptimized
+                />
+              ) : (
+                "-"
+              ),
+          },
           { key: "name", label: "Nama", sortable: true },
           { key: "year", label: "Tahun Lulus", sortable: true },
           {
             key: "message",
             label: "Pesan",
-            render: (value) => <span className="truncate max-w-xs block">{value || "-"}</span>,
+            render: (value) => (
+              <span className="truncate max-w-xs block">{value || "-"}</span>
+            ),
           },
           {
             key: "video",
             label: "Video",
-            render: (value) => (
+            render: (value) =>
               value ? (
                 <a
                   href={value}
@@ -82,8 +100,7 @@ export function AlumniContent() {
                 </a>
               ) : (
                 "-"
-              )
-            ),
+              ),
           },
         ]}
         onAdd={() => router.push("/dashboard/alumni/tambah")}

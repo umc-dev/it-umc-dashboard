@@ -1,6 +1,5 @@
 "use client";
 
-import type React from "react";
 import { useEffect, useMemo } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { FormHeader } from "@/components/FormHeader";
@@ -10,10 +9,14 @@ import {
   useDosenById,
   useUpdateDosen,
 } from "@/app/dashboard/dosen/queries";
-import { useForm, useWatch } from "react-hook-form";
+import { useLectureships } from "@/app/dashboard/lectureships/queries";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UpdateDosenSchema } from "@/app/dashboard/dosen/validator";
-import { UpdateDosenDto } from "@/app/dashboard/dosen/types";
+import {
+  UpdateDosenDto,
+  UpdateDosenInputDto,
+} from "@/app/dashboard/dosen/types";
 import Image from "next/image";
 import { toast } from "sonner";
 import axios from "axios";
@@ -27,8 +30,8 @@ export function FormEditDosen() {
   const id = params.id as string;
 
   const updateDosen = useUpdateDosen();
-
   const { data: dosen, isLoading: isLoadingDosen } = useDosenById(id);
+  const { data: lectureships } = useLectureships();
 
   const {
     register,
@@ -37,44 +40,63 @@ export function FormEditDosen() {
     formState: { errors },
     reset,
     control,
-  } = useForm({
+  } = useForm<UpdateDosenInputDto, unknown, UpdateDosenDto>({
     resolver: zodResolver(UpdateDosenSchema),
+    defaultValues: {
+      positions: [],
+    },
+  });
+
+  const { fields, append, remove, replace } = useFieldArray({
+    control,
+    name: "positions",
   });
 
   useEffect(() => {
     if (dosen) {
       reset({
+        nidn: dosen.nidn,
         name: dosen.name,
         expertise: dosen.expertise,
         research: dosen.research,
         teaching: dosen.teaching,
+        positions: dosen.positions.map((position) => ({
+          lectureshipId: String(position.lectureship.id),
+          startDate: position.startDate.slice(0, 10),
+          endDate: position.endDate ? position.endDate.slice(0, 10) : "",
+        })),
       });
-    }
-  }, [dosen, reset]);
 
-  // Ambil nilai pakai useWatch
+      replace(
+        dosen.positions.map((position) => ({
+          lectureshipId: String(position.lectureship.id),
+          startDate: position.startDate.slice(0, 10),
+          endDate: position.endDate ? position.endDate.slice(0, 10) : "",
+        })),
+      );
+    }
+  }, [dosen, replace, reset]);
+
   const watchedPhoto = useWatch({ control, name: "photo" });
   const photo = useMemo(() => watchedPhoto, [watchedPhoto]);
 
   const onSubmit = async (data: UpdateDosenDto) => {
     try {
       const fd = new FormData();
-      fd.append("name", data.name || "");
-      fd.append("expertise", data.expertise || "");
-      fd.append("research", data.research || "");
-      fd.append("teaching", data.teaching || "");
-
-      if (data.photo) {
-        fd.append("photo", data.photo);
+      if (data.nidn) fd.append("nidn", data.nidn);
+      if (data.name) fd.append("name", data.name);
+      if (data.expertise) fd.append("expertise", data.expertise);
+      if (data.research) fd.append("research", data.research);
+      if (data.teaching) fd.append("teaching", data.teaching);
+      if (data.photo) fd.append("photo", data.photo);
+      if (data.positions) {
+        fd.append("positions", JSON.stringify(data.positions));
       }
 
-      await updateDosen.mutateAsync({
-        id,
-        data: fd,
-      });
+      await updateDosen.mutateAsync({ id, data: fd });
 
       toast.success("Dosen berhasil diperbarui!", {
-        description: data.name,
+        description: data.name || dosen?.name,
       });
 
       router.push("/dashboard/dosen");
@@ -90,9 +112,7 @@ export function FormEditDosen() {
   };
 
   if (isLoadingDosen) {
-    return (
-      <p className="text-center py-10 text-muted-foreground">Loading...</p>
-    );
+    return <p className="text-center py-10 text-muted-foreground">Loading...</p>;
   }
 
   if (!dosen) {
@@ -111,9 +131,24 @@ export function FormEditDosen() {
         onSubmit={handleSubmit(onSubmit)}
         className="bg-card border border-border rounded-lg p-6 space-y-6"
       >
-        {/* NAMA */}
         <div>
-          <label>Nama Dosen</label>
+          <label className="block text-sm font-medium text-foreground mb-2">
+            NIDN
+          </label>
+          <input
+            {...register("nidn")}
+            className={inputClassName}
+            placeholder="Masukkan NIDN dosen"
+          />
+          {errors.nidn && (
+            <p className="text-destructive text-sm">{errors.nidn.message}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-2">
+            Nama Dosen
+          </label>
           <input
             {...register("name")}
             className={inputClassName}
@@ -124,22 +159,26 @@ export function FormEditDosen() {
           )}
         </div>
 
-        {/* EXPERTISE */}
         <div>
-          <label>Spesialisasi</label>
+          <label className="block text-sm font-medium text-foreground mb-2">
+            Spesialisasi
+          </label>
           <input
             {...register("expertise")}
             className={inputClassName}
             placeholder="Masukkan spesialisasi"
           />
           {errors.expertise && (
-            <p className="text-destructive text-sm">{errors.expertise.message}</p>
+            <p className="text-destructive text-sm">
+              {errors.expertise.message}
+            </p>
           )}
         </div>
 
-        {/* RESEARCH */}
         <div>
-          <label>Link Penelitian</label>
+          <label className="block text-sm font-medium text-foreground mb-2">
+            Link Penelitian
+          </label>
           <input
             type="url"
             {...register("research")}
@@ -147,13 +186,16 @@ export function FormEditDosen() {
             placeholder="https://..."
           />
           {errors.research && (
-            <p className="text-destructive text-sm">{errors.research.message}</p>
+            <p className="text-destructive text-sm">
+              {errors.research.message}
+            </p>
           )}
         </div>
 
-        {/* TEACHING */}
         <div>
-          <label>Link Pengajaran</label>
+          <label className="block text-sm font-medium text-foreground mb-2">
+            Link Pengajaran
+          </label>
           <input
             type="url"
             {...register("teaching")}
@@ -161,15 +203,117 @@ export function FormEditDosen() {
             placeholder="https://..."
           />
           {errors.teaching && (
-            <p className="text-destructive text-sm">{errors.teaching.message}</p>
+            <p className="text-destructive text-sm">
+              {errors.teaching.message}
+            </p>
           )}
         </div>
 
-        {/* PHOTO */}
-        <div>
-          <label>Foto Lama</label>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h3 className="text-sm font-medium text-foreground">
+                Riwayat Jabatan
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Edit seluruh daftar jabatan dan periode dosen.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() =>
+                append({ lectureshipId: "", startDate: "", endDate: "" })
+              }
+              className="px-3 py-2 text-sm border border-border rounded-lg hover:bg-muted"
+            >
+              Tambah Jabatan
+            </button>
+          </div>
 
-          {/* Foto lama */}
+          <div className="space-y-4">
+            {fields.map((field, index) => (
+              <div
+                key={field.id}
+                className="border border-border rounded-lg p-4 space-y-4"
+              >
+                <div className="flex items-center justify-between gap-4">
+                  <h4 className="font-medium text-foreground">
+                    Jabatan #{index + 1}
+                  </h4>
+                  <button
+                    type="button"
+                    onClick={() => remove(index)}
+                    className="text-sm text-destructive hover:underline"
+                  >
+                    Hapus
+                  </button>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Jabatan
+                  </label>
+                  <select
+                    {...register(`positions.${index}.lectureshipId`)}
+                    className={inputClassName}
+                  >
+                    <option value="">-- Pilih Jabatan Dosen --</option>
+                    {lectureships?.data?.map((lectureship) => (
+                      <option key={lectureship.id} value={lectureship.id}>
+                        {lectureship.name}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.positions?.[index]?.lectureshipId && (
+                    <p className="text-destructive text-sm">
+                      {errors.positions[index]?.lectureshipId?.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                      Tanggal Mulai
+                    </label>
+                    <input
+                      type="date"
+                      {...register(`positions.${index}.startDate`)}
+                      className={inputClassName}
+                    />
+                    {errors.positions?.[index]?.startDate && (
+                      <p className="text-destructive text-sm">
+                        {errors.positions[index]?.startDate?.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                      Tanggal Selesai
+                    </label>
+                    <input
+                      type="date"
+                      {...register(`positions.${index}.endDate`)}
+                      className={inputClassName}
+                    />
+                    {errors.positions?.[index]?.endDate && (
+                      <p className="text-destructive text-sm">
+                        {errors.positions[index]?.endDate?.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-2">
+            Foto Lama
+          </label>
+
           {dosen.photo && (
             <Image
               src={dosen.photo}

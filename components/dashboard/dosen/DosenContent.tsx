@@ -5,12 +5,24 @@ import { useRouter } from "next/navigation";
 import { DataTable } from "@/components/DataTable";
 import { DeleteAlert } from "@/components/DeleteAlert";
 import Image from "next/image";
-import {
-  useDeleteDosen,
-  useDosens,
-} from "@/app/dashboard/dosen/queries";
+import { useDeleteDosen, useDosens } from "@/app/dashboard/dosen/queries";
 import { DosenResponse } from "@/app/dashboard/dosen/types";
 import { toast } from "sonner";
+
+function getPositionSummary(dosen: DosenResponse) {
+  if (!dosen.positions.length) return "-";
+
+  const activePosition = dosen.positions.find((position) => !position.endDate);
+  const latestPosition = activePosition ?? dosen.positions[0];
+
+  if (!latestPosition) return "-";
+
+  const period = latestPosition.endDate
+    ? `${latestPosition.startDate.slice(0, 10)} s/d ${latestPosition.endDate.slice(0, 10)}`
+    : `${latestPosition.startDate.slice(0, 10)} - sekarang`;
+
+  return `${latestPosition.lectureship.name} (${period})`;
+}
 
 export function DashboardDosenContent() {
   const router = useRouter();
@@ -57,7 +69,7 @@ export function DashboardDosenContent() {
       <div>
         <h1 className="text-3xl font-bold text-foreground">Manajemen Dosen</h1>
         <p className="text-muted-foreground mt-2">
-          Kelola data dosen dan spesialisasi mereka
+          Kelola data dosen dan riwayat jabatan mereka
         </p>
       </div>
 
@@ -81,8 +93,21 @@ export function DashboardDosenContent() {
                 <span>-</span>
               ),
           },
+          { key: "nidn", label: "NIDN", sortable: true },
           { key: "name", label: "Nama", sortable: true },
           { key: "expertise", label: "Spesialisasi", sortable: true },
+          {
+            key: "positions",
+            label: "Jabatan Terbaru",
+            render: (_, row) => (
+              <span className="text-sm">{getPositionSummary(row)}</span>
+            ),
+          },
+          {
+            key: "positionsCount",
+            label: "Total Jabatan",
+            render: (_, row) => row.positions.length,
+          },
         ]}
         onAdd={() => router.push("/dashboard/dosen/tambah")}
         onEdit={(item) => router.push(`/dashboard/dosen/${item.id}/ubah`)}

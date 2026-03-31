@@ -6,9 +6,7 @@ import {
   getAlumniById,
   updateAlumni,
 } from "./api";
-import { UpdateAlumniDto } from "./types";
 
-// Hook to fetch all alumni
 export const useAlumni = () => {
   return useQuery({
     queryKey: ["alumni"],
@@ -16,7 +14,6 @@ export const useAlumni = () => {
   });
 };
 
-// Hook to delete alumni
 export const useDeleteAlumni = () => {
   const qc = useQueryClient();
 
@@ -28,16 +25,14 @@ export const useDeleteAlumni = () => {
   });
 };
 
-// Hook to fetch alumni by ID
 export const useAlumniById = (id: string) => {
   return useQuery({
     queryKey: ["alumni", id],
     queryFn: () => getAlumniById(id),
-    enabled: !!id, // Only fetch if ID is provided
+    enabled: !!id,
   });
 };
 
-// Hook to create alumni
 export const useCreateAlumni = () => {
   const qc = useQueryClient();
 
@@ -49,12 +44,11 @@ export const useCreateAlumni = () => {
   });
 };
 
-// Hook to update alumni
 export const useUpdateAlumni = () => {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateAlumniDto }) =>
+    mutationFn: ({ id, data }: { id: string; data: FormData }) =>
       updateAlumni(id, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["alumni"] });

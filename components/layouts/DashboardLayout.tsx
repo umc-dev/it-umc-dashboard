@@ -1,14 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  LayoutDashboard, Users, FileText, Folder, BookOpen,
-  BarChart3, LogOut, Menu, X, Handshake, Goal, UserCog, GraduationCap
+  LayoutDashboard, Users, FileText, Folder, BookOpen, UserCog, Briefcase ,
+  BarChart3, LogOut, Menu, X, Handshake, Goal, GraduationCap, Trophy, Building, Network
 } from "lucide-react";
 import Image from "next/image";
 import { useMe, useLogout } from "@/app/login/queries";
+import type { AdminResponse } from "@/app/login/types";
+
+type Role = AdminResponse["role"];
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -21,15 +24,37 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const navItems = [
     { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { label: "Dosen", href: "/dashboard/dosen", icon: Users },
+    { label: "Jabatan Dosen", href: "/dashboard/lectureships", icon: Briefcase   },
     { label: "Berita", href: "/dashboard/berita", icon: FileText },
-    { label: "Kategori", href: "/dashboard/kategori", icon: Folder },
-    { label: "Mata Kuliah", href: "/dashboard/matakuliah", icon: BookOpen },
+    { label: "Kategori Berita", href: "/dashboard/kategori", icon: Folder },
+    { label: "Distribusi Mata Kuliah", href: "/dashboard/matakuliah", icon: BookOpen },
     { label: "Statistik Mahasiswa", href: "/dashboard/statistik-mahasiswa", icon: BarChart3 },
-    { label: "Alumni", href: "/dashboard/alumni", icon: GraduationCap },
+    { label: "Testimoni Alumni", href: "/dashboard/alumni", icon: GraduationCap },
+    { label: "Prestasi", href: "/dashboard/achievement", icon: Trophy },
     { label: "Kerja Sama", href: "/dashboard/kerja-sama", icon: Handshake },
+    { label: "Fasilitas", href: "/dashboard/fasilitas", icon: Building },
     { label: "Visi & Misi", href: "/dashboard/visi-misi", icon: Goal },
-    { label: "Admin", href: "/dashboard/admin", icon: UserCog },
+    { label: "Struktur Organisasi", href: "/dashboard/struktur-organisasi", icon: Network },
+    { label: "Manajemen Pengguna", href: "/dashboard/admin", icon: UserCog },
   ];
+
+  const visibleNavItems = useMemo(() => {
+    const role = admin?.role;
+
+    if (!role) return [];
+
+    if (role === "SUPER_ADMIN") {
+      return navItems;
+    }
+
+    if (role === "EDITOR") {
+      return navItems.filter((item) =>
+        ["/dashboard/berita", "/dashboard/kategori"].includes(item.href),
+      );
+    }
+
+    return navItems.filter((item) => item.href !== "/dashboard/admin");
+  }, [admin?.role]);
 
   const handleLogout = () => {
     setShowLogoutDialog(false);
@@ -61,9 +86,11 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
         {/* Nav */}
         <nav className="flex-1 overflow-y-auto p-3 space-y-2">
-          {navItems.map((item) => {
+          {visibleNavItems.map((item) => {
             const Icon = item.icon;
-            const isActive = pathname === item.href;
+            const isActive =
+              pathname === item.href ||
+              (item.href !== "/dashboard" && pathname.startsWith(`${item.href}/`));
             return (
               <Link
                 key={item.href}
@@ -112,6 +139,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               width={40}
               height={40}
               className="w-10 h-10 rounded-full shrink-0"
+              unoptimized
             />
             <div className="hidden sm:block">
               <p className="text-sm font-medium">
