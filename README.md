@@ -1,6 +1,6 @@
 # IT-UMC Dashboard
 
-Content Management System (CMS) untuk website Program Studi Teknik Informatika, Universitas Muhammadiyah Cirebon.
+Website Program Studi Teknik Informatika, Universitas Muhammadiyah Cirebon. Konten dikelola melalui [it-umc-dashboard](https://github.com/umc-dev/it-umc-dashboard).
 
 ## Tech Stack
 
@@ -43,6 +43,15 @@ Content Management System (CMS) untuk website Program Studi Teknik Informatika, 
 - Backend API (`it-umc-be`) berjalan di `http://localhost:9090`
 
 ### Setup
+
+**1. Clone Repository**
+
+```bash
+git clone https://github.com/umc-dev/it-umc-dashboard.git
+cd it-umc-dashboard
+```
+
+**2. Install Dependencies**
 
 ```bash
 npm install
