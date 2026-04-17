@@ -1,36 +1,113 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# IT-UMC Dashboard
 
-## Getting Started
+Website Program Studi Teknik Informatika, Universitas Muhammadiyah Cirebon. Konten dikelola melalui [it-umc-dashboard](https://github.com/umc-dev/it-umc-dashboard).
 
-First, run the development server:
+## Tech Stack
+
+- **Next.js 16** (App Router) + **React 19** + **TypeScript**
+- **Tailwind CSS 4** — styling
+- **TanStack Query** — server state management
+- **React Hook Form + Zod** — form handling & validasi
+- **Tiptap** — WYSIWYG editor (konten berita)
+- **Recharts** — chart statistik
+- **Axios** — HTTP client
+- **Sonner** — toast notification
+
+## Fitur
+
+- **Dashboard** — ringkasan statistik & chart
+- **Dosen** — CRUD data dosen (NIDN, spesialisasi, avatar, link tri dharma)
+- **Jabatan Dosen** — kelola jabatan/lectureship
+- **Berita** — CRUD artikel dengan WYSIWYG editor & thumbnail
+- **Kategori Berita** — kelola kategori
+- **Distribusi Mata Kuliah** — data kurikulum
+- **Statistik Mahasiswa** — data mahasiswa masuk & lulus per tahun
+- **Testimoni Alumni** — kelola testimoni & video YouTube
+- **Prestasi** — data achievement
+- **Kerja Sama** — data mitra kerja sama
+- **Fasilitas** — data fasilitas kampus
+- **Visi & Misi** — edit visi dan misi prodi
+- **Struktur Organisasi** — gambar & deskripsi
+- **Manajemen Pengguna** — kelola admin (khusus Super Admin)
+
+### Autentikasi
+
+- Login email/password dan Google OAuth (`@umc.ac.id`)
+- Role-based access: **Super Admin** (full), **Admin** (tanpa user management), **Editor** (berita & kategori saja)
+
+## Menjalankan Project
+
+### Prasyarat
+
+- Node.js ≥ 18
+- Backend API (`it-umc-be`) berjalan di `http://localhost:9090`
+
+### Setup
+
+**1. Clone Repository**
+
+```bash
+git clone https://github.com/umc-dev/it-umc-dashboard.git
+cd it-umc-dashboard
+```
+
+**2. Install Dependencies**
+
+```bash
+npm install
+cp .env.example .env
+```
+
+Isi `.env`:
+
+```env
+NEXT_PUBLIC_API_URL="http://localhost:9090/api/v1"
+```
+
+### Development
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Production
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run build
+npm start
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Struktur Folder
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+app/
+├── login/                      # Halaman login
+└── dashboard/                  # Layout + auth guard
+    ├── dosen/                  # CRUD Dosen
+    ├── lectureships/           # CRUD Jabatan Dosen
+    ├── berita/                 # CRUD Berita
+    ├── kategori/               # CRUD Kategori
+    ├── matakuliah/             # CRUD Mata Kuliah
+    ├── statistik-mahasiswa/    # CRUD Statistik
+    ├── alumni/                 # CRUD Alumni
+    ├── achievement/            # CRUD Prestasi
+    ├── kerja-sama/             # CRUD Kerja Sama
+    ├── fasilitas/              # CRUD Fasilitas
+    ├── visi-misi/              # Edit Visi & Misi
+    ├── struktur-organisasi/    # Struktur Organisasi
+    └── admin/                  # Manajemen Pengguna
+components/
+├── layouts/DashboardLayout.tsx # Sidebar + topbar
+├── auth/LoginForm.tsx          # Form login
+├── dashboard/                  # Komponen per modul
+├── DataTable.tsx               # Tabel reusable
+├── TiptapEditor.tsx            # WYSIWYG editor
+├── ImageUpload.tsx             # Upload gambar
+└── DeleteAlert.tsx             # Dialog konfirmasi hapus
+lib/
+├── api.ts                      # Axios instance
+├── getSession.ts               # Server-side session
+└── upload.ts                   # Upload helper
+providers/
+└── QueryProviders.tsx          # TanStack Query provider
+```
