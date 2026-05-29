@@ -3,6 +3,8 @@ import {
   getChatbotFiles,
   uploadChatbotFile,
   deleteChatbotFile,
+  getChatbotContext,
+  updateChatbotContext,
 } from "./api";
 
 // GET ALL CHATBOT FILES
@@ -36,3 +38,25 @@ export const useDeleteChatbotFile = () => {
     },
   });
 };
+
+// GET CHATBOT CONTEXT
+export const useChatbotContext = (name: string) => {
+  return useQuery({
+    queryKey: ["chatbot-context", name],
+    queryFn: () => getChatbotContext(name),
+  });
+};
+
+// UPDATE CHATBOT CONTEXT
+export const useUpdateChatbotContext = () => {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ name, context }: { name: string; context: string }) =>
+      updateChatbotContext(name, context),
+    onSuccess: (_, variables) => {
+      qc.invalidateQueries({ queryKey: ["chatbot-context", variables.name] });
+    },
+  });
+};
+

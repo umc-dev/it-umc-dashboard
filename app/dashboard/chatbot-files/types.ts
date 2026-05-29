@@ -19,3 +19,18 @@ export interface ChatbotFileUploadResponse {
   message: string;
   data: ChatbotFile;
 }
+
+export interface ChatbotContext {
+  id: number;
+  name: string;
+  context: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ChatbotContextResponse {
+  success: boolean;
+  message: string;
+  data: ChatbotContext;
+}
+

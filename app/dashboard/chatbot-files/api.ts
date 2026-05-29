@@ -1,5 +1,5 @@
 import { api } from "@/lib/api";
-import { ChatbotFile } from "./types";
+import { ChatbotFile, ChatbotContext } from "./types";
 
 export const getChatbotFiles = async (): Promise<ChatbotFile[]> => {
   const res = await api.get("/chatbot/files");
@@ -19,3 +19,17 @@ export const deleteChatbotFile = async (id: number): Promise<any> => {
   const res = await api.delete(`/chatbot/files/${id}`);
   return res.data;
 };
+
+export const getChatbotContext = async (name: string): Promise<ChatbotContext> => {
+  const res = await api.get(`/chatbot/contexts/${name}`);
+  return res.data.data;
+};
+
+export const updateChatbotContext = async (
+  name: string,
+  context: string
+): Promise<ChatbotContext> => {
+  const res = await api.put(`/chatbot/contexts/${name}`, { context });
+  return res.data.data;
+};
+

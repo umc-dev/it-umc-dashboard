@@ -63,7 +63,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     {
       groupLabel: "Asisten Virtual AI",
       items: [
-        { label: "File Chatbot", href: "/dashboard/chatbot-files", icon: Bot },
+        { label: "Chatbot Context", href: "/dashboard/chatbot-files", icon: Bot },
       ],
     },
     {
