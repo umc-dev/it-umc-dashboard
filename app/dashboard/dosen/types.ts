@@ -20,6 +20,18 @@ export type CreateDosenInputDto = z.input<typeof CreateDosenSchema>;
 export type UpdateDosenDto = z.output<typeof UpdateDosenSchema>;
 export type UpdateDosenInputDto = z.input<typeof UpdateDosenSchema>;
 
+export interface DosenTridharma {
+  id: number;
+  dosenId: string;
+  category: "PENGAJARAN" | "PENELITIAN" | "PENGABDIAN";
+  title: string;
+  year: number;
+  description: string;
+  link: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface DosenResponse {
   id: string;
   nidn: string;
@@ -29,6 +41,7 @@ export interface DosenResponse {
   teaching: string;
   photo: string | null;
   positions: DosenPosition[];
+  dosenTridharmas?: DosenTridharma[];
   createdAt: string;
   updatedAt: string;
 }
@@ -37,3 +50,4 @@ export interface PaginatedDosenResponse {
   data: DosenResponse[];
   meta: PaginationMeta;
 }
+

@@ -5,6 +5,9 @@ import {
   getDosenById,
   getDosens,
   updateDosen,
+  createDosenTridharma,
+  updateDosenTridharma,
+  deleteDosenTridharma,
 } from "./api";
 
 // GET ALL DOSENS
@@ -60,3 +63,43 @@ export const useUpdateDosen = () => {
     },
   });
 };
+
+// CREATE DOSEN TRIDHARMA
+export const useCreateDosenTridharma = () => {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: createDosenTridharma,
+    onSuccess: (_, variables) => {
+      qc.invalidateQueries({ queryKey: ["dosens"] });
+      qc.invalidateQueries({ queryKey: ["dosens", variables.dosenId] });
+    },
+  });
+};
+
+// UPDATE DOSEN TRIDHARMA
+export const useUpdateDosenTridharma = (dosenId: string) => {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: any }) =>
+      updateDosenTridharma(id, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["dosens"] });
+      qc.invalidateQueries({ queryKey: ["dosens", dosenId] });
+    },
+  });
+};
+
+// DELETE DOSEN TRIDHARMA
+export const useDeleteDosenTridharma = (dosenId: string) => {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: deleteDosenTridharma,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["dosens"] });
+      qc.invalidateQueries({ queryKey: ["dosens", dosenId] });
+    },
+  });
+};
