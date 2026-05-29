@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Users, FileText, Folder, BookOpen, UserCog, Briefcase ,
-  BarChart3, LogOut, Menu, X, Handshake, Goal, GraduationCap, Trophy, Building, Network
+  BarChart3, LogOut, Menu, X, Handshake, Goal, GraduationCap, Trophy, Building, Network, Bot
 } from "lucide-react";
 import Image from "next/image";
 import { useMe, useLogout } from "@/app/login/queries";
@@ -21,39 +21,80 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { data: admin, isLoading: loadingAdmin } = useMe();
   const { mutate: logout } = useLogout();
 
-  const navItems = [
-    { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { label: "Dosen", href: "/dashboard/dosen", icon: Users },
-    { label: "Jabatan Dosen", href: "/dashboard/lectureships", icon: Briefcase   },
-    { label: "Berita", href: "/dashboard/berita", icon: FileText },
-    { label: "Kategori Berita", href: "/dashboard/kategori", icon: Folder },
-    { label: "Distribusi Mata Kuliah", href: "/dashboard/matakuliah", icon: BookOpen },
-    { label: "Statistik Mahasiswa", href: "/dashboard/statistik-mahasiswa", icon: BarChart3 },
-    { label: "Testimoni Alumni", href: "/dashboard/alumni", icon: GraduationCap },
-    { label: "Prestasi", href: "/dashboard/achievement", icon: Trophy },
-    { label: "Kerja Sama", href: "/dashboard/kerja-sama", icon: Handshake },
-    { label: "Fasilitas", href: "/dashboard/fasilitas", icon: Building },
-    { label: "Visi & Misi", href: "/dashboard/visi-misi", icon: Goal },
-    { label: "Struktur Organisasi", href: "/dashboard/struktur-organisasi", icon: Network },
-    { label: "Manajemen Pengguna", href: "/dashboard/admin", icon: UserCog },
+  const navGroups = [
+    {
+      groupLabel: "Utama",
+      items: [
+        { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+      ],
+    },
+    {
+      groupLabel: "Kepegawaian & Akademik",
+      items: [
+        { label: "Dosen", href: "/dashboard/dosen", icon: Users },
+        { label: "Jabatan Dosen", href: "/dashboard/lectureships", icon: Briefcase },
+        { label: "Distribusi Mata Kuliah", href: "/dashboard/matakuliah", icon: BookOpen },
+      ],
+    },
+    {
+      groupLabel: "Publikasi & Kerja Sama",
+      items: [
+        { label: "Berita", href: "/dashboard/berita", icon: FileText },
+        { label: "Kategori Berita", href: "/dashboard/kategori", icon: Folder },
+        { label: "Prestasi", href: "/dashboard/achievement", icon: Trophy },
+        { label: "Kerja Sama", href: "/dashboard/kerja-sama", icon: Handshake },
+      ],
+    },
+    {
+      groupLabel: "Profil Kampus",
+      items: [
+        { label: "Visi & Misi", href: "/dashboard/visi-misi", icon: Goal },
+        { label: "Struktur Organisasi", href: "/dashboard/struktur-organisasi", icon: Network },
+        { label: "Fasilitas", href: "/dashboard/fasilitas", icon: Building },
+      ],
+    },
+    {
+      groupLabel: "Mahasiswa & Alumni",
+      items: [
+        { label: "Statistik Mahasiswa", href: "/dashboard/statistik-mahasiswa", icon: BarChart3 },
+        { label: "Testimoni Alumni", href: "/dashboard/alumni", icon: GraduationCap },
+      ],
+    },
+    {
+      groupLabel: "Asisten Virtual AI",
+      items: [
+        { label: "File Chatbot", href: "/dashboard/chatbot-files", icon: Bot },
+      ],
+    },
+    {
+      groupLabel: "Sistem & Pengaturan",
+      items: [
+        { label: "Manajemen Pengguna", href: "/dashboard/admin", icon: UserCog },
+      ],
+    },
   ];
 
-  const visibleNavItems = useMemo(() => {
+  const visibleNavGroups = useMemo(() => {
     const role = admin?.role;
 
     if (!role) return [];
 
-    if (role === "SUPER_ADMIN") {
-      return navItems;
-    }
+    return navGroups
+      .map((group) => {
+        const filteredItems = group.items.filter((item) => {
+          if (role === "SUPER_ADMIN") return true;
+          if (role === "EDITOR") {
+            return ["/dashboard/berita", "/dashboard/kategori"].includes(item.href);
+          }
+          return item.href !== "/dashboard/admin";
+        });
 
-    if (role === "EDITOR") {
-      return navItems.filter((item) =>
-        ["/dashboard/berita", "/dashboard/kategori"].includes(item.href),
-      );
-    }
-
-    return navItems.filter((item) => item.href !== "/dashboard/admin");
+        return {
+          ...group,
+          items: filteredItems,
+        };
+      })
+      .filter((group) => group.items.length > 0);
   }, [admin?.role]);
 
   const handleLogout = () => {
@@ -85,26 +126,35 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 overflow-y-auto p-3 space-y-2">
-          {visibleNavItems.map((item) => {
-            const Icon = item.icon;
-            const isActive =
-              pathname === item.href ||
-              (item.href !== "/dashboard" && pathname.startsWith(`${item.href}/`));
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setSidebarOpen(false)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                  isActive ? "bg-sidebar-primary text-sidebar-primary-foreground" : "text-sidebar-foreground hover:bg-sidebar-accent"
-                }`}
-              >
-                <Icon className="w-5 h-5 shrink-0" />
-                <span className="text-sm font-medium">{item.label}</span>
-              </Link>
-            );
-          })}
+        <nav className="flex-1 overflow-y-auto p-3 space-y-4">
+          {visibleNavGroups.map((group) => (
+            <div key={group.groupLabel} className="space-y-1">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-sidebar-foreground/45 px-4 mb-2">
+                {group.groupLabel}
+              </p>
+              <div className="space-y-1">
+                {group.items.map((item) => {
+                  const Icon = item.icon;
+                  const isActive =
+                    pathname === item.href ||
+                    (item.href !== "/dashboard" && pathname.startsWith(`${item.href}/`));
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setSidebarOpen(false)}
+                      className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors ${
+                        isActive ? "bg-sidebar-primary text-sidebar-primary-foreground" : "text-sidebar-foreground hover:bg-sidebar-accent"
+                      }`}
+                    >
+                      <Icon className="w-4 h-4 shrink-0" />
+                      <span className="text-sm font-medium">{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </nav>
 
         {/* Logout */}
