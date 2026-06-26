@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FormHeader } from "@/components/FormHeader";
 import { FormButtons } from "@/components/FormButtons";
 import { useCreateVisionMission } from "@/app/dashboard/visi-misi/queries";
@@ -16,7 +16,10 @@ const inputClassName =
 
 export function FormAddVisiMisi() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const createVisionMission = useCreateVisionMission();
+
+  const defaultProdi = (searchParams.get("prodi") as "S1" | "D3") || "S1";
 
   const {
     register,
@@ -24,6 +27,9 @@ export function FormAddVisiMisi() {
     formState: { errors },
   } = useForm<CreateVisionMissionDto>({
     resolver: zodResolver(CreateVisionMissionSchema),
+    defaultValues: {
+      prodi: defaultProdi,
+    },
   });
 
   const onSubmit = async (data: CreateVisionMissionDto) => {
@@ -57,6 +63,22 @@ export function FormAddVisiMisi() {
         onSubmit={handleSubmit(onSubmit)}
         className="bg-card border border-border rounded-lg p-6 sm:p-8 space-y-6"
       >
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-2">
+            Program Studi <span className="text-destructive">*</span>
+          </label>
+          <select
+            {...register("prodi")}
+            className={inputClassName}
+          >
+            <option value="S1">S1 Teknik Informatika</option>
+            <option value="D3">D3 Teknik Informatika</option>
+          </select>
+          {errors.prodi && (
+            <p className="text-destructive text-sm">{errors.prodi.message}</p>
+          )}
+        </div>
+
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
             Visi <span className="text-destructive">*</span>

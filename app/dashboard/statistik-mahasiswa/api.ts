@@ -4,20 +4,21 @@ import {
   PaginatedStatisticStudentResponse,
 } from "./types";
 
-export const getStatisticStudents = async (): Promise<PaginatedStatisticStudentResponse> => {
-  const res = await api.get("/statistic-student");
+export const getStatisticStudents = async (prodi?: string): Promise<PaginatedStatisticStudentResponse> => {
+  const res = await api.get("/statistic-student", { params: { prodi } });
   return res.data;
 };
 
-export const getStatisticStudentByYear = async (
-  year: number
+export const getStatisticStudentById = async (
+  id: string
 ): Promise<StatisticStudentResponse> => {
-  const res = await api.get(`/statistic-student/${year}`);
+  const res = await api.get(`/statistic-student/${id}`);
   return res.data.data;
 };
 
 export const createStatisticStudent = async (
   data: {
+    prodi: "S1" | "D3";
     year: number;
     enteredStudents: number;
     graduatedStudents: number;
@@ -28,20 +29,21 @@ export const createStatisticStudent = async (
 };
 
 export const updateStatisticStudent = async (
-  year: number,
+  id: string,
   data: {
+    prodi?: "S1" | "D3";
     year?: number;
     enteredStudents?: number;
     graduatedStudents?: number;
   }
 ): Promise<StatisticStudentResponse> => {
-  const res = await api.put(`/statistic-student/${year}`, data);
+  const res = await api.put(`/statistic-student/${id}`, data);
   return res.data.data;
 };
 
 export const deleteStatisticStudent = async (
-  year: number
+  id: string
 ): Promise<StatisticStudentResponse> => {
-  const res = await api.delete(`/statistic-student/${year}`);
+  const res = await api.delete(`/statistic-student/${id}`);
   return res.data;
 };

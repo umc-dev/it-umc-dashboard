@@ -1,7 +1,4 @@
-// app/dashboard/matakuliah/FormAddMatakuliah.tsx
-"use client";
-
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FormHeader } from "@/components/FormHeader";
 import { FormButtons } from "@/components/FormButtons";
 import { PdfUpload } from "@/components/PdfUpload";
@@ -14,18 +11,26 @@ import axios from "axios";
 import { toast } from "sonner";
 import { useMemo } from "react";
 
+const inputClassName =
+  "w-full px-4 py-2 border border-border rounded-lg bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-colors";
+
 export function FormAddMatakuliah() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const createStudy = useCreateStudy();
+
+  const defaultProdi = (searchParams.get("prodi") as "S1" | "D3") || "S1";
 
   const {
     handleSubmit,
     setValue,
     control,
+    register,
     formState: { errors },
   } = useForm<CreateStudyDto>({
     resolver: zodResolver(CreateStudySchema),
     defaultValues: {
+      prodi: defaultProdi,
       source: undefined as File | undefined, 
     },
   });
@@ -37,6 +42,7 @@ export function FormAddMatakuliah() {
     try {
       const fd = new FormData();
 
+      fd.append("prodi", data.prodi);
       fd.append("source", data.source);
 
       await createStudy.mutateAsync(fd);
@@ -67,6 +73,21 @@ export function FormAddMatakuliah() {
         onSubmit={handleSubmit(onSubmit)}
         className="bg-card border border-border rounded-lg p-6 sm:p-8 space-y-6"
       >
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-2">
+            Program Studi <span className="text-destructive">*</span>
+          </label>
+          <select
+            {...register("prodi")}
+            className={inputClassName}
+          >
+            <option value="S1">S1 Teknik Informatika</option>
+            <option value="D3">D3 Teknik Informatika</option>
+          </select>
+          {errors.prodi && (
+            <p className="text-destructive text-sm">{errors.prodi.message}</p>
+          )}
+        </div>
         <PdfUpload
           label="Dokumen PDF"
           value={source ?? null} 

@@ -17,6 +17,7 @@ export type UpdateStatisticStudentDto = z.infer<
 // Response
 export interface StatisticStudentResponse {
   id: string;
+  prodi: "S1" | "D3";
   year: number;
   enteredStudents: number;
   graduatedStudents: number;

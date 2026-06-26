@@ -9,10 +9,10 @@ import {
 import { UpdateVisionMissionDto } from "./types";
 
 // GET ALL VISION MISSIONS
-export const useVisionMissions = () => {
+export const useVisionMissions = (prodi?: string) => {
   return useQuery({
-    queryKey: ["vision-missions"],
-    queryFn: getVisionMissions,
+    queryKey: ["vision-missions", prodi],
+    queryFn: () => getVisionMissions(prodi),
   });
 };
 

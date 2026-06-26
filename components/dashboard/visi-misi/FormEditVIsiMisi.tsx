@@ -35,6 +35,7 @@ export function FormEditVisiMisi() {
   useEffect(() => {
     if (visionMission) {
       reset({
+        prodi: visionMission.prodi,
         vision: visionMission.vision,
         mission: visionMission.mission,
       });
@@ -84,6 +85,23 @@ export function FormEditVisiMisi() {
         onSubmit={handleSubmit(onSubmit)}
         className="bg-card border border-border rounded-lg p-6 sm:p-8 space-y-6"
       >
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-2">
+            Program Studi
+          </label>
+          <select
+            {...register("prodi")}
+            className={inputClassName}
+            disabled
+          >
+            <option value="S1">S1 Teknik Informatika</option>
+            <option value="D3">D3 Teknik Informatika</option>
+          </select>
+          {errors.prodi && (
+            <p className="text-destructive text-sm">{errors.prodi.message}</p>
+          )}
+        </div>
+
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
             Visi

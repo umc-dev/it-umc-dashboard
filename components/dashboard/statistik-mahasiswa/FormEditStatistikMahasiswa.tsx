@@ -6,7 +6,7 @@ import { useRouter, useParams } from "next/navigation";
 import { FormHeader } from "@/components/FormHeader";
 import { FormButtons } from "@/components/FormButtons";
 import {
-  useStatisticStudentByYear,
+  useStatisticStudentById,
   useUpdateStatisticStudent,
 } from "@/app/dashboard/statistik-mahasiswa/queries";
 import { useForm } from "react-hook-form";
@@ -22,11 +22,11 @@ const inputClassName =
 export function FormEditStatistikMahasiswa() {
   const router = useRouter();
   const params = useParams();
-  const year = Number(params.year);
+  const id = params.year as string; // parameter folder is [year] but it holds the record's UUID string ID
 
   const updateStatisticStudent = useUpdateStatisticStudent();
 
-  const { data: statisticStudent, isLoading } = useStatisticStudentByYear(year);
+  const { data: statisticStudent, isLoading } = useStatisticStudentById(id);
 
   const {
     register,
@@ -40,6 +40,7 @@ export function FormEditStatistikMahasiswa() {
   useEffect(() => {
     if (statisticStudent) {
       reset({
+        prodi: statisticStudent.prodi,
         year: statisticStudent.year,
         enteredStudents: statisticStudent.enteredStudents,
         graduatedStudents: statisticStudent.graduatedStudents,
@@ -50,12 +51,12 @@ export function FormEditStatistikMahasiswa() {
   const onSubmit = async (data: UpdateStatisticStudentDto) => {
     try {
       await updateStatisticStudent.mutateAsync({
-        year,
+        id,
         data,
       });
 
       toast.success("Statistik berhasil diperbarui!", {
-        description: `Tahun ${data.year || year}`,
+        description: `Tahun ${data.year || (statisticStudent ? statisticStudent.year : "")}`,
       });
 
       router.push("/dashboard/statistik-mahasiswa");
@@ -95,6 +96,24 @@ export function FormEditStatistikMahasiswa() {
         onSubmit={handleSubmit(onSubmit)}
         className="bg-card border border-border rounded-lg p-6 sm:p-8 space-y-6"
       >
+        {/* PRODI */}
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-2">
+            Program Studi
+          </label>
+          <select
+            {...register("prodi")}
+            className={inputClassName}
+            disabled
+          >
+            <option value="S1">S1 Teknik Informatika</option>
+            <option value="D3">D3 Teknik Informatika</option>
+          </select>
+          {errors.prodi && (
+            <p className="text-destructive text-sm">{errors.prodi.message}</p>
+          )}
+        </div>
+
         {/* TAHUN */}
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FormHeader } from "@/components/FormHeader";
 import { FormButtons } from "@/components/FormButtons";
 import { useCreateAchievement } from "@/app/dashboard/achievement/queries";
@@ -16,7 +16,10 @@ const inputClassName =
 
 export function FormAddAchievement() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const createAchievement = useCreateAchievement();
+
+  const defaultProdi = (searchParams.get("prodi") as "S1" | "D3") || "S1";
 
   const {
     register,
@@ -24,6 +27,9 @@ export function FormAddAchievement() {
     formState: { errors },
   } = useForm<CreateAchievementDto>({
     resolver: zodResolver(CreateAchievementSchema),
+    defaultValues: {
+      prodi: defaultProdi,
+    },
   });
 
   const onSubmit = async (data: CreateAchievementDto) => {
@@ -59,6 +65,19 @@ export function FormAddAchievement() {
         onSubmit={handleSubmit(onSubmit)}
         className="bg-card border border-border rounded-lg p-6 sm:p-8 space-y-6"
       >
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-2">
+            Program Studi <span className="text-destructive">*</span>
+          </label>
+          <select {...register("prodi")} className={inputClassName}>
+            <option value="S1">S1 Teknik Informatika</option>
+            <option value="D3">D3 Teknik Informatika</option>
+          </select>
+          {errors.prodi && (
+            <p className="text-destructive text-sm">{errors.prodi.message}</p>
+          )}
+        </div>
+
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
             Nama Mahasiswa <span className="text-destructive">*</span>

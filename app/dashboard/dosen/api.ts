@@ -4,8 +4,8 @@ import {
   PaginatedDosenResponse,
 } from "./types";
 
-export const getDosens = async (): Promise<PaginatedDosenResponse> => {
-  const res = await api.get("/dosen");
+export const getDosens = async (prodi?: string): Promise<PaginatedDosenResponse> => {
+  const res = await api.get("/dosen", { params: { prodi } });
   return res.data;
 };
 

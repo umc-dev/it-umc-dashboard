@@ -1,8 +1,8 @@
 import { api } from "@/lib/api";
 import { StudyResponse, PaginatedStudyResponse } from "./types";
 
-export const getStudies = async (): Promise<PaginatedStudyResponse> => {
-  const res = await api.get("/studies");
+export const getStudies = async (prodi?: string): Promise<PaginatedStudyResponse> => {
+  const res = await api.get("/studies", { params: { prodi } });
   return res.data;
 };
 

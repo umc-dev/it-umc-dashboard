@@ -8,10 +8,10 @@ import {
 } from "./api";
 import { UpdateAchievementDto } from "./types";
 
-export const useAchievements = () => {
+export const useAchievements = (prodi?: string) => {
   return useQuery({
-    queryKey: ["achievements"],
-    queryFn: getAchievements,
+    queryKey: ["achievements", prodi],
+    queryFn: () => getAchievements(prodi),
   });
 };
 

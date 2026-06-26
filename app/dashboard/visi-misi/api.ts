@@ -1,9 +1,9 @@
 import { api } from "@/lib/api";
 import { PaginatedVisionMissionResponse, VisionMissionResponse } from "./types";
 
-// GET ALL (paginated, meski biasanya hanya 0-1 data)
-export const getVisionMissions = async (): Promise<PaginatedVisionMissionResponse> => {
-  const res = await api.get("/vision-mission");
+// GET ALL (paginated, meski biasanya hanya 0-1 data per prodi)
+export const getVisionMissions = async (prodi?: string): Promise<PaginatedVisionMissionResponse> => {
+  const res = await api.get("/vision-mission", { params: { prodi } });
   return res.data;
 };
 
@@ -14,7 +14,7 @@ export const getVisionMissionById = async (id: number): Promise<VisionMissionRes
 };
 
 // CREATE
-export const createVisionMission = async (data: { vision: string; mission: string }): Promise<VisionMissionResponse> => {
+export const createVisionMission = async (data: { prodi: "S1" | "D3"; vision: string; mission: string }): Promise<VisionMissionResponse> => {
   const res = await api.post("/vision-mission", data);
   return res.data.data;
 };
@@ -22,7 +22,7 @@ export const createVisionMission = async (data: { vision: string; mission: strin
 // UPDATE
 export const updateVisionMission = async (
   id: number,
-  data: { vision?: string; mission?: string }
+  data: { prodi?: "S1" | "D3"; vision?: string; mission?: string }
 ): Promise<VisionMissionResponse> => {
   const res = await api.put(`/vision-mission/${id}`, data);
   return res.data.data;

@@ -11,10 +11,10 @@ import {
 } from "./api";
 
 // GET ALL DOSENS
-export const useDosens = () => {
+export const useDosens = (prodi?: string) => {
   return useQuery({
-    queryKey: ["dosens"],
-    queryFn: getDosens,
+    queryKey: ["dosens", prodi],
+    queryFn: () => getDosens(prodi),
   });
 };
 

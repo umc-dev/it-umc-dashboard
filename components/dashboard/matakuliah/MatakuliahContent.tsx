@@ -12,8 +12,9 @@ import Link from "next/link";
 
 export function DashboardMatakuliahContent() {
   const router = useRouter();
+  const [selectedProdi, setSelectedProdi] = useState<"S1" | "D3">("S1");
 
-  const { data, isLoading } = useStudies();
+  const { data, isLoading } = useStudies(selectedProdi);
   const deleteStudy = useDeleteStudy();
 
   const [deleteAlert, setDeleteAlert] = useState<{
@@ -48,48 +49,75 @@ export function DashboardMatakuliahContent() {
     });
   };
 
-  if (isLoading) return <h1>Loading....</h1>;
-
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">Manajemen Dokumen Mata Kuliah</h1>
-        <p className="text-muted-foreground mt-2">
-          Kelola dokumen mata kuliah
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Manajemen Dokumen Mata Kuliah</h1>
+          <p className="text-muted-foreground mt-2">
+            Kelola dokumen mata kuliah
+          </p>
+        </div>
+
+        {/* Tab Switcher */}
+        <div className="flex rounded-lg border bg-muted p-1">
+          <button
+            onClick={() => setSelectedProdi("S1")}
+            className={`px-4 py-1.5 text-sm font-medium rounded-md transition ${
+              selectedProdi === "S1"
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            S1 Teknik Informatika
+          </button>
+          <button
+            onClick={() => setSelectedProdi("D3")}
+            className={`px-4 py-1.5 text-sm font-medium rounded-md transition ${
+              selectedProdi === "D3"
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            D3 Teknik Informatika
+          </button>
+        </div>
       </div>
 
-      <DataTable
-        data={data?.data ?? []}
-        columns={[
-          {
-            key: "source",
-            label: "Dokumen",
-            render: (value) => (
-              <Link href={value} target="_blank" rel="noopener noreferrer">
-                Lihat Dokumen
-              </Link>
-            ),
-          },
-          {
-            key: "createdAt",
-            label: "Dibuat Pada",
-            sortable: true,
-            render: (value) => formatDateTimeIndo(value),
-          },
-          {
-            key: "updatedAt",
-            label: "Diperbarui Pada",
-            sortable: true,
-            render: (value) => formatDateTimeIndo(value),
-          },
-        ]}
-        onAdd={() => router.push("/dashboard/matakuliah/tambah")}
-        onEdit={(item) => router.push(`/dashboard/matakuliah/${item.id}/ubah`)}
-        onDeleteClick={handleDeleteClick}
-        searchFields={["createdAt"]}
-      />
-
+      {isLoading ? (
+        <div className="text-center py-10 text-muted-foreground">Loading...</div>
+      ) : (
+        <DataTable
+          data={data?.data ?? []}
+          columns={[
+            {
+              key: "source",
+              label: "Dokumen",
+              render: (value) => (
+                <Link href={value} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                  Lihat Dokumen
+                </Link>
+              ),
+            },
+            {
+              key: "createdAt",
+              label: "Dibuat Pada",
+              sortable: true,
+              render: (value) => formatDateTimeIndo(value),
+            },
+            {
+              key: "updatedAt",
+              label: "Diperbarui Pada",
+              sortable: true,
+              render: (value) => formatDateTimeIndo(value),
+            },
+          ]}
+          onAdd={() => router.push(`/dashboard/matakuliah/tambah?prodi=${selectedProdi}`)}
+          onEdit={(item) => router.push(`/dashboard/matakuliah/${item.id}/ubah`)}
+          onDeleteClick={handleDeleteClick}
+          searchFields={["createdAt"]}
+        />
+      )}
 
       <DeleteAlert
         isOpen={deleteAlert.isOpen}

@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FormHeader } from "@/components/FormHeader";
 import { FormButtons } from "@/components/FormButtons";
 import { useCreateStatisticStudent } from "@/app/dashboard/statistik-mahasiswa/queries";
@@ -17,7 +17,10 @@ const inputClassName =
 
 export function FormAddStatistikMahasiswa() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const createStatisticStudent = useCreateStatisticStudent();
+
+  const defaultProdi = (searchParams.get("prodi") as "S1" | "D3") || "S1";
 
   const {
     register,
@@ -26,6 +29,7 @@ export function FormAddStatistikMahasiswa() {
   } = useForm<CreateStatisticStudentDto>({
     resolver: zodResolver(CreateStatisticStudentSchema),
     defaultValues: {
+      prodi: defaultProdi,
       year: new Date().getFullYear(),
       enteredStudents: 0,
       graduatedStudents: 0,
@@ -65,6 +69,23 @@ export function FormAddStatistikMahasiswa() {
         onSubmit={handleSubmit(onSubmit)}
         className="bg-card border border-border rounded-lg p-6 sm:p-8 space-y-6"
       >
+        {/* PRODI */}
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-2">
+            Program Studi <span className="text-destructive">*</span>
+          </label>
+          <select
+            {...register("prodi")}
+            className={inputClassName}
+          >
+            <option value="S1">S1 Teknik Informatika</option>
+            <option value="D3">D3 Teknik Informatika</option>
+          </select>
+          {errors.prodi && (
+            <p className="text-destructive text-sm">{errors.prodi.message}</p>
+          )}
+        </div>
+
         {/* TAHUN */}
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">

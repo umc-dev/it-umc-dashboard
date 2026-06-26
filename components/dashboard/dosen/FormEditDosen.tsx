@@ -170,11 +170,14 @@ export function FormEditDosen() {
   useEffect(() => {
     if (dosen) {
       reset({
+        prodi: dosen.prodi,
         nidn: dosen.nidn,
         name: dosen.name,
         expertise: dosen.expertise,
         research: dosen.research,
         teaching: dosen.teaching,
+        education: dosen.education,
+        description: dosen.description,
         positions: dosen.positions.map((position) => ({
           lectureshipId: String(position.lectureship.id),
           startDate: position.startDate.slice(0, 10),
@@ -198,11 +201,14 @@ export function FormEditDosen() {
   const onSubmit = async (data: UpdateDosenDto) => {
     try {
       const fd = new FormData();
+      if (data.prodi) fd.append("prodi", data.prodi);
       if (data.nidn) fd.append("nidn", data.nidn);
       if (data.name) fd.append("name", data.name);
       if (data.expertise) fd.append("expertise", data.expertise);
       if (data.research) fd.append("research", data.research);
       if (data.teaching) fd.append("teaching", data.teaching);
+      if (data.education !== undefined) fd.append("education", data.education ?? "");
+      if (data.description !== undefined) fd.append("description", data.description ?? "");
       if (data.photo) fd.append("photo", data.photo);
       if (data.positions) {
         fd.append("positions", JSON.stringify(data.positions));
@@ -246,6 +252,22 @@ export function FormEditDosen() {
         onSubmit={handleSubmit(onSubmit)}
         className="bg-card border border-border rounded-lg p-6 space-y-6"
       >
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-2">
+            Program Studi
+          </label>
+          <select
+            {...register("prodi")}
+            className={inputClassName}
+          >
+            <option value="S1">S1 Teknik Informatika</option>
+            <option value="D3">D3 Teknik Informatika</option>
+          </select>
+          {errors.prodi && (
+            <p className="text-destructive text-sm">{errors.prodi.message}</p>
+          )}
+        </div>
+
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
             NIDN
@@ -320,6 +342,38 @@ export function FormEditDosen() {
           {errors.teaching && (
             <p className="text-destructive text-sm">
               {errors.teaching.message}
+            </p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-2">
+            Riwayat Pendidikan
+          </label>
+          <textarea
+            {...register("education")}
+            className={`${inputClassName} min-h-[100px] resize-y`}
+            placeholder="Contoh: S1 Informatika Universitas UMC, S2 Ilmu Komputer UI"
+          />
+          {errors.education && (
+            <p className="text-destructive text-sm">
+              {errors.education.message}
+            </p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-2">
+            Deskripsi Singkat Dosen
+          </label>
+          <textarea
+            {...register("description")}
+            className={`${inputClassName} min-h-[120px] resize-y`}
+            placeholder="Masukkan deskripsi singkat tentang profil dosen..."
+          />
+          {errors.description && (
+            <p className="text-destructive text-sm">
+              {errors.description.message}
             </p>
           )}
         </div>

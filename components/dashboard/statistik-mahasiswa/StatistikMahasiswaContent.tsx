@@ -72,8 +72,9 @@ const formatNumber = (value: number) => value.toLocaleString("id-ID");
 
 export function DashboardStatistikMahasiswaContent() {
   const router = useRouter();
+  const [selectedProdi, setSelectedProdi] = useState<"S1" | "D3">("S1");
 
-  const { data: statisticsData, isLoading } = useStatisticStudents();
+  const { data: statisticsData, isLoading } = useStatisticStudents(selectedProdi);
   const deleteStatisticStudent = useDeleteStatisticStudent();
 
   const [deleteAlert, setDeleteAlert] = useState<{
@@ -91,7 +92,7 @@ export function DashboardStatistikMahasiswaContent() {
   const handleConfirmDelete = () => {
     if (!deleteAlert.item) return;
 
-    deleteStatisticStudent.mutate(deleteAlert.item.year, {
+    deleteStatisticStudent.mutate(deleteAlert.item.id, {
       onSuccess: () => {
         setDeleteAlert({ isOpen: false, item: null });
 
@@ -130,80 +131,110 @@ export function DashboardStatistikMahasiswaContent() {
     });
   }, [statisticsData]);
 
-  if (isLoading) return <h1>Loading....</h1>;
-
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">
-          Statistik Mahasiswa
-        </h1>
-        <p className="text-muted-foreground mt-2">
-          Pantau pertumbuhan jumlah mahasiswa per tahun
-        </p>
-      </div>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">
+            Statistik Mahasiswa
+          </h1>
+          <p className="text-muted-foreground mt-2">
+            Pantau pertumbuhan jumlah mahasiswa per tahun
+          </p>
+        </div>
 
-      <div className="bg-card border border-border rounded-lg p-4 sm:p-6">
-        <h2 className="text-base sm:text-lg font-semibold text-foreground mb-4">
-          Statistik Mahasiswa per Tahun
-        </h2>
-        <div className="overflow-x-auto">
-          <ResponsiveContainer width="100%" height={300} minWidth={300}>
-            <BarChart data={chartData}>
-              <CartesianGrid
-                strokeDasharray="3 3"
-                stroke="var(--color-border)"
-              />
-              <XAxis dataKey="tahun" stroke="var(--color-muted-foreground)" />
-              <YAxis stroke="var(--color-muted-foreground)" />
-              <Tooltip
-                content={<CustomTooltip />}
-                cursor={{ fill: "rgba(0, 0, 0, 0.04)" }}
-              />
-              <Bar
-                dataKey="total"
-                fill="var(--color-chart-1)"
-                radius={[8, 8, 0, 0]}
-              />
-            </BarChart>
-          </ResponsiveContainer>
+        {/* Tab Switcher */}
+        <div className="flex rounded-lg border bg-muted p-1">
+          <button
+            onClick={() => setSelectedProdi("S1")}
+            className={`px-4 py-1.5 text-sm font-medium rounded-md transition ${
+              selectedProdi === "S1"
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            S1 Teknik Informatika
+          </button>
+          <button
+            onClick={() => setSelectedProdi("D3")}
+            className={`px-4 py-1.5 text-sm font-medium rounded-md transition ${
+              selectedProdi === "D3"
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            D3 Teknik Informatika
+          </button>
         </div>
       </div>
 
-      <DataTable
-        data={statisticsData?.data ?? []}
-        columns={[
-          { key: "year", label: "Tahun", sortable: true },
-          {
-            key: "enteredStudents",
-            label: "Mahasiswa Masuk",
-            sortable: true,
-            render: (value) => formatNumber(value as number),
-          },
-          {
-            key: "graduatedStudents",
-            label: "Mahasiswa Keluar",
-            sortable: true,
-            render: (value) => formatNumber(value as number),
-          },
-          {
-            key: "total",
-            label: "Total Mahasiswa",
-            sortable: true,
-            render: (_, item) =>
-              formatNumber(
-                (item as StatisticStudentResponse).enteredStudents +
-                  (item as StatisticStudentResponse).graduatedStudents
-              ),
-          },
-        ]}
-        onAdd={() => router.push("/dashboard/statistik-mahasiswa/tambah")}
-        onEdit={(item) =>
-          router.push(`/dashboard/statistik-mahasiswa/${item.year}/ubah`)
-        }
-        onDeleteClick={handleDeleteClick}
-        searchFields={["year"]}
-      />
+      {isLoading ? (
+        <div className="text-center py-10 text-muted-foreground">Loading...</div>
+      ) : (
+        <>
+          <div className="bg-card border border-border rounded-lg p-4 sm:p-6">
+            <h2 className="text-base sm:text-lg font-semibold text-foreground mb-4">
+              Statistik Mahasiswa per Tahun ({selectedProdi})
+            </h2>
+            <div className="overflow-x-auto">
+              <ResponsiveContainer width="100%" height={300} minWidth={300}>
+                <BarChart data={chartData}>
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="var(--color-border)"
+                  />
+                  <XAxis dataKey="tahun" stroke="var(--color-muted-foreground)" />
+                  <YAxis stroke="var(--color-muted-foreground)" />
+                  <Tooltip
+                    content={<CustomTooltip />}
+                    cursor={{ fill: "rgba(0, 0, 0, 0.04)" }}
+                  />
+                  <Bar
+                    dataKey="total"
+                    fill="var(--color-chart-1)"
+                    radius={[8, 8, 0, 0]}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          <DataTable
+            data={statisticsData?.data ?? []}
+            columns={[
+              { key: "year", label: "Tahun", sortable: true },
+              {
+                key: "enteredStudents",
+                label: "Mahasiswa Masuk",
+                sortable: true,
+                render: (value) => formatNumber(value as number),
+              },
+              {
+                key: "graduatedStudents",
+                label: "Mahasiswa Keluar",
+                sortable: true,
+                render: (value) => formatNumber(value as number),
+              },
+              {
+                key: "total",
+                label: "Total Mahasiswa",
+                sortable: true,
+                render: (_, item) =>
+                  formatNumber(
+                    (item as StatisticStudentResponse).enteredStudents +
+                      (item as StatisticStudentResponse).graduatedStudents
+                  ),
+              },
+            ]}
+            onAdd={() => router.push(`/dashboard/statistik-mahasiswa/tambah?prodi=${selectedProdi}`)}
+            onEdit={(item) =>
+              router.push(`/dashboard/statistik-mahasiswa/${(item as StatisticStudentResponse).id}/ubah`)
+            }
+            onDeleteClick={handleDeleteClick}
+            searchFields={["year"]}
+          />
+        </>
+      )}
 
       <DeleteAlert
         isOpen={deleteAlert.isOpen}

@@ -26,8 +26,9 @@ function getPositionSummary(dosen: DosenResponse) {
 
 export function DashboardDosenContent() {
   const router = useRouter();
+  const [selectedProdi, setSelectedProdi] = useState<"S1" | "D3">("S1");
 
-  const { data, isLoading } = useDosens();
+  const { data, isLoading } = useDosens(selectedProdi);
   const deleteDosen = useDeleteDosen();
 
   const [deleteAlert, setDeleteAlert] = useState<{
@@ -66,11 +67,37 @@ export function DashboardDosenContent() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">Manajemen Dosen</h1>
-        <p className="text-muted-foreground mt-2">
-          Kelola data dosen dan riwayat jabatan mereka
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Manajemen Dosen</h1>
+          <p className="text-muted-foreground mt-2">
+            Kelola data dosen dan riwayat jabatan mereka
+          </p>
+        </div>
+
+        {/* Tab Switcher */}
+        <div className="flex rounded-lg border bg-muted p-1">
+          <button
+            onClick={() => setSelectedProdi("S1")}
+            className={`px-4 py-1.5 text-sm font-medium rounded-md transition ${
+              selectedProdi === "S1"
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            S1 Teknik Informatika
+          </button>
+          <button
+            onClick={() => setSelectedProdi("D3")}
+            className={`px-4 py-1.5 text-sm font-medium rounded-md transition ${
+              selectedProdi === "D3"
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            D3 Teknik Informatika
+          </button>
+        </div>
       </div>
 
       <DataTable
@@ -109,7 +136,7 @@ export function DashboardDosenContent() {
             render: (_, row) => row.positions.length,
           },
         ]}
-        onAdd={() => router.push("/dashboard/dosen/tambah")}
+        onAdd={() => router.push(`/dashboard/dosen/tambah?prodi=${selectedProdi}`)}
         onEdit={(item) => router.push(`/dashboard/dosen/${item.id}/ubah`)}
         onDeleteClick={handleDeleteClick}
         searchFields={["name", "expertise"]}

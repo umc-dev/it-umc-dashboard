@@ -19,6 +19,7 @@ const PositionSchema = z
   });
 
 export const CreateDosenSchema = z.object({
+  prodi: z.enum(["S1", "D3"]),
   nidn: z.string().min(1, "NIDN wajib diisi"),
   name: z.string().min(1, "Nama wajib diisi"),
   expertise: z.string().min(1, "Spesialisasi wajib diisi"),
@@ -30,6 +31,8 @@ export const CreateDosenSchema = z.object({
     .string()
     .url("Link pengajaran harus URL valid")
     .min(1, "Link pengajaran wajib diisi"),
+  education: z.string().optional().nullable(),
+  description: z.string().optional().nullable(),
   positions: z.array(PositionSchema).default([]),
   photo: z
     .instanceof(File)
@@ -40,11 +43,14 @@ export const CreateDosenSchema = z.object({
 });
 
 export const UpdateDosenSchema = z.object({
+  prodi: z.enum(["S1", "D3"]).optional(),
   nidn: z.string().min(1, "NIDN wajib diisi").optional(),
   name: z.string().optional(),
   expertise: z.string().optional(),
   research: z.string().url("Link penelitian harus URL valid").optional(),
   teaching: z.string().url("Link pengajaran harus URL valid").optional(),
+  education: z.string().optional().nullable(),
+  description: z.string().optional().nullable(),
   positions: z.array(PositionSchema).optional(),
   photo: z.instanceof(File).nullable().optional(),
 });

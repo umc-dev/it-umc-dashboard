@@ -1,6 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useMemo, useState } from "react";
 import { FormHeader } from "@/components/FormHeader";
 import { FormButtons } from "@/components/FormButtons";
 import { ImageUpload } from "@/components/ImageUpload";
@@ -15,15 +16,16 @@ import {
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import axios from "axios";
 import { toast } from "sonner";
-import { useMemo, useState } from "react";
 import { Plus, Trash2, Edit2, ExternalLink, BookOpen, Award, GraduationCap } from "lucide-react";
 
 
 const inputClassName =
   "w-full px-4 py-2 border border-border rounded-lg bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-colors";
 
-export function FormAddDosen() {
+function FormAddDosenContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const prodiQuery = (searchParams.get("prodi") as "S1" | "D3") || "S1";
   const createDosen = useCreateDosen();
   const { data: lectureships } = useLectureships();
 
@@ -128,6 +130,7 @@ export function FormAddDosen() {
   } = useForm<CreateDosenInputDto, unknown, CreateDosenDto>({
     resolver: zodResolver(CreateDosenSchema),
     defaultValues: {
+      prodi: prodiQuery,
       photo: null,
       positions: [{ lectureshipId: "", startDate: "", endDate: "" }],
     },
@@ -144,11 +147,14 @@ export function FormAddDosen() {
   const onSubmit = async (data: CreateDosenDto) => {
     try {
       const fd = new FormData();
+      fd.append("prodi", data.prodi);
       fd.append("nidn", data.nidn);
       fd.append("name", data.name);
       fd.append("expertise", data.expertise);
       fd.append("research", data.research);
       fd.append("teaching", data.teaching);
+      if (data.education) fd.append("education", data.education);
+      if (data.description) fd.append("description", data.description);
 
       if (!data.photo) {
         toast.error("Foto wajib diupload");
@@ -205,6 +211,22 @@ export function FormAddDosen() {
         onSubmit={handleSubmit(onSubmit)}
         className="bg-card border border-border rounded-lg p-6 space-y-6"
       >
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-2">
+            Program Studi <span className="text-destructive">*</span>
+          </label>
+          <select
+            {...register("prodi")}
+            className={inputClassName}
+          >
+            <option value="S1">S1 Teknik Informatika</option>
+            <option value="D3">D3 Teknik Informatika</option>
+          </select>
+          {errors.prodi && (
+            <p className="text-destructive text-sm">{errors.prodi.message}</p>
+          )}
+        </div>
+
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
             NIDN <span className="text-destructive">*</span>
@@ -279,6 +301,38 @@ export function FormAddDosen() {
           {errors.teaching && (
             <p className="text-destructive text-sm">
               {errors.teaching.message}
+            </p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-2">
+            Riwayat Pendidikan
+          </label>
+          <textarea
+            {...register("education")}
+            className={`${inputClassName} min-h-[100px] resize-y`}
+            placeholder="Contoh: S1 Informatika Universitas UMC, S2 Ilmu Komputer UI"
+          />
+          {errors.education && (
+            <p className="text-destructive text-sm">
+              {errors.education.message}
+            </p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-2">
+            Deskripsi Singkat Dosen
+          </label>
+          <textarea
+            {...register("description")}
+            className={`${inputClassName} min-h-[120px] resize-y`}
+            placeholder="Masukkan deskripsi singkat tentang profil dosen..."
+          />
+          {errors.description && (
+            <p className="text-destructive text-sm">
+              {errors.description.message}
             </p>
           )}
         </div>
@@ -631,5 +685,13 @@ export function FormAddDosen() {
         </div>
       )}
     </div>
+  );
+}
+
+export function FormAddDosen() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <FormAddDosenContent />
+    </Suspense>
   );
 }

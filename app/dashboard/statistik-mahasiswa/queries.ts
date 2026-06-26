@@ -3,24 +3,24 @@ import {
   createStatisticStudent,
   deleteStatisticStudent,
   getStatisticStudents,
-  getStatisticStudentByYear,
+  getStatisticStudentById,
   updateStatisticStudent,
 } from "./api";
 
 // GET ALL STATISTIC STUDENTS
-export const useStatisticStudents = () => {
+export const useStatisticStudents = (prodi?: string) => {
   return useQuery({
-    queryKey: ["statistic-students"],
-    queryFn: getStatisticStudents,
+    queryKey: ["statistic-students", prodi],
+    queryFn: () => getStatisticStudents(prodi),
   });
 };
 
-// GET STATISTIC STUDENT BY YEAR
-export const useStatisticStudentByYear = (year: number) => {
+// GET STATISTIC STUDENT BY ID
+export const useStatisticStudentById = (id: string) => {
   return useQuery({
-    queryKey: ["statistic-students", year],
-    queryFn: () => getStatisticStudentByYear(year),
-    enabled: !!year,
+    queryKey: ["statistic-students", id],
+    queryFn: () => getStatisticStudentById(id),
+    enabled: !!id,
   });
 };
 
@@ -42,16 +42,17 @@ export const useUpdateStatisticStudent = () => {
 
   return useMutation({
     mutationFn: ({
-      year,
+      id,
       data,
     }: {
-      year: number;
+      id: string;
       data: {
+        prodi?: "S1" | "D3";
         year?: number;
         enteredStudents?: number;
         graduatedStudents?: number;
       };
-    }) => updateStatisticStudent(year, data),
+    }) => updateStatisticStudent(id, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["statistic-students"] });
     },

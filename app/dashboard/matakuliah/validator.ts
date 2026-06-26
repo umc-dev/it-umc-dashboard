@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const CreateStudySchema = z.object({
+  prodi: z.enum(["S1", "D3"], { required_error: "Prodi wajib dipilih" }),
   source: z
     .instanceof(File)
     .refine((file) => file instanceof File, {
@@ -9,5 +10,6 @@ export const CreateStudySchema = z.object({
 });
 
 export const UpdateStudySchema = z.object({
+  prodi: z.enum(["S1", "D3"]).optional(),
   source: z.instanceof(File).nullable().optional(),
 });

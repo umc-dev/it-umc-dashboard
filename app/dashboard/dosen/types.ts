@@ -34,12 +34,15 @@ export interface DosenTridharma {
 
 export interface DosenResponse {
   id: string;
+  prodi: "S1" | "D3";
   nidn: string;
   name: string;
   expertise: string;
   research: string;
   teaching: string;
   photo: string | null;
+  education: string | null;
+  description: string | null;
   positions: DosenPosition[];
   dosenTridharmas?: DosenTridharma[];
   createdAt: string;

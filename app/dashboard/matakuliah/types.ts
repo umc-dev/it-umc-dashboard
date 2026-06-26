@@ -10,6 +10,7 @@ export type UpdateStudyDto = z.infer<typeof UpdateStudySchema>;
 // RESPONSE DTO
 export interface StudyResponse {
   id: number;
+  prodi: "S1" | "D3";
   source: string;
   createdAt: string;
   updatedAt: string;

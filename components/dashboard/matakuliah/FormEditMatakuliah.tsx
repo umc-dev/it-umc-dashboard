@@ -29,16 +29,21 @@ export function FormEditMatakuliah() {
     formState: { errors },
     reset,
     control,
+    register,
   } = useForm<UpdateStudyDto>({
     resolver: zodResolver(UpdateStudySchema),
     defaultValues: {
+      prodi: "S1",
       source: null,
     },
   });
 
   useEffect(() => {
     if (study) {
-      reset({});
+      reset({
+        prodi: study.prodi,
+        source: null,
+      });
     }
   }, [study, reset]);
 
@@ -49,6 +54,9 @@ export function FormEditMatakuliah() {
     try {
       const fd = new FormData();
 
+      if (data.prodi) {
+        fd.append("prodi", data.prodi);
+      }
       if (data.source) {
         fd.append("source", data.source);
       }
@@ -97,6 +105,22 @@ export function FormEditMatakuliah() {
         onSubmit={handleSubmit(onSubmit)}
         className="bg-card border border-border rounded-lg p-6 space-y-6"
       >
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-2">
+            Program Studi
+          </label>
+          <select
+            {...register("prodi")}
+            className="w-full px-4 py-2 border border-border rounded-lg bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-colors"
+            disabled
+          >
+            <option value="S1">S1 Teknik Informatika</option>
+            <option value="D3">D3 Teknik Informatika</option>
+          </select>
+          {errors.prodi && (
+            <p className="text-destructive text-sm">{errors.prodi.message}</p>
+          )}
+        </div>
         <div>
   <label className="block text-sm font-medium text-foreground mb-2">
     Dokumen Lama

@@ -8,10 +8,10 @@ import {
 } from "./api";
 
 // GET ALL STUDIES
-export const useStudies = () => {
+export const useStudies = (prodi?: string) => {
   return useQuery({
-    queryKey: ["studies"],
-    queryFn: getStudies,
+    queryKey: ["studies", prodi],
+    queryFn: () => getStudies(prodi),
   });
 };
 
