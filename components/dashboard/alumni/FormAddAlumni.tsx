@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FormHeader } from "@/components/FormHeader";
 import { FormButtons } from "@/components/FormButtons";
 import { ImageUpload } from "@/components/ImageUpload";
@@ -21,6 +21,8 @@ const inputClassName =
 
 export function FormAddAlumni() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const defaultProdi = (searchParams.get("prodi") as "S1" | "D3") || "S1";
   const createAlumni = useCreateAlumni();
 
   const {
@@ -34,6 +36,7 @@ export function FormAddAlumni() {
     defaultValues: {
       year: 2000,
       photo: null,
+      prodi: defaultProdi,
     },
   });
 
@@ -47,6 +50,7 @@ export function FormAddAlumni() {
       fd.append("video", data.video);
       fd.append("message", data.message);
       fd.append("year", String(data.year));
+      fd.append("prodi", data.prodi);
       if (data.photo) {
         fd.append("photo", data.photo);
       }
@@ -57,7 +61,7 @@ export function FormAddAlumni() {
         description: data.name,
       });
 
-      router.push("/dashboard/alumni");
+      router.push(`/dashboard/alumni?prodi=${data.prodi}`);
     } catch (error: unknown) {
       let message = "Gagal membuat alumni.";
 
@@ -93,6 +97,19 @@ export function FormAddAlumni() {
           />
           {errors.name && (
             <p className="text-destructive text-sm">{errors.name.message}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-2">
+            Program Studi <span className="text-destructive">*</span>
+          </label>
+          <select {...register("prodi")} className={inputClassName}>
+            <option value="S1">S1 Teknik Informatika</option>
+            <option value="D3">D3 Teknik Informatika</option>
+          </select>
+          {errors.prodi && (
+            <p className="text-destructive text-sm">{errors.prodi.message}</p>
           )}
         </div>
 

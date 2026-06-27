@@ -2,7 +2,7 @@
 
 import type React from "react";
 import { useEffect, useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FormHeader } from "@/components/FormHeader";
 import { FormButtons } from "@/components/FormButtons";
 import { ImageUpload } from "@/components/ImageUpload";
@@ -18,8 +18,10 @@ import Image from "next/image";
 
 export function FormEditStrukturOrganisasi() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const prodi = (searchParams.get("prodi") as "S1" | "D3") || "S1";
   
-  const { data: currentData, isLoading } = useStrukturOrganisasi();
+  const { data: currentData, isLoading } = useStrukturOrganisasi(prodi);
   const updateStrukturOrganisasi = useUpdateStrukturOrganisasi();
 
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -34,6 +36,7 @@ export function FormEditStrukturOrganisasi() {
     resolver: zodResolver(UpdateStrukturOrganisasiSchema),
     defaultValues: {
       description: "",
+      prodi,
     },
   });
 
@@ -41,9 +44,10 @@ export function FormEditStrukturOrganisasi() {
     if (currentData) {
       reset({
         description: currentData.description,
+        prodi,
       });
     }
-  }, [currentData, reset]);
+  }, [currentData, reset, prodi]);
 
   const watchedDescription = useWatch({ control, name: "description" });
   const description = useMemo(() => watchedDescription, [watchedDescription]);
@@ -60,10 +64,13 @@ export function FormEditStrukturOrganisasi() {
         fd.append("image", imageFile);
       }
 
-      await updateStrukturOrganisasi.mutateAsync(fd);
+      await updateStrukturOrganisasi.mutateAsync({
+        data: fd,
+        prodi,
+      });
 
       toast.success("Struktur Organisasi berhasil diperbarui!");
-      router.push("/dashboard/struktur-organisasi");
+      router.push(`/dashboard/struktur-organisasi?prodi=${prodi}`);
     } catch (error: unknown) {
       let message = "Gagal memperbarui struktur organisasi.";
       if (axios.isAxiosError(error)) {
@@ -80,7 +87,7 @@ export function FormEditStrukturOrganisasi() {
   return (
     <div className="max-w-2xl mx-auto py-6 sm:py-8">
       <FormHeader
-        title="Ubah Struktur Organisasi"
+        title={`Ubah Struktur Organisasi (${prodi})`}
         description="Perbarui konten bagan struktur organisasi"
       />
 

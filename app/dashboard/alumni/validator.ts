@@ -9,6 +9,7 @@ export const CreateAlumniSchema = z.object({
   message: z.string().min(1, "Message is required"),
   year: z.coerce.number().min(2000, "Year must be 2000 or later"),
   photo: z.instanceof(File).nullable().optional(),
+  prodi: z.enum(["S1", "D3"], { required_error: "Program Studi is required" }),
 });
 
 export const UpdateAlumniSchema = z.object({
@@ -17,4 +18,5 @@ export const UpdateAlumniSchema = z.object({
   message: z.string().optional(),
   year: z.coerce.number().optional(),
   photo: z.instanceof(File).nullable().optional(),
+  prodi: z.enum(["S1", "D3"]).optional(),
 });

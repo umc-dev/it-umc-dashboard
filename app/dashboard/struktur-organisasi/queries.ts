@@ -3,10 +3,10 @@ import { createStrukturOrganisasi, deleteStrukturOrganisasi, getStrukturOrganisa
 
 const QUERY_KEY = ["struktur-organisasi"];
 
-export const useStrukturOrganisasi = () => {
+export const useStrukturOrganisasi = (prodi?: 'S1' | 'D3') => {
   return useQuery({
-    queryKey: QUERY_KEY,
-    queryFn: getStrukturOrganisasi,
+    queryKey: [QUERY_KEY[0], prodi],
+    queryFn: () => getStrukturOrganisasi(prodi),
   });
 };
 
@@ -14,7 +14,8 @@ export const useCreateStrukturOrganisasi = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: createStrukturOrganisasi,
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
+      // Invalidate specific or all structure queries
       qc.invalidateQueries({ queryKey: QUERY_KEY });
     },
   });
@@ -23,9 +24,10 @@ export const useCreateStrukturOrganisasi = () => {
 export const useUpdateStrukturOrganisasi = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: updateStrukturOrganisasi,
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: QUERY_KEY });
+    mutationFn: ({ data, prodi }: { data: FormData; prodi?: 'S1' | 'D3' }) =>
+      updateStrukturOrganisasi(data, prodi),
+    onSuccess: (_, variables) => {
+      qc.invalidateQueries({ queryKey: [QUERY_KEY[0], variables.prodi] });
     },
   });
 };
@@ -33,9 +35,9 @@ export const useUpdateStrukturOrganisasi = () => {
 export const useDeleteStrukturOrganisasi = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: deleteStrukturOrganisasi,
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: QUERY_KEY });
+    mutationFn: (prodi?: 'S1' | 'D3') => deleteStrukturOrganisasi(prodi),
+    onSuccess: (_, variables) => {
+      qc.invalidateQueries({ queryKey: [QUERY_KEY[0], variables] });
     },
   });
 };

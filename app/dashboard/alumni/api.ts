@@ -1,8 +1,10 @@
 import { api } from "@/lib/api";
 import { AlumniResponse, PaginatedAlumniResponse } from "./types";
 
-export const getAlumni = async (): Promise<PaginatedAlumniResponse> => {
-  const res = await api.get("/alumni");
+export const getAlumni = async (prodi?: 'S1' | 'D3'): Promise<PaginatedAlumniResponse> => {
+  const res = await api.get("/alumni", {
+    params: prodi ? { prodi } : {},
+  });
   return res.data;
 };
 

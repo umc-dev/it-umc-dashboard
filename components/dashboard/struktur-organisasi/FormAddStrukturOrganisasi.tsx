@@ -2,7 +2,7 @@
 
 import type React from "react";
 import { useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FormHeader } from "@/components/FormHeader";
 import { FormButtons } from "@/components/FormButtons";
 import { ImageUpload } from "@/components/ImageUpload";
@@ -17,6 +17,8 @@ import { toast } from "sonner";
 
 export function FormAddStrukturOrganisasi() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const defaultProdi = (searchParams.get("prodi") as "S1" | "D3") || "S1";
   const createStrukturOrganisasi = useCreateStrukturOrganisasi();
 
   const [image, setImage] = useState<File | null>(null);
@@ -30,6 +32,7 @@ export function FormAddStrukturOrganisasi() {
     resolver: zodResolver(CreateStrukturOrganisasiSchema),
     defaultValues: {
       description: "",
+      prodi: defaultProdi,
     },
   });
 
@@ -48,11 +51,12 @@ export function FormAddStrukturOrganisasi() {
       const fd = new FormData();
       fd.append("description", data.description);
       fd.append("image", image);
+      fd.append("prodi", defaultProdi);
 
       await createStrukturOrganisasi.mutateAsync(fd);
 
       toast.success("Struktur Organisasi berhasil dibuat!");
-      router.push("/dashboard/struktur-organisasi");
+      router.push(`/dashboard/struktur-organisasi?prodi=${defaultProdi}`);
     } catch (error: unknown) {
       let message = "Gagal membuat struktur organisasi.";
       if (axios.isAxiosError(error)) {
@@ -67,7 +71,7 @@ export function FormAddStrukturOrganisasi() {
   return (
     <div className="max-w-2xl mx-auto py-6 sm:py-8">
       <FormHeader
-        title="Tambah Struktur Organisasi"
+        title={`Tambah Struktur Organisasi (${defaultProdi})`}
         description="Buat bagan struktur organisasi baru"
       />
 

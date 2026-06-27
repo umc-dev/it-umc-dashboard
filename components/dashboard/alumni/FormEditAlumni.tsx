@@ -46,6 +46,7 @@ export function FormEditAlumni() {
         message: alumni.message,
         year: alumni.year,
         video: alumni.video,
+        prodi: alumni.prodi,
       });
     }
   }, [alumni, reset]);
@@ -60,6 +61,7 @@ export function FormEditAlumni() {
       if (data.video) fd.append("video", data.video);
       if (data.message) fd.append("message", data.message);
       if (data.year !== undefined) fd.append("year", String(data.year));
+      if (data.prodi) fd.append("prodi", data.prodi);
       if (data.photo) fd.append("photo", data.photo);
 
       await updateAlumni.mutateAsync({
@@ -71,7 +73,7 @@ export function FormEditAlumni() {
         description: data.name || alumni?.name,
       });
 
-      router.push("/dashboard/alumni");
+      router.push(`/dashboard/alumni?prodi=${data.prodi || alumni?.prodi}`);
     } catch (err: unknown) {
       let message = "Gagal memperbarui alumni.";
 
@@ -114,6 +116,19 @@ export function FormEditAlumni() {
           />
           {errors.name && (
             <p className="text-destructive text-sm">{errors.name.message}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-2">
+            Program Studi
+          </label>
+          <select {...register("prodi")} className={inputClassName}>
+            <option value="S1">S1 Teknik Informatika</option>
+            <option value="D3">D3 Teknik Informatika</option>
+          </select>
+          {errors.prodi && (
+            <p className="text-destructive text-sm">{errors.prodi.message}</p>
           )}
         </div>
 

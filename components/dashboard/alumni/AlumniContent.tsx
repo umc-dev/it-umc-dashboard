@@ -11,8 +11,9 @@ import Image from "next/image";
 
 export function AlumniContent() {
   const router = useRouter();
+  const [selectedProdi, setSelectedProdi] = useState<"S1" | "D3">("S1");
 
-  const { data, isLoading } = useAlumni();
+  const { data, isLoading } = useAlumni(selectedProdi);
   const deleteAlumni = useDeleteAlumni();
 
   const [deleteAlert, setDeleteAlert] = useState<{
@@ -47,13 +48,39 @@ export function AlumniContent() {
     });
   };
 
-  if (isLoading) return <h1>Loading....</h1>;
+  if (isLoading) return <div className="text-center py-10 text-muted-foreground">Loading....</div>;
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">Manajemen Alumni</h1>
-        <p className="text-muted-foreground mt-2">Kelola data alumni</p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Manajemen Alumni</h1>
+          <p className="text-muted-foreground mt-2">Kelola data alumni</p>
+        </div>
+
+        {/* Tab Switcher */}
+        <div className="flex rounded-lg border bg-muted p-1">
+          <button
+            onClick={() => setSelectedProdi("S1")}
+            className={`px-4 py-1.5 text-sm font-medium rounded-md transition ${
+              selectedProdi === "S1"
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            S1 Teknik Informatika
+          </button>
+          <button
+            onClick={() => setSelectedProdi("D3")}
+            className={`px-4 py-1.5 text-sm font-medium rounded-md transition ${
+              selectedProdi === "D3"
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            D3 Teknik Informatika
+          </button>
+        </div>
       </div>
 
       <DataTable
@@ -103,7 +130,7 @@ export function AlumniContent() {
               ),
           },
         ]}
-        onAdd={() => router.push("/dashboard/alumni/tambah")}
+        onAdd={() => router.push(`/dashboard/alumni/tambah?prodi=${selectedProdi}`)}
         onEdit={(item) => router.push(`/dashboard/alumni/${item.id}/ubah`)}
         onDeleteClick={handleDeleteClick}
         searchFields={["name", "year", "message"]}

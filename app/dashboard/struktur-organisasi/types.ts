@@ -5,6 +5,10 @@ export type CreateStrukturOrganisasiDto = z.infer<typeof CreateStrukturOrganisas
 export type UpdateStrukturOrganisasiDto = z.infer<typeof UpdateStrukturOrganisasiSchema>;
 
 export interface StrukturOrganisasiResponse {
+  id: string;
+  prodi: "S1" | "D3";
   image: string;
   description: string;
+  createdAt: string;
+  updatedAt: string;
 }

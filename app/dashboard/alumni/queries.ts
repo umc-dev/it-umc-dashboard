@@ -7,10 +7,10 @@ import {
   updateAlumni,
 } from "./api";
 
-export const useAlumni = () => {
+export const useAlumni = (prodi?: 'S1' | 'D3') => {
   return useQuery({
-    queryKey: ["alumni"],
-    queryFn: getAlumni,
+    queryKey: ["alumni", prodi],
+    queryFn: () => getAlumni(prodi),
   });
 };
 

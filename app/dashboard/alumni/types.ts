@@ -9,6 +9,7 @@ export interface Alumni {
   video: string;
   message: string;
   year: number;
+  prodi: "S1" | "D3";
   createdAt: string;
   updatedAt: string;
 }
@@ -26,6 +27,7 @@ export interface AlumniResponse {
   video: string;
   message: string;
   year: number;
+  prodi: "S1" | "D3";
   createdAt: string;
   updatedAt: string;
 }
