@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FormHeader } from "@/components/FormHeader";
 import { FormButtons } from "@/components/FormButtons";
 import { ImageUpload } from "@/components/ImageUpload";
@@ -17,7 +17,11 @@ const inputClassName =
 
 export function FormAddAdmin() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const defaultRole = (searchParams.get("role") || "ADMIN") as CreateAdminDto["role"];
   const createAdmin = useCreateAdmin();
+
+  const defaultProdi = (searchParams.get("prodi") || "S1") as CreateAdminDto["prodi"];
 
   const {
     register,
@@ -28,11 +32,13 @@ export function FormAddAdmin() {
   } = useForm<CreateAdminDto>({
     resolver: zodResolver(CreateAdminSchema),
     defaultValues: {
-      role: "ADMIN",
+      role: defaultRole,
+      prodi: defaultProdi,
     },
   });
 
   const avatar = useWatch({ control, name: "avatar" }) as File | undefined;
+  const selectedRole = useWatch({ control, name: "role" });
 
   const onSubmit = async (data: CreateAdminDto) => {
     try {
@@ -41,6 +47,7 @@ export function FormAddAdmin() {
       fd.append("email", data.email);
       fd.append("password", data.password);
       if (data.role) fd.append("role", data.role);
+      if (data.prodi && data.role === "DOSEN") fd.append("prodi", data.prodi);
 
       // Avatar WAJIB → sudah divalidasi Zod, pasti ada
       fd.append("avatar", data.avatar);
@@ -111,8 +118,21 @@ export function FormAddAdmin() {
             <option value="ADMIN">ADMIN</option>
             <option value="EDITOR">EDITOR</option>
             <option value="SUPER_ADMIN">SUPER_ADMIN</option>
+            <option value="DOSEN">DOSEN</option>
           </select>
         </div>
+
+        {/* PROGRAM STUDI */}
+        {selectedRole === "DOSEN" && (
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">Program Studi <span className="text-destructive">*</span></label>
+            <select {...register("prodi")} className={inputClassName}>
+              <option value="S1">S1 Teknik Informatika</option>
+              <option value="D3">D3 Teknik Informatika</option>
+            </select>
+            {errors.prodi && <p className="mt-1 text-sm text-destructive">{errors.prodi.message}</p>}
+          </div>
+        )}
 
         <FormButtons isLoading={createAdmin.isPending} />
       </form>

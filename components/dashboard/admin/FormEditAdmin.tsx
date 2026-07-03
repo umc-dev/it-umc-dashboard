@@ -122,6 +122,7 @@ export function FormEditAdmin() {
             <option value="ADMIN">ADMIN</option>
             <option value="EDITOR">EDITOR</option>
             <option value="SUPER_ADMIN">SUPER_ADMIN</option>
+            <option value="DOSEN">DOSEN</option>
           </select>
         </div>
 

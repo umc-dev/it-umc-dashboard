@@ -76,18 +76,20 @@ export function DashboardAdminContent() {
             key: "role",
             label: "Role",
             render: (value: string) => {
-              const role = value as "SUPER_ADMIN" | "ADMIN" | "EDITOR";
+              const role = value as "SUPER_ADMIN" | "ADMIN" | "EDITOR" | "DOSEN";
 
               const badgeStyles = {
                 SUPER_ADMIN: "bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20",
                 ADMIN: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20",
                 EDITOR: "bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20",
+                DOSEN: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20",
               };
 
               const displayText = {
                 SUPER_ADMIN: "Super Admin",
                 ADMIN: "Admin",
                 EDITOR: "Editor",
+                DOSEN: "Dosen",
               };
 
               return (

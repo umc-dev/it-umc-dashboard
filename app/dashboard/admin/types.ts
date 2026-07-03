@@ -13,7 +13,7 @@ export interface AdminResponse {
   name: string | null;
   email: string;
   avatar: string | null;
-  role: "SUPER_ADMIN" | "ADMIN" | "EDITOR";
+  role: "SUPER_ADMIN" | "ADMIN" | "EDITOR" | "DOSEN";
   createdAt: string;
   updatedAt: string;
 }

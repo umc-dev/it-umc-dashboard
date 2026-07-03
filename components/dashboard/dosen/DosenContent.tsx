@@ -136,7 +136,7 @@ export function DashboardDosenContent() {
             render: (_, row) => row.positions.length,
           },
         ]}
-        onAdd={() => router.push(`/dashboard/dosen/tambah?prodi=${selectedProdi}`)}
+        onAdd={() => router.push(`/dashboard/admin/tambah?role=DOSEN&prodi=${selectedProdi}`)}
         onEdit={(item) => router.push(`/dashboard/dosen/${item.id}/ubah`)}
         onDeleteClick={handleDeleteClick}
         searchFields={["name", "expertise"]}
