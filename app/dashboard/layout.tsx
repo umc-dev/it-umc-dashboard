@@ -1,20 +1,16 @@
-
 import type React from "react"
-
 import { DashboardLayout } from "@/components/layouts/DashboardLayout"
-import { getSession } from "@/lib/getSession";
-import { redirect } from "next/navigation";
+import { AuthGuard } from "@/components/auth/AuthGuard"
 
 export default function DashboardRootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-
-  const session = getSession();
-
-  if (!session) {
-    redirect("/login");
-  }
-  return <DashboardLayout>{children}</DashboardLayout>
+  return (
+    <AuthGuard>
+      <DashboardLayout>{children}</DashboardLayout>
+    </AuthGuard>
+  )
 }
+

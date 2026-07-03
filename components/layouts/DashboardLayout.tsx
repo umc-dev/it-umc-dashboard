@@ -10,8 +10,58 @@ import {
 import Image from "next/image";
 import { useMe, useLogout } from "@/app/login/queries";
 import type { AdminResponse } from "@/app/login/types";
-
-type Role = AdminResponse["role"];
+const navGroups = [
+  {
+    groupLabel: "Utama",
+    items: [
+      { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    ],
+  },
+  {
+    groupLabel: "Kepegawaian & Akademik",
+    items: [
+      { label: "Dosen", href: "/dashboard/dosen", icon: Users },
+      { label: "Jabatan Dosen", href: "/dashboard/lectureships", icon: Briefcase },
+      { label: "Distribusi Mata Kuliah", href: "/dashboard/matakuliah", icon: BookOpen },
+    ],
+  },
+  {
+    groupLabel: "Publikasi & Kerja Sama",
+    items: [
+      { label: "Berita", href: "/dashboard/berita", icon: FileText },
+      { label: "Kategori Berita", href: "/dashboard/kategori", icon: Folder },
+      { label: "Prestasi", href: "/dashboard/achievement", icon: Trophy },
+      { label: "Kerja Sama", href: "/dashboard/kerja-sama", icon: Handshake },
+    ],
+  },
+  {
+    groupLabel: "Profil Kampus",
+    items: [
+      { label: "Visi & Misi", href: "/dashboard/visi-misi", icon: Goal },
+      { label: "Struktur Organisasi", href: "/dashboard/struktur-organisasi", icon: Network },
+      { label: "Fasilitas", href: "/dashboard/fasilitas", icon: Building },
+    ],
+  },
+  {
+    groupLabel: "Mahasiswa & Alumni",
+    items: [
+      { label: "Statistik Mahasiswa", href: "/dashboard/statistik-mahasiswa", icon: BarChart3 },
+      { label: "Testimoni Alumni", href: "/dashboard/alumni", icon: GraduationCap },
+    ],
+  },
+  {
+    groupLabel: "Asisten Virtual AI",
+    items: [
+      { label: "Chatbot Context", href: "/dashboard/chatbot-files", icon: Bot },
+    ],
+  },
+  {
+    groupLabel: "Sistem & Pengaturan",
+    items: [
+      { label: "Manajemen Pengguna", href: "/dashboard/admin", icon: UserCog },
+    ],
+  },
+];
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -21,62 +71,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { data: admin, isLoading: loadingAdmin } = useMe();
   const { mutate: logout } = useLogout();
 
-  const navGroups = [
-    {
-      groupLabel: "Utama",
-      items: [
-        { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-      ],
-    },
-    {
-      groupLabel: "Kepegawaian & Akademik",
-      items: [
-        { label: "Dosen", href: "/dashboard/dosen", icon: Users },
-        { label: "Jabatan Dosen", href: "/dashboard/lectureships", icon: Briefcase },
-        { label: "Distribusi Mata Kuliah", href: "/dashboard/matakuliah", icon: BookOpen },
-      ],
-    },
-    {
-      groupLabel: "Publikasi & Kerja Sama",
-      items: [
-        { label: "Berita", href: "/dashboard/berita", icon: FileText },
-        { label: "Kategori Berita", href: "/dashboard/kategori", icon: Folder },
-        { label: "Prestasi", href: "/dashboard/achievement", icon: Trophy },
-        { label: "Kerja Sama", href: "/dashboard/kerja-sama", icon: Handshake },
-      ],
-    },
-    {
-      groupLabel: "Profil Kampus",
-      items: [
-        { label: "Visi & Misi", href: "/dashboard/visi-misi", icon: Goal },
-        { label: "Struktur Organisasi", href: "/dashboard/struktur-organisasi", icon: Network },
-        { label: "Fasilitas", href: "/dashboard/fasilitas", icon: Building },
-      ],
-    },
-    {
-      groupLabel: "Mahasiswa & Alumni",
-      items: [
-        { label: "Statistik Mahasiswa", href: "/dashboard/statistik-mahasiswa", icon: BarChart3 },
-        { label: "Testimoni Alumni", href: "/dashboard/alumni", icon: GraduationCap },
-      ],
-    },
-    {
-      groupLabel: "Asisten Virtual AI",
-      items: [
-        { label: "Chatbot Context", href: "/dashboard/chatbot-files", icon: Bot },
-      ],
-    },
-    {
-      groupLabel: "Sistem & Pengaturan",
-      items: [
-        { label: "Manajemen Pengguna", href: "/dashboard/admin", icon: UserCog },
-      ],
-    },
-  ];
+  const role = admin?.role;
 
   const visibleNavGroups = useMemo(() => {
-    const role = admin?.role;
-
     if (!role) return [];
 
     return navGroups
@@ -85,6 +82,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           if (role === "SUPER_ADMIN") return true;
           if (role === "EDITOR") {
             return ["/dashboard/berita", "/dashboard/kategori"].includes(item.href);
+          }
+          if (role === "DOSEN") {
+            return item.href.startsWith("/dashboard/dosen");
           }
           return item.href !== "/dashboard/admin";
         });
@@ -95,7 +95,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         };
       })
       .filter((group) => group.items.length > 0);
-  }, [admin?.role]);
+  }, [role]);
 
   const handleLogout = () => {
     setShowLogoutDialog(false);

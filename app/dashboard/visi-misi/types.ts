@@ -7,6 +7,7 @@ export type UpdateVisionMissionDto = z.infer<typeof UpdateVisionMissionSchema>;
 
 export interface VisionMissionResponse {
   id: number;
+  prodi: "S1" | "D3";
   vision: string;
   mission: string;
   createdAt: string;

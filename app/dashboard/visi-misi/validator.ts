@@ -2,7 +2,7 @@ import { z } from "zod";
 
 // Validasi saat membuat visi & misi baru
 export const CreateVisionMissionSchema = z.object({
-  prodi: z.enum(["S1", "D3"], { required_error: "Prodi wajib dipilih" }),
+  prodi: z.enum(["S1", "D3"], { message: "Prodi wajib dipilih" }),
   vision: z.string().min(5, "Visi minimal 5 karakter"),
   mission: z.string().min(5, "Misi minimal 5 karakter"),
 });

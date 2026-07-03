@@ -20,5 +20,10 @@ export const useLogout = () => {
       queryClient.clear(); // Hapus semua cache
       window.location.href = "/login";
     },
+    onError: () => {
+      // Tetap redirect meski API logout gagal
+      queryClient.clear();
+      window.location.href = "/login";
+    },
   });
 };

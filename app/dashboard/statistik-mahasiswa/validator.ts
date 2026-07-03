@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const CreateStatisticStudentSchema = z.object({
-  prodi: z.enum(["S1", "D3"], { required_error: "Prodi wajib dipilih" }),
+  prodi: z.enum(["S1", "D3"], { message: "Prodi wajib dipilih" }),
   year: z
     .number()
     .min(2000, "Tahun minimal 2000"),
