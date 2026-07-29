@@ -1,0 +1,13 @@
+services:
+  it-umc-dashboard:
+    container_name: it-umc-dashboard
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    environment:
+      - NODE_ENV=production
+      - PORT=8081
+      - HOSTNAME=0.0.0.0
+    restart: always
