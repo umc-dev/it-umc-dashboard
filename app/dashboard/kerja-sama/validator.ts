@@ -3,12 +3,7 @@ import { z } from "zod";
 export const CreatePartnershipSchema = z
   .object({
     name: z.string().min(1, "Nama mitra wajib diisi"),
-    photo: z
-      .instanceof(File)
-      .nullable()
-      .refine((file) => file instanceof File, {
-        message: "Logo wajib diupload",
-      }),
+    photo: z.instanceof(File).nullable(),
     startDate: z.string().min(1, "Tanggal mulai wajib diisi"),
     endDate: z.string().min(1, "Tanggal berakhir wajib diisi"),
   })

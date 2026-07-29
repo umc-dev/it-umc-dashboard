@@ -37,7 +37,7 @@ export const CreateDosenSchema = z.object({
   photo: z
     .instanceof(File)
     .nullable()
-    .refine((file) => file instanceof File, {
+    .refine((file) => !!file, {
       message: "Foto wajib diupload",
     }),
 });
