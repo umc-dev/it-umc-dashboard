@@ -21,6 +21,9 @@ COPY . .
 # Install pnpm in builder
 RUN npm install -g pnpm
 
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
 ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN pnpm run build
