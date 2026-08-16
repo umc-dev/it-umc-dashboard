@@ -12,6 +12,7 @@ import {
 import { PartnershipResponse } from "@/app/dashboard/kerja-sama/types";
 import { formatDateTimeIndo } from "@/lib/formatDateTimeIndo";
 import { toast } from "sonner";
+import { FileText } from "lucide-react";
 
 export function DashboardKerjaSamaContent() {
   const router = useRouter();
@@ -37,12 +38,10 @@ export function DashboardKerjaSamaContent() {
     deletePartnership.mutate(deleteAlert.item.id, {
       onSuccess: () => {
         setDeleteAlert({ isOpen: false, item: null });
-
         toast.success("Kerja sama berhasil dihapus!", {
           description: `${deleteAlert.item?.name}`,
         });
       },
-
       onError: () => {
         toast.error("Gagal menghapus kerja sama", {
           description: "Terjadi kesalahan pada server",
@@ -51,7 +50,7 @@ export function DashboardKerjaSamaContent() {
     });
   };
 
-  if (isLoading) return <h1>Loading....</h1>;
+  if (isLoading) return <h1 className="text-center py-10 text-muted-foreground">Loading....</h1>;
 
   return (
     <div className="space-y-6">
@@ -60,7 +59,7 @@ export function DashboardKerjaSamaContent() {
           Manajemen Kerja Sama
         </h1>
         <p className="text-muted-foreground mt-2">
-          Kelola kerja sama dan mitra
+          Kelola data kerja sama, logo mitra, dan lampiran berkas MOU/MOA
         </p>
       </div>
 
@@ -69,38 +68,75 @@ export function DashboardKerjaSamaContent() {
         columns={[
           {
             key: "photo",
-            label: "Logo",
-            render: (value) => (
-              <Image
+            label: "Logo Mitra",
+            render: (value) =>
+              value ? (
+                <Image
                   src={value}
                   alt="Logo Mitra"
-                  width={100}
-                  height={100}
-                  className="w-16  h-16 rounded-full object-cover"
+                  width={64}
+                  height={64}
+                  className="w-12 h-12 rounded-lg object-contain bg-muted p-1 border border-border"
                   unoptimized
                 />
-              )
+              ) : (
+                <span className="text-muted-foreground">-</span>
+              ),
           },
-          { key: "name", label: "Nama Mitra", sortable: true },
+          {
+            key: "name",
+            label: "Nama & Deskripsi",
+            sortable: true,
+            render: (val, item) => (
+              <div>
+                <p className="font-semibold text-foreground">{val}</p>
+                {item.description && (
+                  <p className="text-xs text-muted-foreground truncate max-w-xs">{item.description}</p>
+                )}
+              </div>
+            ),
+          },
           {
             key: "startDate",
-            label: "Tanggal Mulai",
+            label: "Masa Perjanjian",
             sortable: true,
-            render: (value) => formatDateTimeIndo(value),
+            render: (val, item) => (
+              <span className="text-xs text-muted-foreground">
+                {formatDateTimeIndo(val)} - {formatDateTimeIndo(item.endDate)}
+              </span>
+            ),
           },
           {
-            key: "endDate",
-            label: "Tanggal Berakhir",
-            sortable: true,
-            render: (value) => formatDateTimeIndo(value),
+            key: "files",
+            label: "Lampiran Berkas",
+            render: (_, item) => (
+              <div className="flex flex-col gap-1 max-w-xs text-xs">
+                {item.files && item.files.length > 0 ? (
+                  item.files.map((file) => (
+                    <a
+                      key={file.id}
+                      href={file.fileUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 text-primary hover:underline truncate"
+                      title={file.fileName}
+                    >
+                      <FileText className="w-3.5 h-3.5 shrink-0" />
+                      <span className="truncate">{file.fileName}</span>
+                    </a>
+                  ))
+                ) : (
+                  <span className="text-muted-foreground">-</span>
+                )}
+              </div>
+            ),
           },
         ]}
         onAdd={() => router.push("/dashboard/kerja-sama/tambah")}
         onEdit={(item) => router.push(`/dashboard/kerja-sama/${item.id}/ubah`)}
         onDeleteClick={handleDeleteClick}
-        searchFields={["name"]}
+        searchFields={["name", "description"]}
       />
-
 
       <DeleteAlert
         isOpen={deleteAlert.isOpen}

@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  approveAlumni,
   createAlumni,
   deleteAlumni,
   getAlumni,
@@ -7,10 +8,10 @@ import {
   updateAlumni,
 } from "./api";
 
-export const useAlumni = (prodi?: 'S1' | 'D3') => {
+export const useAlumni = (prodi?: "S1" | "D3", status?: "pending" | "approved" | "all") => {
   return useQuery({
-    queryKey: ["alumni", prodi],
-    queryFn: () => getAlumni(prodi),
+    queryKey: ["alumni", prodi, status],
+    queryFn: () => getAlumni(prodi, status),
   });
 };
 
@@ -50,6 +51,18 @@ export const useUpdateAlumni = () => {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: FormData }) =>
       updateAlumni(id, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["alumni"] });
+    },
+  });
+};
+
+export const useApproveAlumni = () => {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, isApproved }: { id: string; isApproved: boolean }) =>
+      approveAlumni(id, isApproved),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["alumni"] });
     },

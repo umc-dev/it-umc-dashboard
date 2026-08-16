@@ -55,6 +55,7 @@ export interface NewsResponse {
   createdAt: string;
   updatedAt: string;
 
+  status?: "PENDING" | "PUBLISHED" | "REJECTED";
   category: CategoryResponse;
   admin: AdminResponse;
 }

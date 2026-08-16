@@ -34,7 +34,7 @@ export function FormAddAlumni() {
   } = useForm<CreateAlumniInputDto, unknown, CreateAlumniDto>({
     resolver: zodResolver(CreateAlumniSchema),
     defaultValues: {
-      year: 2000,
+      year: 2020,
       photo: null,
       prodi: defaultProdi,
     },
@@ -47,9 +47,14 @@ export function FormAddAlumni() {
     try {
       const fd = new FormData();
       fd.append("name", data.name);
-      fd.append("video", data.video);
+      if (data.video) fd.append("video", data.video);
       fd.append("message", data.message);
       fd.append("year", String(data.year));
+      if (data.graduationYear) fd.append("graduationYear", String(data.graduationYear));
+      if (data.workplace) fd.append("workplace", data.workplace);
+      if (data.position) fd.append("position", data.position);
+      if (data.linkedin) fd.append("linkedin", data.linkedin);
+      if (data.instagram) fd.append("instagram", data.instagram);
       fd.append("prodi", data.prodi);
       if (data.photo) {
         fd.append("photo", data.photo);
@@ -100,56 +105,117 @@ export function FormAddAlumni() {
           )}
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
-            Program Studi <span className="text-destructive">*</span>
-          </label>
-          <select {...register("prodi")} className={inputClassName}>
-            <option value="S1">S1 Teknik Informatika</option>
-            <option value="D3">D3 Teknik Informatika</option>
-          </select>
-          {errors.prodi && (
-            <p className="text-destructive text-sm">{errors.prodi.message}</p>
-          )}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Program Studi <span className="text-destructive">*</span>
+            </label>
+            <select {...register("prodi")} className={inputClassName}>
+              <option value="S1">S1 Teknik Informatika</option>
+              <option value="D3">D3 Teknik Informatika</option>
+            </select>
+            {errors.prodi && (
+              <p className="text-destructive text-sm">{errors.prodi.message}</p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Tahun Angkatan <span className="text-destructive">*</span>
+            </label>
+            <input
+              {...register("year")}
+              type="number"
+              placeholder="Contoh: 2020"
+              className={inputClassName}
+            />
+            {errors.year && (
+              <p className="text-destructive text-sm">{errors.year.message}</p>
+            )}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Tahun Lulus
+            </label>
+            <input
+              {...register("graduationYear")}
+              type="number"
+              placeholder="Contoh: 2024"
+              className={inputClassName}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Tempat Kerja / Perusahaan
+            </label>
+            <input
+              {...register("workplace")}
+              placeholder="Contoh: PT Telkom Indonesia"
+              className={inputClassName}
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Jabatan / Posisi
+            </label>
+            <input
+              {...register("position")}
+              placeholder="Contoh: Software Engineer"
+              className={inputClassName}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Link LinkedIn
+            </label>
+            <input
+              {...register("linkedin")}
+              placeholder="https://linkedin.com/in/..."
+              className={inputClassName}
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Username / Link Instagram
+            </label>
+            <input
+              {...register("instagram")}
+              placeholder="https://instagram.com/..."
+              className={inputClassName}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Link Video Testimoni
+            </label>
+            <input
+              {...register("video")}
+              placeholder="https://youtube.com/..."
+              className={inputClassName}
+            />
+          </div>
         </div>
 
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
-            Tahun Lulus <span className="text-destructive">*</span>
-          </label>
-          <input
-            {...register("year")}
-            type="number"
-            placeholder="Masukkan tahun lulus"
-            className={inputClassName}
-          />
-          {errors.year && (
-            <p className="text-destructive text-sm">{errors.year.message}</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
-            Link Video <span className="text-destructive">*</span>
-          </label>
-          <input
-            {...register("video")}
-            placeholder="Masukkan link video"
-            className={inputClassName}
-          />
-          {errors.video && (
-            <p className="text-destructive text-sm">{errors.video.message}</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
-            Pesan/Kesan <span className="text-destructive">*</span>
+            Pesan / Kesan <span className="text-destructive">*</span>
           </label>
           <textarea
             {...register("message")}
-            placeholder="Masukkan pesan/kesan"
-            rows={5}
+            placeholder="Masukkan pesan/kesan alumni"
+            rows={4}
             className={inputClassName}
           />
           {errors.message && (
