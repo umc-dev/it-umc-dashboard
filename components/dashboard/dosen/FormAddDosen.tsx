@@ -16,11 +16,68 @@ import {
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import axios from "axios";
 import { toast } from "sonner";
-import { Plus, Trash2, Edit2, ExternalLink, BookOpen, Award, GraduationCap } from "lucide-react";
+import { Plus, Trash2, Edit2, ExternalLink, BookOpen, Microscope, Users, Calendar, Link2, FileText, AlignLeft, Sparkles } from "lucide-react";
 
 
 const inputClassName =
   "w-full px-4 py-2 border border-border rounded-lg bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-colors";
+
+const TRIDHARMA_CONFIG = {
+  PENGAJARAN: {
+    category: "PENGAJARAN" as const,
+    label: "Pengajaran",
+    shortLabel: "Pengajaran",
+    icon: BookOpen,
+    badgeBg: "bg-muted text-foreground border border-border",
+    modalTitleAdd: "Tambah Data Pengajaran",
+    modalTitleEdit: "Edit Data Pengajaran",
+    helperTip: "Catatan pengampuan mata kuliah, modul praktikum, atau bahan ajar perkuliahan dosen.",
+    titleLabel: "Mata Kuliah / Modul / Bahan Ajar",
+    titlePlaceholder: "Contoh: Pemrograman Web Lanjut, Modul Praktikum Lab Jaringan Komputer...",
+    yearLabel: "Tahun Akademik / Semester",
+    yearPlaceholder: "2024",
+    linkLabel: "Link Silabus / RPS / Repository",
+    linkPlaceholder: "https://... (Link Google Drive, RPS, Classroom, atau repository)",
+    descriptionLabel: "Deskripsi Pengajaran & Capaian",
+    descriptionPlaceholder: "Keterangan mengenai mata kuliah, target pembelajaran, atau peran pengampu...",
+  },
+  PENELITIAN: {
+    category: "PENELITIAN" as const,
+    label: "Penelitian",
+    shortLabel: "Penelitian",
+    icon: Microscope,
+    badgeBg: "bg-muted text-foreground border border-border",
+    modalTitleAdd: "Tambah Data Penelitian",
+    modalTitleEdit: "Edit Data Penelitian",
+    helperTip: "Publikasi jurnal ilmiah, prosiding konferensi, paten, atau hibah riset.",
+    titleLabel: "Judul Penelitian / Jurnal / Artikel Ilmiah",
+    titlePlaceholder: "Contoh: Penerapan Algoritma Deep Learning Pada Deteksi Anomali Jaringan...",
+    yearLabel: "Tahun Publikasi / Terbit",
+    yearPlaceholder: "2024",
+    linkLabel: "Link DOI / Jurnal / Google Scholar",
+    linkPlaceholder: "https://doi.org/... atau https://scholar.google.com/...",
+    descriptionLabel: "Abstrak / Ringkasan Penelitian",
+    descriptionPlaceholder: "Abstrak ringkas, nama jurnal / penerbit, akreditasi (SINTA/Scopus)...",
+  },
+  PENGABDIAN: {
+    category: "PENGABDIAN" as const,
+    label: "Pengabdian Masyarakat",
+    shortLabel: "Pengabdian",
+    icon: Users,
+    badgeBg: "bg-muted text-foreground border border-border",
+    modalTitleAdd: "Tambah Data Pengabdian Masyarakat",
+    modalTitleEdit: "Edit Data Pengabdian Masyarakat",
+    helperTip: "Kegiatan penyuluhan, pelatihan UMKM, pendampingan teknologi, atau pengabdian desa.",
+    titleLabel: "Judul Kegiatan Pengabdian",
+    titlePlaceholder: "Contoh: Digitalisasi UMKM Batik Cirebon Berbasis E-Commerce Dan SEO...",
+    yearLabel: "Tahun Pelaksanaan",
+    yearPlaceholder: "2024",
+    linkLabel: "Link Dokumentasi / Laporan / Media",
+    linkPlaceholder: "https://... (Link dokumentasi kegiatan, berita media, atau laporan)",
+    descriptionLabel: "Deskripsi & Dampak Kegiatan",
+    descriptionPlaceholder: "Deskripsi sasaran pengabdian, manfaat bagi masyarakat, serta jumlah mitra...",
+  },
+};
 
 function FormAddDosenContent() {
   const router = useRouter();
@@ -466,28 +523,25 @@ function FormAddDosenContent() {
 
         {/* Tab Header */}
         <div className="flex border-b border-border gap-2 overflow-x-auto pb-1">
-          {[
-            { key: "PENGAJARAN" as const, label: "Pengajaran", icon: BookOpen },
-            { key: "PENELITIAN" as const, label: "Penelitian", icon: Award },
-            { key: "PENGABDIAN" as const, label: "Pengabdian Masyarakat", icon: GraduationCap },
-          ].map((cat) => {
-            const Icon = cat.icon;
-            const count = tridharmas.filter((item) => item.category === cat.key).length;
-            const isActive = activeCategory === cat.key;
+          {(["PENGAJARAN", "PENELITIAN", "PENGABDIAN"] as const).map((key) => {
+            const cfg = TRIDHARMA_CONFIG[key];
+            const Icon = cfg.icon;
+            const count = tridharmas.filter((item) => item.category === key).length;
+            const isActive = activeCategory === key;
             return (
               <button
-                key={cat.key}
+                key={key}
                 type="button"
-                onClick={() => setActiveCategory(cat.key)}
+                onClick={() => setActiveCategory(key)}
                 className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition-all whitespace-nowrap ${
                   isActive
-                    ? "border-primary text-primary"
+                    ? "border-primary text-primary font-semibold"
                     : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
                 }`}
               >
                 <Icon className="w-4 h-4" />
-                <span>{cat.label}</span>
-                <span className={`text-xs px-2 py-0.5 rounded-full ${
+                <span>{cfg.label}</span>
+                <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${
                   isActive ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
                 }`}>
                   {count}
@@ -499,24 +553,32 @@ function FormAddDosenContent() {
 
         {/* Tab Content Header */}
         <div className="flex items-center justify-between gap-4">
-          <h3 className="text-md font-semibold text-foreground">
-            Daftar {activeCategory === "PENGAJARAN" ? "Pengajaran" : activeCategory === "PENELITIAN" ? "Penelitian" : "Pengabdian Masyarakat"} (Lokal)
-          </h3>
+          <div>
+            <h3 className="text-md font-semibold text-foreground">
+              Daftar {TRIDHARMA_CONFIG[activeCategory].label} (Lokal)
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              {TRIDHARMA_CONFIG[activeCategory].helperTip}
+            </p>
+          </div>
           <button
             type="button"
             onClick={openAddModal}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg shadow-sm transition-colors"
+            className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg shadow-sm transition-colors shrink-0"
           >
-            <Plus className="w-3.5 h-3.5" />
-            Tambah Data
+            <Plus className="w-4 h-4" />
+            Tambah Data {TRIDHARMA_CONFIG[activeCategory].shortLabel}
           </button>
         </div>
 
         {/* Tab Content List */}
         {tridharmas.filter((item) => item.category === activeCategory).length === 0 ? (
-          <div className="text-center py-10 border border-dashed border-border rounded-lg">
-            <p className="text-muted-foreground text-sm">
-              Belum ada data {activeCategory === "PENGAJARAN" ? "pengajaran" : activeCategory === "PENELITIAN" ? "penelitian" : "pengabdian masyarakat"} yang ditambahkan.
+          <div className="text-center py-10 border border-dashed border-border rounded-lg bg-muted/20">
+            <p className="text-muted-foreground text-sm font-medium">
+              Belum ada data {TRIDHARMA_CONFIG[activeCategory].label.toLowerCase()} yang ditambahkan.
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Klik tombol &quot;Tambah Data {TRIDHARMA_CONFIG[activeCategory].shortLabel}&quot; di atas untuk memasukkan data baru.
             </p>
           </div>
         ) : (
@@ -524,166 +586,218 @@ function FormAddDosenContent() {
             {tridharmas
               .map((item, index) => ({ item, index }))
               .filter(({ item }) => item.category === activeCategory)
-              .map(({ item, index }) => (
-                <div
-                  key={index}
-                  className="group border border-border rounded-lg p-4 bg-muted/40 hover:bg-muted/70 transition-colors relative flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
-                >
-                  <div className="space-y-1 flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-xs font-bold bg-secondary text-secondary-foreground px-2.5 py-0.5 rounded-full">
-                        Tahun {item.year}
-                      </span>
-                      <a
-                        href={item.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs text-primary hover:underline flex items-center gap-1 font-medium"
-                      >
-                        <span>Link Publikasi/Bukti</span>
-                        <ExternalLink className="w-3 h-3" />
-                      </a>
+              .map(({ item, index }) => {
+                const itemCfg = TRIDHARMA_CONFIG[item.category];
+                return (
+                  <div
+                    key={index}
+                    className="group border border-border rounded-lg p-4 bg-card hover:border-primary/40 transition-all shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
+                  >
+                    <div className="space-y-1.5 flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className={`text-xs font-bold px-2.5 py-0.5 rounded-md ${itemCfg.badgeBg}`}>
+                          {itemCfg.shortLabel} &bull; {item.year}
+                        </span>
+                        <a
+                          href={item.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-primary hover:underline flex items-center gap-1 font-medium"
+                        >
+                          <Link2 className="w-3 h-3" />
+                          <span>Link Bukti / Publikasi</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </div>
+                      <h4 className="font-semibold text-foreground text-base group-hover:text-primary transition-colors">
+                        {item.title}
+                      </h4>
+                      <p className="text-sm text-muted-foreground line-clamp-2 pr-4">
+                        {item.description}
+                      </p>
                     </div>
-                    <h4 className="font-semibold text-foreground text-base group-hover:text-primary transition-colors">
-                      {item.title}
-                    </h4>
-                    <p className="text-sm text-muted-foreground line-clamp-2 pr-4">
-                      {item.description}
-                    </p>
-                  </div>
 
-                  <div className="flex items-center gap-2 self-end md:self-auto shrink-0">
-                    <button
-                      type="button"
-                      onClick={() => openEditModal(index)}
-                      className="p-2 border border-border hover:border-foreground/20 rounded-lg hover:bg-card text-muted-foreground hover:text-foreground transition-colors"
-                      title="Edit"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleTridharmaDelete(index)}
-                      className="p-2 border border-destructive/20 hover:border-destructive/40 rounded-lg hover:bg-destructive/5 text-destructive transition-colors"
-                      title="Hapus"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    <div className="flex items-center gap-2 self-end md:self-auto shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => openEditModal(index)}
+                        className="p-2 border border-border hover:border-foreground/20 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                        title="Edit"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleTridharmaDelete(index)}
+                        className="p-2 border border-destructive/20 hover:border-destructive/40 rounded-lg hover:bg-destructive/10 text-destructive transition-colors"
+                        title="Hapus"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
           </div>
         )}
       </div>
 
       {/* MODAL: ADD / EDIT TRI DHARMA */}
-      {isTridharmaModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="bg-card rounded-xl shadow-xl max-w-lg w-full border border-border overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="px-6 py-4 border-b border-border flex justify-between items-center bg-muted/30">
-              <h2 className="text-lg font-bold text-foreground">
-                {editingIndex !== null ? "Edit Data Tri Dharma (Lokal)" : "Tambah Data Tri Dharma (Lokal)"}
-              </h2>
-              <button
-                type="button"
-                onClick={() => setIsTridharmaModalOpen(false)}
-                className="text-muted-foreground hover:text-foreground text-sm font-semibold px-2 py-1 rounded hover:bg-muted"
-              >
-                Tutup
-              </button>
-            </div>
-            <form onSubmit={handleTridharmaSubmit} className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-1.5">
-                  Kategori <span className="text-destructive">*</span>
-                </label>
-                <select
-                  value={tridharmaCategory}
-                  onChange={(e) => setTridharmaCategory(e.target.value as any)}
-                  className={inputClassName}
-                  required
-                >
-                  <option value="PENGAJARAN">Pengajaran (Teaching)</option>
-                  <option value="PENELITIAN">Penelitian (Research)</option>
-                  <option value="PENGABDIAN">Pengabdian Masyarakat (Community Service)</option>
-                </select>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                <div className="sm:col-span-3">
-                  <label className="block text-sm font-medium text-foreground mb-1.5">
-                    Judul Publikasi / Kegiatan <span className="text-destructive">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={tridharmaTitle}
-                    onChange={(e) => setTridharmaTitle(e.target.value)}
-                    className={inputClassName}
-                    placeholder="Masukkan judul (3-100 karakter)"
-                    required
-                  />
+      {isTridharmaModalOpen && (() => {
+        const activeConfig = TRIDHARMA_CONFIG[tridharmaCategory];
+        const CategoryIcon = activeConfig.icon;
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+            <div className="bg-card rounded-xl shadow-2xl max-w-lg w-full border border-border overflow-hidden animate-in zoom-in-95 duration-200">
+              {/* Modal Header */}
+              <div className="px-6 py-4 border-b border-border flex justify-between items-center bg-muted/40">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-lg ${activeConfig.badgeBg}`}>
+                    <CategoryIcon className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold text-foreground">
+                      {editingIndex !== null ? activeConfig.modalTitleEdit : activeConfig.modalTitleAdd}
+                    </h2>
+                    <p className="text-xs text-muted-foreground">
+                      Form Dinamis Tri Dharma &bull; {activeConfig.label}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1.5">
-                    Tahun <span className="text-destructive">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    value={tridharmaYear}
-                    onChange={(e) => setTridharmaYear(Number(e.target.value))}
-                    className={inputClassName}
-                    min={2000}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-1.5">
-                  Link Bukti / Publikasi <span className="text-destructive">*</span>
-                </label>
-                <input
-                  type="url"
-                  value={tridharmaLink}
-                  onChange={(e) => setTridharmaLink(e.target.value)}
-                  className={inputClassName}
-                  placeholder="https://doi.org/... atau https://..."
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-1.5">
-                  Deskripsi / Keterangan <span className="text-destructive">*</span>
-                </label>
-                <textarea
-                  value={tridharmaDescription}
-                  onChange={(e) => setTridharmaDescription(e.target.value)}
-                  className={`${inputClassName} min-h-[100px] resize-y`}
-                  placeholder="Keterangan singkat mengenai kegiatan..."
-                  required
-                />
-              </div>
-
-              <div className="pt-4 border-t border-border flex justify-end gap-3">
                 <button
                   type="button"
                   onClick={() => setIsTridharmaModalOpen(false)}
-                  className="px-4 py-2 border border-border rounded-lg hover:bg-muted font-medium text-sm text-foreground transition-colors"
+                  className="text-muted-foreground hover:text-foreground text-sm font-semibold px-2 py-1 rounded hover:bg-muted transition-colors"
                 >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 font-medium text-sm shadow-sm transition-colors"
-                >
-                  Simpan Lokal
+                  Tutup
                 </button>
               </div>
-            </form>
+
+              <form onSubmit={handleTridharmaSubmit} className="p-6 space-y-4">
+                {/* Category Switcher inside Modal */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1.5">
+                    Kategori Tri Dharma <span className="text-destructive">*</span>
+                  </label>
+                  <div className="grid grid-cols-3 gap-2 p-1 bg-muted rounded-lg border border-border">
+                    {(["PENGAJARAN", "PENELITIAN", "PENGABDIAN"] as const).map((catKey) => {
+                      const cfg = TRIDHARMA_CONFIG[catKey];
+                      const Icon = cfg.icon;
+                      const isSelected = tridharmaCategory === catKey;
+                      return (
+                        <button
+                          key={catKey}
+                          type="button"
+                          onClick={() => setTridharmaCategory(catKey)}
+                          className={`flex items-center justify-center gap-1.5 py-2 px-2 text-xs font-semibold rounded-md transition-all ${
+                            isSelected
+                              ? "bg-background text-foreground shadow-sm border border-border"
+                              : "text-muted-foreground hover:text-foreground"
+                          }`}
+                        >
+                          <Icon className="w-3.5 h-3.5 shrink-0" />
+                          <span className="truncate">{cfg.shortLabel}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Helper Tip Card */}
+                <div className="p-3 rounded-lg flex items-start gap-2.5 text-xs bg-muted/60 text-muted-foreground border border-border">
+                  <Sparkles className="w-4 h-4 shrink-0 mt-0.5 text-foreground/70" />
+                  <span>{activeConfig.helperTip}</span>
+                </div>
+
+                {/* Title & Year */}
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                  <div className="sm:col-span-3">
+                    <label className="block text-sm font-medium text-foreground mb-1.5 flex items-center gap-1.5">
+                      <FileText className="w-3.5 h-3.5 text-muted-foreground" />
+                      <span>{activeConfig.titleLabel}</span>
+                      <span className="text-destructive">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={tridharmaTitle}
+                      onChange={(e) => setTridharmaTitle(e.target.value)}
+                      className={inputClassName}
+                      placeholder={activeConfig.titlePlaceholder}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-1.5 flex items-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
+                      <span>Tahun</span>
+                      <span className="text-destructive">*</span>
+                    </label>
+                    <input
+                      type="number"
+                      value={tridharmaYear}
+                      onChange={(e) => setTridharmaYear(Number(e.target.value))}
+                      className={inputClassName}
+                      placeholder={activeConfig.yearPlaceholder}
+                      min={2000}
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Link Field */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1.5 flex items-center gap-1.5">
+                    <Link2 className="w-3.5 h-3.5 text-muted-foreground" />
+                    <span>{activeConfig.linkLabel}</span>
+                    <span className="text-destructive">*</span>
+                  </label>
+                  <input
+                    type="url"
+                    value={tridharmaLink}
+                    onChange={(e) => setTridharmaLink(e.target.value)}
+                    className={inputClassName}
+                    placeholder={activeConfig.linkPlaceholder}
+                    required
+                  />
+                </div>
+
+                {/* Description Field */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1.5 flex items-center gap-1.5">
+                    <AlignLeft className="w-3.5 h-3.5 text-muted-foreground" />
+                    <span>{activeConfig.descriptionLabel}</span>
+                    <span className="text-destructive">*</span>
+                  </label>
+                  <textarea
+                    value={tridharmaDescription}
+                    onChange={(e) => setTridharmaDescription(e.target.value)}
+                    className={`${inputClassName} min-h-[100px] resize-y`}
+                    placeholder={activeConfig.descriptionPlaceholder}
+                    required
+                  />
+                </div>
+
+                {/* Actions */}
+                <div className="pt-4 border-t border-border flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsTridharmaModalOpen(false)}
+                    className="px-4 py-2 border border-border rounded-lg hover:bg-muted font-medium text-sm text-foreground transition-colors"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 font-medium text-sm shadow-sm transition-colors"
+                  >
+                    Simpan Lokal
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 }

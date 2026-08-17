@@ -5,7 +5,11 @@ import { useRouter } from "next/navigation";
 import { DataTable } from "@/components/DataTable";
 import { DeleteAlert } from "@/components/DeleteAlert";
 import Image from "next/image";
-import { useApproveNews, useDeleteNews, useNews } from "@/app/dashboard/berita/queries";
+import {
+  useApproveNews,
+  useDeleteNews,
+  useNews,
+} from "@/app/dashboard/berita/queries";
 import { NewsResponse } from "@/app/dashboard/berita/types";
 import { toast } from "sonner";
 import { useMe } from "@/app/login/queries";
@@ -55,19 +59,25 @@ export function DashboardBeritaContent() {
       {
         onSuccess: () => {
           toast.success(
-            status === "PUBLISHED" ? "Berita berhasil disetujui & dipublikasikan!" : "Berita ditolak"
+            status === "PUBLISHED"
+              ? "Berita berhasil disetujui & dipublikasikan!"
+              : "Berita ditolak",
           );
         },
         onError: () => {
           toast.error("Gagal mengubah status berita");
         },
-      }
+      },
     );
   };
 
-  if (isLoading) return <h1 className="text-center py-10 text-muted-foreground">Loading....</h1>;
+  if (isLoading)
+    return (
+      <h1 className="text-center py-10 text-muted-foreground">Loading....</h1>
+    );
 
-  const isSuperAdminOrAdmin = me?.role === "SUPER_ADMIN" || me?.role === "ADMIN";
+  const isSuperAdminOrAdmin =
+    me?.role === "SUPER_ADMIN" || me?.role === "ADMIN";
 
   return (
     <div className="space-y-6">
@@ -113,8 +123,8 @@ export function DashboardBeritaContent() {
                       status === "PUBLISHED"
                         ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300"
                         : status === "PENDING"
-                        ? "bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300"
-                        : "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300"
+                          ? "bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300"
+                          : "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300"
                     }`}
                   >
                     {status}
