@@ -37,6 +37,7 @@ export interface DosenResponse {
   prodi: "S1" | "D3";
   nidn: string;
   name: string;
+  email?: string;
   expertise: string;
   research: string;
   teaching: string;

@@ -1,13 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { DataTable } from "@/components/DataTable";
-import { DeleteAlert } from "@/components/DeleteAlert";
 import Image from "next/image";
-import { useDeleteDosen, useDosens } from "@/app/dashboard/dosen/queries";
+import { useDosens } from "@/app/dashboard/dosen/queries";
 import { DosenResponse } from "@/app/dashboard/dosen/types";
-import { toast } from "sonner";
+import { useMe } from "@/app/login/queries";
 
 function getPositionSummary(dosen: DosenResponse) {
   if (!dosen.positions.length) return "-";
@@ -29,39 +28,21 @@ export function DashboardDosenContent() {
   const [selectedProdi, setSelectedProdi] = useState<"S1" | "D3">("S1");
 
   const { data, isLoading } = useDosens(selectedProdi);
-  const deleteDosen = useDeleteDosen();
+  const { data: me } = useMe();
 
-  const [deleteAlert, setDeleteAlert] = useState<{
-    isOpen: boolean;
-    item: DosenResponse | null;
-  }>({
-    isOpen: false,
-    item: null,
-  });
+  const isDosen = me?.role === "DOSEN";
 
-  const handleDeleteClick = (item: DosenResponse) => {
-    setDeleteAlert({ isOpen: true, item });
-  };
-
-  const handleConfirmDelete = () => {
-    if (!deleteAlert.item) return;
-
-    deleteDosen.mutate(deleteAlert.item.id, {
-      onSuccess: () => {
-        setDeleteAlert({ isOpen: false, item: null });
-
-        toast.success("Dosen berhasil dihapus!", {
-          description: `${deleteAlert.item?.name}`,
-        });
-      },
-
-      onError: () => {
-        toast.error("Gagal menghapus dosen", {
-          description: "Terjadi kesalahan pada server",
-        });
-      },
-    });
-  };
+  const filteredDosenData = useMemo(() => {
+    const list = data?.data ?? [];
+    if (isDosen && me) {
+      return list.filter(
+        (dosen: DosenResponse) =>
+          (dosen.email && dosen.email === me.email) ||
+          dosen.name === me.name
+      );
+    }
+    return list;
+  }, [data?.data, isDosen, me]);
 
   if (isLoading) return <h1>Loading....</h1>;
 
@@ -69,9 +50,13 @@ export function DashboardDosenContent() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Manajemen Dosen</h1>
+          <h1 className="text-3xl font-bold text-foreground">
+            {isDosen ? "Profil Dosen" : "Manajemen Dosen"}
+          </h1>
           <p className="text-muted-foreground mt-2">
-            Kelola data dosen dan riwayat jabatan mereka
+            {isDosen
+              ? "Kelola data profil dan riwayat Anda"
+              : "Kelola data dosen dan riwayat jabatan mereka"}
           </p>
         </div>
 
@@ -101,7 +86,7 @@ export function DashboardDosenContent() {
       </div>
 
       <DataTable
-        data={data?.data ?? []}
+        data={filteredDosenData}
         columns={[
           {
             key: "photo",
@@ -136,19 +121,13 @@ export function DashboardDosenContent() {
             render: (_, row) => row.positions.length,
           },
         ]}
-        onAdd={() => router.push(`/dashboard/admin/tambah?role=DOSEN&prodi=${selectedProdi}`)}
+        onAdd={
+          isDosen
+            ? undefined
+            : () => router.push(`/dashboard/admin/tambah?role=DOSEN&prodi=${selectedProdi}`)
+        }
         onEdit={(item) => router.push(`/dashboard/dosen/${item.id}/ubah`)}
-        onDeleteClick={handleDeleteClick}
         searchFields={["name", "expertise"]}
-      />
-
-      <DeleteAlert
-        isOpen={deleteAlert.isOpen}
-        title="Hapus Dosen"
-        description="Pastikan anda ingin menghapus dosen ini"
-        itemName={deleteAlert.item?.name || ""}
-        onConfirm={handleConfirmDelete}
-        onCancel={() => setDeleteAlert({ isOpen: false, item: null })}
       />
     </div>
   );

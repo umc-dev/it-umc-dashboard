@@ -9,7 +9,6 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useMe, useLogout } from "@/app/login/queries";
-import type { AdminResponse } from "@/app/login/types";
 const navGroups = [
   {
     groupLabel: "Utama",
@@ -85,7 +84,10 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             return ["/dashboard/berita", "/dashboard/kategori"].includes(item.href);
           }
           if (role === "DOSEN") {
-            return item.href.startsWith("/dashboard/dosen");
+            return (
+              item.href.startsWith("/dashboard/dosen") ||
+              item.href === "/dashboard/berita"
+            );
           }
           return item.href !== "/dashboard/admin";
         });
