@@ -30,7 +30,7 @@ export function FormAddBerita() {
     setValue,
     control,
     formState: { errors },
-  } = useForm<CreateNewsDto>({
+  } = useForm({
     resolver: zodResolver(CreateNewsSchema),
     defaultValues: {
       thumbnail: null,
