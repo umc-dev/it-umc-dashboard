@@ -50,7 +50,7 @@ export function FormAddBerita() {
 
       fd.append("content", data.content);
 
-      fd.append("categoryId", data.categoryId);
+      fd.append("categoryId", String(data.categoryId));
 
       if (!data.thumbnail) {
         toast.error("Thumbnail wajib diupload");

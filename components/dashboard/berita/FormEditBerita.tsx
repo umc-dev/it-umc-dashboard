@@ -43,7 +43,7 @@ export function FormEditBerita() {
       reset({
         title: news.title,
         content: news.content,
-        categoryId: news.categoryId,
+        categoryId: news.categoryId != null ? String(news.categoryId) : "",
       });
     }
   }, [news, reset]);
@@ -63,7 +63,7 @@ export function FormEditBerita() {
 
       fd.append("content", data.content || "");
 
-      fd.append("categoryId", data.categoryId || "");
+      fd.append("categoryId", String(data.categoryId ?? ""));
 
       if (data.thumbnail) {
         fd.append("thumbnail", data.thumbnail);
