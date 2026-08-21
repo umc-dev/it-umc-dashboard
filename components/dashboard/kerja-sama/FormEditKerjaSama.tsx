@@ -1,7 +1,6 @@
 "use client";
 
-import type React from "react";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { FormHeader } from "@/components/FormHeader";
 import { FormButtons } from "@/components/FormButtons";
@@ -17,6 +16,7 @@ import { UpdatePartnershipDto } from "@/app/dashboard/kerja-sama/types";
 import Image from "next/image";
 import { toast } from "sonner";
 import axios from "axios";
+import { FileText } from "lucide-react";
 
 const inputClassName =
   "w-full px-4 py-2 border border-border rounded-lg bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-colors";
@@ -27,6 +27,7 @@ export function FormEditKerjaSama() {
   const id = params.id as string;
 
   const updatePartnership = useUpdatePartnership();
+  const [docFiles, setDocFiles] = useState<File[]>([]);
 
   const { data: partnership, isLoading: isLoadingPartnership } =
     usePartnershipById(id);
@@ -38,7 +39,7 @@ export function FormEditKerjaSama() {
     formState: { errors },
     reset,
     control,
-  } = useForm({
+  } = useForm<UpdatePartnershipDto>({
     resolver: zodResolver(UpdatePartnershipSchema),
   });
 
@@ -46,13 +47,13 @@ export function FormEditKerjaSama() {
     if (partnership) {
       reset({
         name: partnership.name,
-        startDate: partnership.startDate.split("T")[0], // Format to YYYY-MM-DD
-        endDate: partnership.endDate.split("T")[0],
+        description: partnership.description ?? undefined,
+        startDate: partnership.startDate ? partnership.startDate.split("T")[0] : "",
+        endDate: partnership.endDate ? partnership.endDate.split("T")[0] : "",
       });
     }
   }, [partnership, reset]);
 
-  // Ambil nilai pakai useWatch
   const watchedPhoto = useWatch({ control, name: "photo" });
   const photo = useMemo(() => watchedPhoto, [watchedPhoto]);
 
@@ -60,11 +61,18 @@ export function FormEditKerjaSama() {
     try {
       const fd = new FormData();
       fd.append("name", data.name || "");
+      if (data.description) fd.append("description", data.description);
       fd.append("startDate", data.startDate || "");
       fd.append("endDate", data.endDate || "");
 
       if (data.photo) {
         fd.append("photo", data.photo);
+      }
+
+      if (docFiles.length > 0) {
+        docFiles.forEach((file) => {
+          fd.append("files", file);
+        });
       }
 
       await updatePartnership.mutateAsync({
@@ -113,9 +121,10 @@ export function FormEditKerjaSama() {
         onSubmit={handleSubmit(onSubmit)}
         className="bg-card border border-border rounded-lg p-6 space-y-6"
       >
-        {/* NAMA MITRA */}
         <div>
-          <label>Nama Mitra</label>
+          <label className="block text-sm font-medium text-foreground mb-2">
+            Nama Mitra
+          </label>
           <input
             {...register("name")}
             className={inputClassName}
@@ -126,58 +135,121 @@ export function FormEditKerjaSama() {
           )}
         </div>
 
-        {/* TANGGAL MULAI */}
         <div>
-          <label>Tanggal Mulai</label>
-          <input
-            type="date"
-            {...register("startDate")}
+          <label className="block text-sm font-medium text-foreground mb-2">
+            Deskripsi Singkat Kerja Sama
+          </label>
+          <textarea
+            {...register("description")}
+            rows={3}
             className={inputClassName}
+            placeholder="Keterangan mengenai lingkup kerjasama"
           />
-          {errors.startDate && (
-            <p className="text-destructive text-sm">
-              {errors.startDate.message}
-            </p>
-          )}
         </div>
 
-        {/* TANGGAL BERAKHIR */}
-        <div>
-          <label>Tanggal Berakhir</label>
-          <input
-            type="date"
-            {...register("endDate")}
-            className={inputClassName}
-          />
-          {errors.endDate && (
-            <p className="text-destructive text-sm">{errors.endDate.message}</p>
-          )}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Tanggal Mulai
+            </label>
+            <input
+              type="date"
+              {...register("startDate")}
+              className={inputClassName}
+            />
+            {errors.startDate && (
+              <p className="text-destructive text-sm">
+                {errors.startDate.message}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Tanggal Berakhir
+            </label>
+            <input
+              type="date"
+              {...register("endDate")}
+              className={inputClassName}
+            />
+            {errors.endDate && (
+              <p className="text-destructive text-sm">{errors.endDate.message}</p>
+            )}
+          </div>
         </div>
 
-        {/* PHOTO */}
         <div>
-          <label>Logo Lama</label>
-
-          {/* Logo lama */}
-          {partnership.photo && (
+          <label className="block text-sm font-medium text-foreground mb-2">
+            Logo Mitra Saat Ini
+          </label>
+          {partnership.photo ? (
             <Image
               src={partnership.photo}
-              alt="Logo lama"
-              width={200}
-              height={120}
-              className="rounded mb-3"
+              alt="Logo mitra"
+              width={160}
+              height={100}
+              className="rounded-lg object-contain bg-muted p-2 border border-border mb-3"
               unoptimized
             />
+          ) : (
+            <p className="text-sm text-muted-foreground mb-3">Belum ada logo.</p>
           )}
 
           <ImageUpload
-            label="Logo Mitra"
+            label="Upload Logo Baru (opsional)"
             value={photo ?? null}
             onChange={(value) => setValue("photo", value)}
           />
 
           {errors.photo && (
             <p className="text-destructive text-sm">{errors.photo.message}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-2">
+            Dokumentasi & Bukti Kerjasama Saat Ini
+          </label>
+          {partnership.files && partnership.files.length > 0 ? (
+            <div className="space-y-1 mb-3">
+              {partnership.files.map((file) => (
+                <a
+                  key={file.id}
+                  href={file.fileUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-2 text-sm text-primary hover:underline"
+                >
+                  <FileText className="w-4 h-4" />
+                  {file.fileName}
+                </a>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground mb-3">Belum ada dokumentasi atau bukti terlampir.</p>
+          )}
+
+          <label className="block text-sm font-medium text-foreground mb-1">
+            Tambah Dokumentasi / Bukti Kerjasama Baru (Foto / Berkas)
+          </label>
+          <p className="text-xs text-muted-foreground mb-2">
+            Unggah foto kegiatan penandatanganan, dokumentasi kegiatan, atau berkas penunjang baru
+          </p>
+          <input
+            type="file"
+            multiple
+            onChange={(e) => {
+              if (e.target.files) {
+                setDocFiles(Array.from(e.target.files));
+              }
+            }}
+            className={inputClassName}
+          />
+          {docFiles.length > 0 && (
+            <p className="text-xs text-muted-foreground mt-1 font-medium">
+              {docFiles.length} file baru dipilih
+            </p>
           )}
         </div>
 

@@ -28,6 +28,9 @@ export interface DosenTridharma {
   year: number;
   description: string;
   link: string;
+  semester?: string;
+  credits?: number;
+  class?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -37,6 +40,7 @@ export interface DosenResponse {
   prodi: "S1" | "D3";
   nidn: string;
   name: string;
+  email?: string;
   expertise: string;
   research: string;
   teaching: string;

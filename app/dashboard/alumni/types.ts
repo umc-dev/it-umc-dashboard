@@ -6,10 +6,16 @@ export interface Alumni {
   id: string;
   name: string;
   photo: string | null;
-  video: string;
+  workplace: string | null;
+  position: string | null;
+  linkedin: string | null;
+  instagram: string | null;
+  video: string | null;
   message: string;
   year: number;
+  graduationYear: number | null;
   prodi: "S1" | "D3";
+  isApproved: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -24,10 +30,16 @@ export interface AlumniResponse {
   id: string;
   name: string;
   photo: string | null;
-  video: string;
+  workplace: string | null;
+  position: string | null;
+  linkedin: string | null;
+  instagram: string | null;
+  video: string | null;
   message: string;
   year: number;
+  graduationYear: number | null;
   prodi: "S1" | "D3";
+  isApproved: boolean;
   createdAt: string;
   updatedAt: string;
 }

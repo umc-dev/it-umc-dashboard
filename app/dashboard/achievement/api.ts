@@ -6,8 +6,8 @@ import {
   UpdateAchievementDto,
 } from "./types";
 
-export const getAchievements = async (prodi?: string): Promise<PaginatedAchievementResponse> => {
-  const res = await api.get("/achievement", { params: { prodi } });
+export const getAchievements = async (prodi?: string, category?: string): Promise<PaginatedAchievementResponse> => {
+  const res = await api.get("/achievement", { params: { prodi, category } });
   return res.data;
 };
 

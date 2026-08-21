@@ -39,6 +39,9 @@ export const createDosenTridharma = async (data: {
   year: number;
   description: string;
   link: string;
+  semester?: string;
+  credits?: number;
+  class?: string;
 }): Promise<any> => {
   const res = await api.post("/dosen-tridharma", data);
   return res.data.data;
@@ -53,6 +56,9 @@ export const updateDosenTridharma = async (
     year: number;
     description: string;
     link: string;
+    semester?: string;
+    credits?: number;
+    class?: string;
   }>,
 ): Promise<any> => {
   const res = await api.put(`/dosen-tridharma/${id}`, data);

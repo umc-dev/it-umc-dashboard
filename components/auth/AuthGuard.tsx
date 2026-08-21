@@ -19,8 +19,12 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
       const isForbidden = pathname === "/dashboard/admin" || pathname.startsWith("/dashboard/admin/");
       isAuthorized = !isForbidden;
     } else if (user.role === "DOSEN") {
-      // DOSEN hanya bisa akses halaman dosen
-      isAuthorized = pathname === "/dashboard/dosen" || pathname.startsWith("/dashboard/dosen/");
+      // DOSEN bisa akses halaman dosen dan berita
+      isAuthorized =
+        pathname === "/dashboard/dosen" ||
+        pathname.startsWith("/dashboard/dosen/") ||
+        pathname === "/dashboard/berita" ||
+        pathname.startsWith("/dashboard/berita/");
     } else if (user.role === "EDITOR") {
       // EDITOR hanya bisa akses berita & kategori
       isAuthorized =

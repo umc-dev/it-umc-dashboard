@@ -23,9 +23,9 @@ interface Column<T> {
 interface DataTableProps<T> {
   data: T[];
   columns: Column<T>[];
-  onAdd: () => void;
+  onAdd?: () => void;
   onEdit: (item: T) => void;
-  onDeleteClick: (item: T) => void;
+  onDeleteClick?: (item: T) => void;
   searchFields?: (keyof T)[];
   itemsPerPage?: number;
 }
@@ -100,13 +100,15 @@ export function DataTable<T extends { id: string | number }>({
             className="w-full pl-10 pr-4 py-2 border border-border rounded-lg bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-colors"
           />
         </div>
-        <button
-          onClick={onAdd}
-          className="flex items-center justify-center sm:justify-start gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium whitespace-nowrap"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Tambah</span>
-        </button>
+        {onAdd && (
+          <button
+            onClick={onAdd}
+            className="flex items-center justify-center sm:justify-start gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium whitespace-nowrap"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Tambah</span>
+          </button>
+        )}
       </div>
 
       {/* Table */}
@@ -178,14 +180,16 @@ export function DataTable<T extends { id: string | number }>({
                     >
                       <Edit className="w-4 h-4" />
                     </button>
-                    <button
-                      onClick={() => onDeleteClick(item)}
-                      className="p-2 text-destructive hover:bg-destructive/10 rounded transition-colors"
-                      title="Hapus"
-                      aria-label="Delete"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    {onDeleteClick && (
+                      <button
+                        onClick={() => onDeleteClick(item)}
+                        className="p-2 text-destructive hover:bg-destructive/10 rounded transition-colors"
+                        title="Hapus"
+                        aria-label="Delete"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>

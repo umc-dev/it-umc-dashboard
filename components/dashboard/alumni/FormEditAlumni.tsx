@@ -45,7 +45,12 @@ export function FormEditAlumni() {
         name: alumni.name,
         message: alumni.message,
         year: alumni.year,
-        video: alumni.video,
+        graduationYear: alumni.graduationYear ?? undefined,
+        workplace: alumni.workplace ?? undefined,
+        position: alumni.position ?? undefined,
+        linkedin: alumni.linkedin ?? undefined,
+        instagram: alumni.instagram ?? undefined,
+        video: alumni.video ?? undefined,
         prodi: alumni.prodi,
       });
     }
@@ -61,6 +66,12 @@ export function FormEditAlumni() {
       if (data.video) fd.append("video", data.video);
       if (data.message) fd.append("message", data.message);
       if (data.year !== undefined) fd.append("year", String(data.year));
+      if (data.graduationYear !== undefined && data.graduationYear !== null)
+        fd.append("graduationYear", String(data.graduationYear));
+      if (data.workplace) fd.append("workplace", data.workplace);
+      if (data.position) fd.append("position", data.position);
+      if (data.linkedin) fd.append("linkedin", data.linkedin);
+      if (data.instagram) fd.append("instagram", data.instagram);
       if (data.prodi) fd.append("prodi", data.prodi);
       if (data.photo) fd.append("photo", data.photo);
 
@@ -119,46 +130,110 @@ export function FormEditAlumni() {
           )}
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
-            Program Studi
-          </label>
-          <select {...register("prodi")} className={inputClassName}>
-            <option value="S1">S1 Teknik Informatika</option>
-            <option value="D3">D3 Teknik Informatika</option>
-          </select>
-          {errors.prodi && (
-            <p className="text-destructive text-sm">{errors.prodi.message}</p>
-          )}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Program Studi
+            </label>
+            <select {...register("prodi")} className={inputClassName}>
+              <option value="S1">S1 Teknik Informatika</option>
+              <option value="D3">D3 Teknik Informatika</option>
+            </select>
+            {errors.prodi && (
+              <p className="text-destructive text-sm">{errors.prodi.message}</p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Tahun Angkatan
+            </label>
+            <input
+              {...register("year")}
+              type="number"
+              className={inputClassName}
+              placeholder="Contoh: 2019"
+            />
+            {errors.year && (
+              <p className="text-destructive text-sm">{errors.year.message}</p>
+            )}
+          </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
-            Tahun Lulus
-          </label>
-          <input
-            {...register("year")}
-            type="number"
-            className={inputClassName}
-            placeholder="Masukkan tahun lulus"
-          />
-          {errors.year && (
-            <p className="text-destructive text-sm">{errors.year.message}</p>
-          )}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Tahun Lulus
+            </label>
+            <input
+              {...register("graduationYear")}
+              type="number"
+              className={inputClassName}
+              placeholder="Contoh: 2023"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Tempat Kerja / Perusahaan
+            </label>
+            <input
+              {...register("workplace")}
+              className={inputClassName}
+              placeholder="Contoh: PT Tech Indonesia"
+            />
+          </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
-            Link Video
-          </label>
-          <input
-            {...register("video")}
-            className={inputClassName}
-            placeholder="Masukkan link video"
-          />
-          {errors.video && (
-            <p className="text-destructive text-sm">{errors.video.message}</p>
-          )}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Jabatan / Posisi
+            </label>
+            <input
+              {...register("position")}
+              className={inputClassName}
+              placeholder="Contoh: Backend Developer"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Link LinkedIn
+            </label>
+            <input
+              {...register("linkedin")}
+              className={inputClassName}
+              placeholder="https://linkedin.com/in/..."
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Username / Link Instagram
+            </label>
+            <input
+              {...register("instagram")}
+              className={inputClassName}
+              placeholder="https://instagram.com/..."
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Link Video
+            </label>
+            <input
+              {...register("video")}
+              className={inputClassName}
+              placeholder="Masukkan link video"
+            />
+            {errors.video && (
+              <p className="text-destructive text-sm">{errors.video.message}</p>
+            )}
+          </div>
         </div>
 
         <div>

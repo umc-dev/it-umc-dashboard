@@ -5,11 +5,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Users, FileText, Folder, BookOpen, UserCog, Briefcase ,
-  BarChart3, LogOut, Menu, X, Handshake, Goal, GraduationCap, Trophy, Building, Network, Bot
+  BarChart3, LogOut, Menu, X, Handshake, Goal, GraduationCap, Trophy, Building, Network, Bot, Award
 } from "lucide-react";
 import Image from "next/image";
 import { useMe, useLogout } from "@/app/login/queries";
-import type { AdminResponse } from "@/app/login/types";
 const navGroups = [
   {
     groupLabel: "Utama",
@@ -37,6 +36,7 @@ const navGroups = [
   {
     groupLabel: "Profil Kampus",
     items: [
+      { label: "Akreditasi Kampus & Prodi", href: "/dashboard/accreditation", icon: Award },
       { label: "Visi & Misi", href: "/dashboard/visi-misi", icon: Goal },
       { label: "Struktur Organisasi", href: "/dashboard/struktur-organisasi", icon: Network },
       { label: "Fasilitas", href: "/dashboard/fasilitas", icon: Building },
@@ -84,7 +84,10 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             return ["/dashboard/berita", "/dashboard/kategori"].includes(item.href);
           }
           if (role === "DOSEN") {
-            return item.href.startsWith("/dashboard/dosen");
+            return (
+              item.href.startsWith("/dashboard/dosen") ||
+              item.href === "/dashboard/berita"
+            );
           }
           return item.href !== "/dashboard/admin";
         });

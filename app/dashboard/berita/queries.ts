@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  approveNews,
   createNews,
   deleteNews,
   getNews,
@@ -56,6 +57,18 @@ export const useUpdateNews = () => {
   return useMutation({
     mutationFn: ({ slug, data }: { slug: string; data: FormData }) =>
       updateNews(slug, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["news"] });
+    },
+  });
+};
+
+export const useApproveNews = () => {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ slug, status }: { slug: string; status: "PUBLISHED" | "REJECTED" }) =>
+      approveNews(slug, status),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["news"] });
     },

@@ -1,10 +1,11 @@
-export function formatDateTimeIndo(date: string | Date) {
+export function formatDateTimeIndo(date: string | Date | null | undefined) {
+  if (!date) return "-";
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return "-";
+
   return new Intl.DateTimeFormat("id-ID", {
-    day: "2-digit",
+    day: "numeric",
     month: "long",
     year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  }).format(new Date(date));
+  }).format(d);
 }

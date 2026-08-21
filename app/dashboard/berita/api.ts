@@ -28,3 +28,11 @@ export const getNewsBySlug = async (slug: string): Promise<NewsResponse> => {
   const res = await api.get(`news/${slug}`);
   return res.data.data;
 };
+
+export const approveNews = async (
+  slug: string,
+  status: "PUBLISHED" | "REJECTED"
+): Promise<NewsResponse> => {
+  const res = await api.patch(`/news/${slug}/approve`, { status });
+  return res.data.data;
+};

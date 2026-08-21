@@ -22,7 +22,6 @@ import {
   TooltipProps,
 } from "recharts";
 
-
 interface ChartData {
   tahun: number;
   masuk: number;
@@ -85,17 +84,17 @@ export function DashboardMainContent() {
   // Calculate cumulative total students across all years
   const totalStudents = useMemo(() => {
     if (!statisticsData?.data || statisticsData.data.length === 0) return 0;
-    
+
     // Total = Sum of all students entered - Sum of all students graduated
     const totalEntered = statisticsData.data.reduce(
       (sum, stat) => sum + stat.enteredStudents,
-      0
+      0,
     );
     const totalGraduated = statisticsData.data.reduce(
       (sum, stat) => sum + stat.graduatedStudents,
-      0
+      0,
     );
-    
+
     return totalEntered - totalGraduated;
   }, [statisticsData]);
 
@@ -120,7 +119,8 @@ export function DashboardMainContent() {
       },
       {
         label: "Total Mahasiswa",
-        value: totalStudents,      },
+        value: totalStudents,
+      },
       {
         label: "Total Kerja Sama",
         value: partnershipsData?.data?.length || 0,
@@ -143,22 +143,22 @@ export function DashboardMainContent() {
       partnershipsData,
       // studiesData,
       // adminsData,
-    ]
+    ],
   );
 
   // Transform statistics data for chart
   const chartData = useMemo(() => {
     if (!statisticsData?.data) return [];
-    
+
     // Sort by year ascending
     const sortedData = [...statisticsData.data].sort((a, b) => a.year - b.year);
-    
+
     let cumulativeTotal = 0;
-    
+
     return sortedData.map((stat: StatisticStudentResponse) => {
       // Cumulative calculation: previous total + entered - graduated
       cumulativeTotal += stat.enteredStudents - stat.graduatedStudents;
-      
+
       return {
         tahun: stat.year,
         masuk: stat.enteredStudents,
@@ -178,7 +178,7 @@ export function DashboardMainContent() {
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-          Selamat Datang di Dashboard, {admin?.name}! 
+          Selamat Datang di Dashboard, {admin?.name}!
         </h1>
         <p className="text-sm text-muted-foreground">
           {new Date().toLocaleDateString("id-ID", {
@@ -190,7 +190,6 @@ export function DashboardMainContent() {
             minute: "2-digit",
           })}
         </p>
-
       </div>
 
       {/* Stats Grid */}
@@ -222,10 +221,7 @@ export function DashboardMainContent() {
                   strokeDasharray="3 3"
                   stroke="var(--color-border)"
                 />
-                <XAxis
-                  dataKey="tahun"
-                  stroke="var(--color-muted-foreground)"
-                />
+                <XAxis dataKey="tahun" stroke="var(--color-muted-foreground)" />
                 <YAxis stroke="var(--color-muted-foreground)" />
                 <Tooltip
                   content={<CustomTooltip />}
@@ -250,7 +246,7 @@ export function DashboardMainContent() {
             {categoriesData?.map((category) => {
               const count =
                 newsData?.data?.filter(
-                  (news) => news.categoryId === category.id
+                  (news) => news.categoryId === category.id,
                 ).length || 0;
               const percentage =
                 newsData?.data && newsData.data.length > 0
