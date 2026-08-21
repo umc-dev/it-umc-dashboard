@@ -29,6 +29,7 @@ export function FormAddAchievement() {
     resolver: zodResolver(CreateAchievementSchema),
     defaultValues: {
       prodi: defaultProdi,
+      category: "AKADEMIK",
     },
   });
 
@@ -75,6 +76,19 @@ export function FormAddAchievement() {
           </select>
           {errors.prodi && (
             <p className="text-destructive text-sm">{errors.prodi.message}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-2">
+            Kategori Prestasi <span className="text-destructive">*</span>
+          </label>
+          <select {...register("category")} className={inputClassName}>
+            <option value="AKADEMIK">Akademik</option>
+            <option value="NON_AKADEMIK">Non-Akademik</option>
+          </select>
+          {errors.category && (
+            <p className="text-destructive text-sm">{errors.category.message}</p>
           )}
         </div>
 

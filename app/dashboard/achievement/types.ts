@@ -5,6 +5,7 @@ import { CreateAchievementSchema, UpdateAchievementSchema } from "./validator";
 export interface AchievementResponse {
   id: number;
   prodi: "S1" | "D3";
+  category: "AKADEMIK" | "NON_AKADEMIK";
   name: string;
   achievementName: string;
   link: string;

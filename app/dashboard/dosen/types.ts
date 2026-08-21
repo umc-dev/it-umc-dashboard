@@ -28,6 +28,9 @@ export interface DosenTridharma {
   year: number;
   description: string;
   link: string;
+  semester?: string;
+  credits?: number;
+  class?: string;
   createdAt: string;
   updatedAt: string;
 }

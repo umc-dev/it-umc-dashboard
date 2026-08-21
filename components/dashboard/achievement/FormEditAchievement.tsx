@@ -39,6 +39,7 @@ export function FormEditAchievement() {
     if (achievement) {
       reset({
         prodi: achievement.prodi,
+        category: achievement.category || "AKADEMIK",
         name: achievement.name,
         achievementName: achievement.achievementName,
         link: achievement.link,
@@ -106,6 +107,19 @@ export function FormEditAchievement() {
           </select>
           {errors.prodi && (
             <p className="text-destructive text-sm">{errors.prodi.message}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-2">
+            Kategori Prestasi
+          </label>
+          <select {...register("category")} className={inputClassName}>
+            <option value="AKADEMIK">Akademik</option>
+            <option value="NON_AKADEMIK">Non-Akademik</option>
+          </select>
+          {errors.category && (
+            <p className="text-destructive text-sm">{errors.category.message}</p>
           )}
         </div>
 

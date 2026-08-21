@@ -14,7 +14,11 @@ import { toast } from "sonner";
 export function AchievementContent() {
   const router = useRouter();
   const [selectedProdi, setSelectedProdi] = useState<"S1" | "D3">("S1");
-  const { data, isLoading } = useAchievements(selectedProdi);
+  const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
+  const { data, isLoading } = useAchievements(
+    selectedProdi,
+    selectedCategory === "ALL" ? undefined : selectedCategory
+  );
   const deleteAchievement = useDeleteAchievement();
 
   const [deleteAlert, setDeleteAlert] = useState<{
@@ -55,28 +59,64 @@ export function AchievementContent() {
           </p>
         </div>
 
-        {/* Tab Switcher */}
-        <div className="flex rounded-lg border bg-muted p-1">
-          <button
-            onClick={() => setSelectedProdi("S1")}
-            className={`px-4 py-1.5 text-sm font-medium rounded-md transition ${
-              selectedProdi === "S1"
-                ? "bg-background text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            S1 Teknik Informatika
-          </button>
-          <button
-            onClick={() => setSelectedProdi("D3")}
-            className={`px-4 py-1.5 text-sm font-medium rounded-md transition ${
-              selectedProdi === "D3"
-                ? "bg-background text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            D3 Teknik Informatika
-          </button>
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Category Switcher */}
+          <div className="flex rounded-lg border bg-muted p-1">
+            <button
+              onClick={() => setSelectedCategory("ALL")}
+              className={`px-3 py-1.5 text-xs font-medium rounded-md transition ${
+                selectedCategory === "ALL"
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Semua
+            </button>
+            <button
+              onClick={() => setSelectedCategory("AKADEMIK")}
+              className={`px-3 py-1.5 text-xs font-medium rounded-md transition ${
+                selectedCategory === "AKADEMIK"
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Akademik
+            </button>
+            <button
+              onClick={() => setSelectedCategory("NON_AKADEMIK")}
+              className={`px-3 py-1.5 text-xs font-medium rounded-md transition ${
+                selectedCategory === "NON_AKADEMIK"
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Non-Akademik
+            </button>
+          </div>
+
+          {/* Prodi Switcher */}
+          <div className="flex rounded-lg border bg-muted p-1">
+            <button
+              onClick={() => setSelectedProdi("S1")}
+              className={`px-4 py-1.5 text-sm font-medium rounded-md transition ${
+                selectedProdi === "S1"
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              S1
+            </button>
+            <button
+              onClick={() => setSelectedProdi("D3")}
+              className={`px-4 py-1.5 text-sm font-medium rounded-md transition ${
+                selectedProdi === "D3"
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              D3
+            </button>
+          </div>
         </div>
       </div>
 
@@ -88,6 +128,22 @@ export function AchievementContent() {
           columns={[
             { key: "name", label: "Nama Mahasiswa", sortable: true },
             { key: "achievementName", label: "Prestasi", sortable: true },
+            {
+              key: "category",
+              label: "Kategori",
+              sortable: true,
+              render: (value) => (
+                <span
+                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    value === "AKADEMIK"
+                      ? "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300"
+                      : "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300"
+                  }`}
+                >
+                  {value === "AKADEMIK" ? "Akademik" : "Non-Akademik"}
+                </span>
+              ),
+            },
             {
               key: "achievedAt",
               label: "Tanggal",

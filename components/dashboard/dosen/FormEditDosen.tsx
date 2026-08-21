@@ -108,6 +108,9 @@ export function FormEditDosen() {
   const [tridharmaYear, setTridharmaYear] = useState<number>(new Date().getFullYear());
   const [tridharmaDescription, setTridharmaDescription] = useState("");
   const [tridharmaLink, setTridharmaLink] = useState("");
+  const [tridharmaSemester, setTridharmaSemester] = useState("-");
+  const [tridharmaCredits, setTridharmaCredits] = useState<number>(3);
+  const [tridharmaClass, setTridharmaClass] = useState("-");
 
   const createTridharma = useCreateDosenTridharma();
   const updateTridharma = useUpdateDosenTridharma(id);
@@ -120,6 +123,9 @@ export function FormEditDosen() {
     setTridharmaYear(new Date().getFullYear());
     setTridharmaDescription("");
     setTridharmaLink("");
+    setTridharmaSemester("Ganjil 2025/2026");
+    setTridharmaCredits(3);
+    setTridharmaClass("A");
     setIsTridharmaModalOpen(true);
   };
 
@@ -130,6 +136,9 @@ export function FormEditDosen() {
     setTridharmaYear(item.year);
     setTridharmaDescription(item.description);
     setTridharmaLink(item.link);
+    setTridharmaSemester(item.semester || "-");
+    setTridharmaCredits(item.credits ?? 1);
+    setTridharmaClass(item.class || "-");
     setIsTridharmaModalOpen(true);
   };
 
@@ -165,6 +174,9 @@ export function FormEditDosen() {
             year: Number(tridharmaYear),
             description: tridharmaDescription,
             link: tridharmaLink,
+            semester: tridharmaSemester,
+            credits: Number(tridharmaCredits),
+            class: tridharmaClass,
           },
         });
         toast.success("Data Tri Dharma berhasil diperbarui!");
@@ -176,6 +188,9 @@ export function FormEditDosen() {
           year: Number(tridharmaYear),
           description: tridharmaDescription,
           link: tridharmaLink,
+          semester: tridharmaSemester,
+          credits: Number(tridharmaCredits),
+          class: tridharmaClass,
         });
         toast.success("Data Tri Dharma berhasil ditambahkan!");
       }
@@ -651,6 +666,25 @@ export function FormEditDosen() {
                         <span className={`text-xs font-bold px-2.5 py-0.5 rounded-md ${itemCfg.badgeBg}`}>
                           {itemCfg.shortLabel} &bull; {item.year}
                         </span>
+                        {item.category === "PENGAJARAN" && (
+                          <>
+                            {item.semester && item.semester !== "-" && (
+                              <span className="text-xs font-medium px-2 py-0.5 rounded bg-muted text-foreground border border-border">
+                                Sem: {item.semester}
+                              </span>
+                            )}
+                            {item.credits && (
+                              <span className="text-xs font-medium px-2 py-0.5 rounded bg-muted text-foreground border border-border">
+                                {item.credits} SKS
+                              </span>
+                            )}
+                            {item.class && item.class !== "-" && (
+                              <span className="text-xs font-medium px-2 py-0.5 rounded bg-muted text-foreground border border-border">
+                                Kelas: {item.class}
+                              </span>
+                            )}
+                          </>
+                        )}
                         <a
                           href={item.link}
                           target="_blank"
@@ -799,6 +833,53 @@ export function FormEditDosen() {
                     />
                   </div>
                 </div>
+
+                {/* Extra PENGAJARAN Fields */}
+                {tridharmaCategory === "PENGAJARAN" && (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 bg-muted/30 rounded-lg border border-border">
+                    <div>
+                      <label className="block text-xs font-semibold text-foreground mb-1">
+                        Semester <span className="text-destructive">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={tridharmaSemester}
+                        onChange={(e) => setTridharmaSemester(e.target.value)}
+                        className={inputClassName}
+                        placeholder="Ganjil 2025/2026"
+                        required={tridharmaCategory === "PENGAJARAN"}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-foreground mb-1">
+                        SKS (Credits) <span className="text-destructive">*</span>
+                      </label>
+                      <input
+                        type="number"
+                        min={1}
+                        max={10}
+                        value={tridharmaCredits}
+                        onChange={(e) => setTridharmaCredits(Number(e.target.value))}
+                        className={inputClassName}
+                        placeholder="3"
+                        required={tridharmaCategory === "PENGAJARAN"}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-foreground mb-1">
+                        Kelas <span className="text-destructive">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={tridharmaClass}
+                        onChange={(e) => setTridharmaClass(e.target.value)}
+                        className={inputClassName}
+                        placeholder="TI-3A"
+                        required={tridharmaCategory === "PENGAJARAN"}
+                      />
+                    </div>
+                  </div>
+                )}
 
                 {/* Link Field */}
                 <div>
