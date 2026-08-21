@@ -59,7 +59,7 @@ export function DashboardKerjaSamaContent() {
           Manajemen Kerja Sama
         </h1>
         <p className="text-muted-foreground mt-2">
-          Kelola data kerja sama, logo mitra, dan lampiran berkas MOU/MOA
+          Kelola data kerja sama, logo mitra, serta foto/dokumen bukti kegiatan kerjasama
         </p>
       </div>
 
@@ -108,7 +108,7 @@ export function DashboardKerjaSamaContent() {
           },
           {
             key: "files",
-            label: "Lampiran Berkas",
+            label: "Dokumentasi & Bukti Kerjasama",
             render: (_, item) => (
               <div className="flex flex-col gap-1 max-w-xs text-xs">
                 {item.files && item.files.length > 0 ? (

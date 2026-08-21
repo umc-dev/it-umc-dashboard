@@ -209,7 +209,7 @@ export function FormEditKerjaSama() {
 
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
-            Lampiran Berkas MOU/MOA Saat Ini
+            Dokumentasi & Bukti Kerjasama Saat Ini
           </label>
           {partnership.files && partnership.files.length > 0 ? (
             <div className="space-y-1 mb-3">
@@ -227,12 +227,15 @@ export function FormEditKerjaSama() {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground mb-3">Belum ada lampiran berkas.</p>
+            <p className="text-sm text-muted-foreground mb-3">Belum ada dokumentasi atau bukti terlampir.</p>
           )}
 
-          <label className="block text-sm font-medium text-foreground mb-2">
-            Tambah Lampiran Berkas Baru (PDF/Dokumen)
+          <label className="block text-sm font-medium text-foreground mb-1">
+            Tambah Dokumentasi / Bukti Kerjasama Baru (Foto / Berkas)
           </label>
+          <p className="text-xs text-muted-foreground mb-2">
+            Unggah foto kegiatan penandatanganan, dokumentasi kegiatan, atau berkas penunjang baru
+          </p>
           <input
             type="file"
             multiple
@@ -244,7 +247,7 @@ export function FormEditKerjaSama() {
             className={inputClassName}
           />
           {docFiles.length > 0 && (
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs text-muted-foreground mt-1 font-medium">
               {docFiles.length} file baru dipilih
             </p>
           )}

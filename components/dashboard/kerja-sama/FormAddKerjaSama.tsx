@@ -151,9 +151,12 @@ export function FormAddKerjaSama() {
         />
 
         <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
-            Lampiran Berkas Perjanjian / MOU / MOA (Dapat memilih lebih dari 1 file)
+          <label className="block text-sm font-medium text-foreground mb-1">
+            Dokumentasi & Bukti Kerjasama (Foto Kegiatan / Berkas Penandatanganan)
           </label>
+          <p className="text-xs text-muted-foreground mb-2">
+            Unggah foto kegiatan penandatanganan, dokumentasi kegiatan, atau berkas bukti kerjasama (dapat memilih lebih dari 1 file)
+          </p>
           <input
             type="file"
             multiple
@@ -165,7 +168,7 @@ export function FormAddKerjaSama() {
             className={inputClassName}
           />
           {docFiles.length > 0 && (
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs text-muted-foreground mt-1 font-medium">
               {docFiles.length} file dipilih
             </p>
           )}

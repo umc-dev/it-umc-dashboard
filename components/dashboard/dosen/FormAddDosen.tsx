@@ -329,34 +329,40 @@ function FormAddDosenContent() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
-            Link Penelitian <span className="text-destructive">*</span>
+          <label className="block text-sm font-medium text-foreground mb-1.5">
+            Link Profil Penelitian (Google Scholar / SINTA) <span className="text-destructive">*</span>
           </label>
           <input
             type="url"
             {...register("research")}
             className={inputClassName}
-            placeholder="https://..."
+            placeholder="https://scholar.google.com/... atau https://sinta.kemdiktisaintek.go.id/..."
           />
+          <p className="text-xs text-muted-foreground mt-1">
+            Tautan profil penelitian dosen (misal: Google Scholar, SINTA, ORCID, Scopus)
+          </p>
           {errors.research && (
-            <p className="text-destructive text-sm">
+            <p className="text-destructive text-sm mt-1">
               {errors.research.message}
             </p>
           )}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
-            Link Pengajaran <span className="text-destructive">*</span>
+          <label className="block text-sm font-medium text-foreground mb-1.5">
+            Link Profil Pengajaran (PDDIKTI / Siakad / Portofolio) <span className="text-destructive">*</span>
           </label>
           <input
             type="url"
             {...register("teaching")}
             className={inputClassName}
-            placeholder="https://..."
+            placeholder="https://pddikti.kemdiktisaintek.go.id/... atau https://..."
           />
+          <p className="text-xs text-muted-foreground mt-1">
+            Tautan profil pengajaran dosen (misal: PDDIKTI, Siakad, RPS, atau portofolio)
+          </p>
           {errors.teaching && (
-            <p className="text-destructive text-sm">
+            <p className="text-destructive text-sm mt-1">
               {errors.teaching.message}
             </p>
           )}
